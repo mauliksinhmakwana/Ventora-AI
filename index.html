@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Nebula AI | V1.0 SRM</title>
+    <title>Nebula AI</title>
     <style>
         :root {
             --bg: #000000;
@@ -163,7 +163,7 @@
 
     <div class="bottom-section">
         <div class="clear-bar">
-            <div class="tiny-clear" onclick="clearChat()">Clear Memory ✕</div>
+            <div class="tiny-clear" onclick="clearChat()">Clear</div>
         </div>
         <div class="input-bar">
             <textarea id="user-input" rows="1" placeholder="Type a message..." oninput="autoExpand(this)"></textarea>
@@ -225,7 +225,7 @@
                 chatContainer.innerHTML = savedData;
                 scrollToBottom();
             } else {
-                appendMessage('Nebula V1.0 SRM Active. How can I assist today?', 'ai');
+                appendMessage('Nebula Here, How can I assist today?', 'ai');
             }
         }
 
@@ -283,7 +283,7 @@
             if(confirm("Clear conversation?")) {
                 chatContainer.innerHTML = '';
                 localStorage.removeItem('nebula_chat_history');
-                appendMessage('Memory cleared.', 'ai');
+                appendMessage('Cleared.', 'ai');
             }
         }
 
