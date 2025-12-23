@@ -15,16 +15,13 @@
             --glass: rgba(255, 255, 255, 0.03);
             --code-bg: #1a1a1a;
         }
-
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
         body {
             margin: 0; padding: 0;
             font-family: -apple-system, "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
             background-color: var(--bg); color: var(--text-primary);
             height: 100vh; display: flex; flex-direction: column; overflow: hidden;
         }
-
         /* --- BACKGROUND --- */
         .stars-container {
             position: fixed; top: 0; left: 0; width: 200%; height: 200%; z-index: -1;
@@ -36,7 +33,6 @@
         }
         @keyframes drift { from { transform: translate(0, 0); } to { transform: translate(-300px, -300px); } }
         .nebula-glow { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: radial-gradient(circle at 50% 50%, rgba(50, 50, 150, 0.1), transparent 70%); }
-
         /* --- REFINED HEADER --- */
         header {
             position: fixed; top: 0; width: 100%; z-index: 1000; height: 60px;
@@ -49,7 +45,6 @@
             border-radius: 4px; color: var(--text-secondary); letter-spacing: 1px;
             border: 1px solid var(--border);
         }
-
         /* --- MAIN CHAT --- */
         main {
             flex: 1; margin-top: 60px; overflow-y: auto; padding: 20px;
@@ -57,13 +52,11 @@
             max-width: 800px; align-self: center; scrollbar-width: none;
         }
         main::-webkit-scrollbar { display: none; }
-
         .msg-wrapper { display: flex; flex-direction: column; width: 100%; animation: fadeIn 0.3s forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
         .msg { max-width: 90%; line-height: 1.6; font-size: 0.95rem; white-space: pre-wrap; }
         .user { align-self: flex-end; border-right: 2px solid white; padding-right: 15px; text-align: right; }
         .ai { align-self: flex-start; border-left: 1px solid var(--border); padding-left: 15px; color: var(--text-secondary); }
-
         /* --- ADVANCED CODE BLOCK --- */
         .code-container {
             background: var(--code-bg); border-radius: 8px; margin: 10px 0;
@@ -76,64 +69,68 @@
         }
         .copy-btn { cursor: pointer; color: var(--text-primary); font-weight: bold; }
         pre { margin: 0; padding: 15px; overflow-x: auto; font-family: 'Courier New', monospace; font-size: 0.85rem; color: #dcdcdc; }
-
         /* --- BOTTOM INPUT AREA --- */
         .bottom-section {
             padding: 10px 20px 15px 20px; z-index: 1001;
             background: linear-gradient(transparent, var(--bg) 20%);
             display: flex; flex-direction: column; align-items: center;
         }
-
         .clear-bar { width: 100%; max-width: 800px; display: flex; justify-content: flex-end; margin-bottom: 5px; }
         .tiny-clear {
-            font-size: 0.6rem; color: #ff453a; cursor: pointer; 
+            font-size: 0.6rem; color: #ff453a; cursor: pointer;
             border: 1px solid rgba(255,69,58,0.3); padding: 2px 8px; border-radius: 10px;
             text-transform: uppercase; letter-spacing: 1px;
         }
-
         .input-bar {
             width: 100%; max-width: 800px; background: rgba(255,255,255,0.07);
             border: 1px solid var(--border); border-radius: 24px;
             display: flex; align-items: flex-end; padding: 10px 12px 10px 18px;
         }
-
         textarea {
             flex: 1; background: transparent; border: none; color: white;
             padding: 8px 0; font-size: 1rem; outline: none; resize: none;
             max-height: 150px; font-family: inherit; line-height: 1.4;
         }
-
         #send-btn {
             background: white; color: black; border: none; width: 36px; height: 36px;
             border-radius: 50%; cursor: pointer; flex-shrink: 0;
             display: flex; align-items: center; justify-content: center; margin-left: 10px;
         }
-
         .footer-info {
             margin-top: 10px; font-size: 0.65rem; color: var(--text-secondary); text-align: center;
         }
-
         #scroll-down-btn {
             position: fixed; bottom: 160px; right: 20px; z-index: 999;
             background: white; color: black; border: none; width: 32px; height: 32px;
             border-radius: 50%; display: none; align-items: center; justify-content: center;
         }
-
         @media (max-width: 400px) {
             .footer-info { font-size: 0.6rem; }
             main { padding: 15px; }
         }
+
+        /* FIX FOR MOBILE SEND BUTTON VISIBILITY */
+        @media (max-width: 480px) {
+            .input-bar {
+                padding: 10px 8px 10px 16px; /* slightly reduced horizontal padding */
+            }
+            #send-btn {
+                width: 34px;
+                height: 34px;
+                margin-left: 8px;
+            }
+            textarea {
+                font-size: 0.95rem; /* prevents zoom on iOS when focusing */
+            }
+        }
     </style>
 </head>
 <body onload="loadChat()">
-
     <div class="stars-container"></div>
     <div class="nebula-glow"></div>
-
     <button id="scroll-down-btn" onclick="scrollToBottom()">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 9 12 15 18 9"></polyline></svg>
     </button>
-
     <header>
         <div class="logo-area" style="display: flex; align-items: baseline; gap: 12px;">
             <div class="logo" style="font-size: 1.1rem; letter-spacing: 4px; color: var(--text-primary);">
@@ -144,11 +141,11 @@
             </div>
         </div>
         <button class="icon-btn" onclick="shareApp()" style="
-            background: rgba(255,255,255,0.05); 
-            border: 1px solid var(--border); 
-            padding: 6px 16px; 
-            border-radius: 12px; 
-            font-weight: 700; 
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            padding: 6px 16px;
+            border-radius: 12px;
+            font-weight: 700;
             font-size: 0.6rem;
             letter-spacing: 1px;
             backdrop-filter: blur(10px);
@@ -158,9 +155,7 @@
             SHARE
         </button>
     </header>
-
     <main id="chat-container"></main>
-
     <div class="bottom-section">
         <div class="clear-bar">
             <div class="tiny-clear" onclick="clearChat()">Clear</div>
@@ -175,20 +170,17 @@
             Created by <b>Maulik Makwana</b> • Nebula AI can make mistakes.
         </div>
     </div>
-
     <script>
-        const API_KEY = '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'; 
+        const API_KEY = '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';
         const MODEL_ID = 'llama-3.1-8b-instant';
         const chatContainer = document.getElementById('chat-container');
         const userInput = document.getElementById('user-input');
         const sendBtn = document.getElementById('send-btn');
         const scrollBtn = document.getElementById('scroll-down-btn');
-
         function autoExpand(el) {
             el.style.height = 'auto';
             el.style.height = el.scrollHeight + 'px';
         }
-
         function formatAIResponse(text) {
             const codeRegex = /```(\w*)\n([\s\S]*?)```/g;
             let formatted = text.replace(codeRegex, (match, lang, code) => {
@@ -204,21 +196,16 @@
             });
             return formatted;
         }
-
         function copyCode(id) {
             const code = document.getElementById(id).innerText;
             navigator.clipboard.writeText(code);
             alert('Code copied!');
         }
-
         function scrollToBottom() { chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' }); }
-
         chatContainer.onscroll = () => {
             scrollBtn.style.display = (chatContainer.scrollHeight - chatContainer.scrollTop > chatContainer.clientHeight + 100) ? 'flex' : 'none';
         };
-
         function saveChat() { localStorage.setItem('nebula_chat_history', chatContainer.innerHTML); }
-
         function loadChat() {
             const savedData = localStorage.getItem('nebula_chat_history');
             if (savedData) {
@@ -228,19 +215,16 @@
                 appendMessage('Nebula Here, How can I assist today?', 'ai');
             }
         }
-
         async function handleSend() {
             const query = userInput.value.trim();
             if (!query) return;
-
             appendMessage(query, 'user');
             userInput.value = '';
             userInput.style.height = 'auto';
-            
+           
             const loadingId = 'loading-' + Date.now();
             const aiMsg = appendMessage('...', 'ai', loadingId);
             saveChat();
-
             try {
                 const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                     method: "POST",
@@ -259,26 +243,24 @@
                 aiMsg.innerText = "Connection error.";
             }
         }
-
         function appendMessage(text, type, id = '') {
             const wrapper = document.createElement('div');
             wrapper.className = `msg-wrapper ${type}-wrapper`;
             const msg = document.createElement('div');
             msg.className = `msg ${type}`;
             if(id) msg.id = id;
-            
+           
             if (type === 'ai' && text.includes('code-container')) {
                 msg.innerHTML = text;
             } else {
                 msg.innerText = text;
             }
-            
+           
             wrapper.appendChild(msg);
             chatContainer.appendChild(wrapper);
             scrollToBottom();
             return msg;
         }
-
         function clearChat() {
             if(confirm("Clear conversation?")) {
                 chatContainer.innerHTML = '';
@@ -286,19 +268,16 @@
                 appendMessage('Cleared.', 'ai');
             }
         }
-
         function shareApp() {
             if (navigator.share) navigator.share({ title: 'Nebula AI', url: window.location.href });
             else alert("Link copied!");
         }
-
         userInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !e.shiftKey && window.innerWidth > 600) {
                 e.preventDefault();
                 handleSend();
             }
         });
-
         sendBtn.addEventListener('click', handleSend);
     </script>
 </body>
