@@ -4,30 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Nebula AI</title>
-    <style>
-
-
-// ========== AI IDENTITY CONFIG ==========
-const AI_IDENTITY = {
-    name: "Nebula",
-    fullName: "Nebula AI", 
-    version: "V2.0 ARM",
-    description: "Academic Research Model",
-    creator: "Maulik Makwana"
-};
-// ========================================
-
-
-
-
-
-
-
-
-
-        
-
-        
+    <style>        
         :root {
             --bg: #000000;
             --surface: #0a0a0a;
@@ -731,8 +708,18 @@ const AI_IDENTITY = {
             </div>
         </div>
     </div>
+
+
+
+
+
+    
+
     
     <script>
+
+
+      
         // === YOUR GROQ API KEY ADDED HERE ===
         const GROQ_API_KEY = "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"; // ← Your key pasted here
         
@@ -744,11 +731,43 @@ const AI_IDENTITY = {
             temperature: 5,
             maxTokens: 1024
         };
+
+
+
+
+
+// ========== AI IDENTITY CONFIG ==========
+const AI_IDENTITY = {
+    name: "Nebula",
+    fullName: "Nebula AI", 
+    version: "V2.0 ARM",
+    description: "Academic Research Model",
+    creator: "Maulik Makwana"
+};
+// ========================================
+
+
+
+
+
+
         
         // Mobile protection variables
         let isSending = false;
         let lastSendTime = 0;
 
+
+
+
+
+
+
+
+
+
+
+
+        
         // DOM Elements
         const chatContainer = document.getElementById('chat-container');
         const userInput = document.getElementById('user-input');
