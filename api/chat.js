@@ -1,19 +1,25 @@
-// api/chat.js - EDGE FUNCTION VERSION
-export const config = {
-  runtime: 'edge',
-};
-
-export default async function handler(request) {
-  if (request.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
-      status: 405,
-      headers: { 'Content-Type': 'application/json' }
-    });
+// api/chat.js
+export default async function handler(req, res) {
+  // Set CORS headers
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  
+  // Handle preflight
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+  
+  // Only allow POST
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
     const GROQ_API_KEY = process.env.GROQ_API_KEY;
-    const { messages, model, temperature, max_tokens } = await request.json();
+    const { messages, model, temperature, max_tokens } = req.body;
 
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
@@ -30,20 +36,10 @@ export default async function handler(request) {
     });
 
     const data = await response.json();
-    
-    return new Response(JSON.stringify(data), {
-      status: 200,
-      headers: { 
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS'
-      }
-    });
+    res.status(200).json(data);
     
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    console.error('Error:', error);
+    res.status(500).json({ error: error.message });
   }
 }
