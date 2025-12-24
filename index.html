@@ -1964,75 +1964,188 @@ document.getElementById('aboutModal').addEventListener('click', function(e) {
 
 
 
+<!-- Add this just before </body> -->
 
-
-
-<!-- About Modal -->
-<div class="about-modal" id="aboutModal">
-    <div class="about-content">
-        <div class="about-header">
-            <div class="about-title">About Nebula AI</div>
-            <button class="close-about" onclick="closeAbout()">
-                <i class="fas fa-times"></i>
-            </button>
+<div id="nebulai-info">
+    <div class="header">
+        <h1>NEBULAAI</h1>
+        <p>Type a message...</p>
+    </div>
+    
+    <hr>
+    
+    <div class="about-section">
+        <h2>About Nebula AI</h2>
+        <div class="ai-info">
+            <h3>NEBULAAI</h3>
+            <p>V2.0 ARM</p>
         </div>
+    </div>
+    
+    <div class="academic-model">
+        <h2>Academic Research Model</h2>
+        <p>AI-powered assistant for students, researchers, and educators. Specialized in academic support, research assistance, and study guidance.</p>
         
-        <div class="about-body">
-            <div class="about-logo">
-                <div class="logo">NEBULA<span style="color: var(--accent-blue);">AI</span></div>
-                <div class="version-badge">V2.0 ARM</div>
-            </div>
-            
-            <div class="about-section">
-                <h4><i class="fas fa-rocket" style="color: var(--accent-blue); margin-right: 8px;"></i> Academic Research Model</h4>
-                <p>AI-powered assistant for students, researchers, and educators. Specialized in academic support, research assistance, and study guidance.</p>
-            </div>
-            
-            <div class="about-section">
-                <h4><i class="fas fa-star" style="color: var(--accent-blue); margin-right: 8px;"></i> Key Features</h4>
-                <div class="features-grid">
-                    <div class="feature-item">📚 Research Assistance</div>
-                    <div class="feature-item">🎓 Study Help</div>
-                    <div class="feature-item">📝 Essay Writing</div>
-                    <div class="feature-item">🔬 Homework Support</div>
-                </div>
-            </div>
-            
-            <div class="about-section">
-                <h4><i class="fas fa-user" style="color: var(--accent-blue); margin-right: 8px;"></i> Creator</h4>
-                <div class="creator-info">
-                    <div class="creator-icon">
-                        <i class="fas fa-code"></i>
-                    </div>
-                    <div>
-                        <div class="creator-name">Maulik Makwana</div>
-                        <div class="creator-title">Full Stack Developer</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="about-tech">
-                <div class="tech-item">
-                    <i class="fas fa-bolt" style="color: #00ff88;"></i>
-                    <span>Powered by Groq</span>
-                </div>
-                <div class="tech-item">
-                    <i class="fas fa-shield-alt" style="color: #ffaa00;"></i>
-                    <span>API Secured by Vercel</span>
-                </div>
-            </div>
+        <div class="key-features">
+            <h3>Key Features</h3>
+            <ul>
+                <li>Research Assistance</li>
+                <li>Study Help</li>
+                <li>Essay Writing</li>
+                <li>Homework Support</li>
+            </ul>
         </div>
-        
-        <div class="about-actions">
-            <button class="about-btn" onclick="window.open('https://maulikmakwana.in', '_blank')">
-                <i class="fas fa-external-link-alt"></i> Portfolio
-            </button>
-            <button class="about-btn primary" onclick="closeAbout()">
-                <i class="fas fa-check"></i> Close
-            </button>
+    </div>
+    
+    <div class="creator-info">
+        <h3>Creator</h3>
+        <div class="creator-details">
+            <div class="checkmark">✔️</div>
+            <p class="name">Mauluk Makwana</p>
+            <p class="title">Full Stack Developer</p>
+            <p class="powered-by">Powered by Giroa</p>
+            <p class="api">API Secured by Vercel</p>
+            <div class="links">
+                <a href="#" class="portfolio">Portfolio</a>
+                <button class="close-btn">Close</button>
+            </div>
         </div>
     </div>
 </div>
+
+<style>
+#nebulai-info {
+    font-family: Arial, sans-serif;
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+#nebulai-info .header h1 {
+    margin: 0;
+    font-size: 2.5em;
+    text-align: center;
+}
+
+#nebulai-info .header p {
+    text-align: center;
+    opacity: 0.8;
+    margin-top: 5px;
+}
+
+#nebulai-info hr {
+    border: none;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.3);
+    margin: 20px 0;
+}
+
+#nebulai-info h2 {
+    border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+    padding-bottom: 10px;
+}
+
+#nebulai-info .ai-info h3 {
+    margin: 0;
+    color: #f0f0f0;
+}
+
+#nebulai-info .key-features ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+#nebulai-info .key-features li {
+    padding: 5px 0;
+    padding-left: 25px;
+    position: relative;
+}
+
+#nebulai-info .key-features li:before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    color: #fff;
+    font-size: 1.5em;
+}
+
+#nebulai-info .creator-info {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+#nebulai-info .checkmark {
+    font-size: 1.5em;
+    color: #4ade80;
+}
+
+#nebulai-info .name {
+    font-weight: bold;
+    font-size: 1.2em;
+    margin: 5px 0;
+}
+
+#nebulai-info .title {
+    opacity: 0.9;
+    margin: 5px 0;
+}
+
+#nebulai-info .links {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+}
+
+#nebulai-info .portfolio {
+    color: white;
+    text-decoration: none;
+    padding: 8px 15px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    transition: background 0.3s;
+}
+
+#nebulai-info .portfolio:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+#nebulai-info .close-btn {
+    padding: 8px 15px;
+    background: rgba(239, 68, 68, 0.8);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+#nebulai-info .close-btn:hover {
+    background: rgba(239, 68, 68, 1);
+}
+</style>
+
+<script>
+// Add functionality to the close button
+document.addEventListener('DOMContentLoaded', function() {
+    const closeBtn = document.querySelector('.close-btn');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function() {
+            const nebulaiInfo = document.getElementById('nebulai-info');
+            if (nebulaiInfo) {
+                nebulaiInfo.style.display = 'none';
+            }
+        });
+    }
+});
+</script>
+
+
 
 
 
