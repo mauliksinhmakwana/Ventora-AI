@@ -1958,20 +1958,7 @@ document.getElementById('aboutModal').addEventListener('click', function(e) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <!-- About Modal - Refined with Touch Fix & Size Optimization -->
+<!-- About Modal - Final Refined Version -->
 <div id="about-modal" class="about-modal" role="dialog" aria-modal="true" aria-labelledby="about-title" aria-hidden="true">
     <div class="about-content">
         <div class="about-header">
@@ -2085,7 +2072,7 @@ document.getElementById('aboutModal').addEventListener('click', function(e) {
                     <div class="creator-details">
                         <div class="creator-name">Mauluk Makwana</div>
                         <div class="creator-role">Full Stack Developer</div>
-                        <div class="creator-email">@maulik_sinh_</div>
+                        <div class="creator-email">@makwana_mauluk</div>
                     </div>
                 </div>
             </div>
@@ -2107,7 +2094,7 @@ document.getElementById('aboutModal').addEventListener('click', function(e) {
                         </div>
                         <div class="tech-content">
                             <div class="tech-label">Powered by</div>
-                            <div class="tech-value">Open Nebula</div>
+                            <div class="tech-value">Giroa</div>
                         </div>
                     </div>
                     <div class="tech-item">
@@ -2118,7 +2105,7 @@ document.getElementById('aboutModal').addEventListener('click', function(e) {
                         </div>
                         <div class="tech-content">
                             <div class="tech-label">API Secured by</div>
-                            <div class="tech-value">Open Nebula</div>
+                            <div class="tech-value">Vercel</div>
                         </div>
                     </div>
                 </div>
@@ -2126,7 +2113,7 @@ document.getElementById('aboutModal').addEventListener('click', function(e) {
             
             <!-- External Link -->
             <div class="external-link">
-                <a href="https://mauliksinhmakwana.github.io/Mauliksinh-Makwana/" target="_blank" class="link-button" onclick="window.open('https://mauliksinhmakwana.github.io/Mauliksinh-Makwana/', '_blank')">
+                <a href="#" target="_blank" class="link-button" onclick="window.open('#', '_blank')">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
                         <path d="M15 3h6v6"/>
@@ -2146,6 +2133,7 @@ function openAboutModal() {
     modal.classList.add('active');
     modal.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
     
     // Set focus to the close button
     setTimeout(() => {
@@ -2159,7 +2147,8 @@ function closeAboutModal() {
     const modal = document.getElementById('about-modal');
     modal.classList.remove('active');
     modal.setAttribute('aria-hidden', 'true');
-    document.body.style.overflow = 'auto';
+    document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
     
     // Return focus to the button that opened the modal
     if (window.lastFocusedElement) {
@@ -2211,48 +2200,46 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Improved touch scrolling fix
-    let touchStartY = 0;
-    let isScrolling = false;
+    // Enhanced touch scrolling with passive listeners
+    let startY = 0;
+    let startScrollTop = 0;
+    let isDragging = false;
     
     aboutModal.addEventListener('touchstart', function(e) {
-        if (e.target.closest('.about-body')) {
-            touchStartY = e.touches[0].clientY;
-            isScrolling = false;
+        const aboutBody = this.querySelector('.about-body');
+        if (aboutBody && aboutBody.contains(e.target)) {
+            startY = e.touches[0].clientY;
+            startScrollTop = aboutBody.scrollTop;
+            isDragging = true;
         }
     }, { passive: true });
     
     aboutModal.addEventListener('touchmove', function(e) {
+        if (!isDragging) return;
+        
         const aboutBody = this.querySelector('.about-body');
         if (!aboutBody) return;
         
-        const touchY = e.touches[0].clientY;
-        const deltaY = touchY - touchStartY;
+        const currentY = e.touches[0].clientY;
+        const deltaY = currentY - startY;
         
-        // Check if content is scrollable
-        const isScrollable = aboutBody.scrollHeight > aboutBody.clientHeight;
+        // Check if we're at boundaries
         const isAtTop = aboutBody.scrollTop === 0;
         const isAtBottom = aboutBody.scrollTop + aboutBody.clientHeight >= aboutBody.scrollHeight;
         
-        // Determine scroll direction
-        const isScrollingDown = deltaY > 0;
-        const isScrollingUp = deltaY < 0;
-        
-        // Prevent pull-to-refresh when at top and scrolling down
-        if (isAtTop && isScrollingDown && !isScrollable) {
+        // Prevent pull-to-refresh when at top and pulling down
+        if (isAtTop && deltaY > 0) {
             e.preventDefault();
         }
         
-        // Prevent scrolling past boundaries
-        if ((isAtTop && isScrollingDown) || (isAtBottom && isScrollingUp)) {
-            isScrolling = false;
-        } else {
-            isScrolling = true;
+        // Prevent overscroll when at bottom and pulling up
+        if (isAtBottom && deltaY < 0) {
+            e.preventDefault();
         }
     }, { passive: false });
     
     aboutModal.addEventListener('touchend', function() {
-        isScrolling = false;
+        isDragging = false;
     }, { passive: true });
 });
 
@@ -2262,7 +2249,7 @@ window.closeAboutModal = closeAboutModal;
 </script>
 
 <style>
-/* About Modal - Refined with Touch Fix */
+/* About Modal - Final Refined CSS */
 .about-modal {
     position: fixed;
     top: 0;
@@ -2289,7 +2276,7 @@ window.closeAboutModal = closeAboutModal;
     pointer-events: auto;
 }
 
-/* Desktop/Tablet Size */
+/* Desktop Size - Center Modal */
 .about-content {
     background: rgba(28, 28, 28, 0.98);
     backdrop-filter: blur(30px);
@@ -2298,7 +2285,7 @@ window.closeAboutModal = closeAboutModal;
     border-radius: 16px;
     padding: 0;
     width: 100%;
-    max-width: 440px; /* Desktop size */
+    max-width: 440px; /* Desktop width */
     max-height: 80vh; /* Desktop height */
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
     animation: modalSlideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -2377,19 +2364,19 @@ window.closeAboutModal = closeAboutModal;
     visibility: hidden;
 }
 
-/* Body - Improved Touch Scrolling */
+/* Body with FIXED Touch Scrolling */
 .about-body {
     flex: 1;
     overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+    -webkit-overflow-scrolling: touch; /* Smooth iOS scrolling */
     padding: 24px;
     color: var(--text-secondary);
     font-size: 0.9375rem;
     line-height: 1.5;
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
-    overscroll-behavior: contain;
-    touch-action: pan-y;
+    overscroll-behavior: contain; /* Prevent pull-to-refresh */
+    touch-action: pan-y; /* Better touch control */
 }
 
 .about-body::-webkit-scrollbar {
@@ -2725,13 +2712,14 @@ window.closeAboutModal = closeAboutModal;
     flex-shrink: 0;
 }
 
-/* ===== MOBILE SPECIFIC STYLES ===== */
+/* ===== MOBILE SPECIFIC STYLES (Different Size & Layout) ===== */
 @media (max-width: 768px) {
     .about-modal {
         padding: 0;
         align-items: flex-end;
     }
     
+    /* Mobile Size - Bottom Sheet */
     .about-content {
         max-width: 100%;
         max-height: 90vh; /* Taller on mobile */
@@ -2786,11 +2774,6 @@ window.closeAboutModal = closeAboutModal;
     .tech-item {
         padding: 16px;
         min-height: 56px;
-    }
-    
-    /* Prevent iOS bounce */
-    .about-body {
-        overscroll-behavior: none;
     }
     
     /* Bottom padding for safe area */
@@ -2996,7 +2979,13 @@ window.closeAboutModal = closeAboutModal;
 }
 </style>
 
-    
+
+
+
+
+
+
+
 
 </body>
 </html>
