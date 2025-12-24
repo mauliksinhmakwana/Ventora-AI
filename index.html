@@ -842,7 +842,8 @@
 
 
 <!-- About -->
-<div class="menu-item" onclick="showAbout()">
+<!-- Update this in your menu -->
+<div class="menu-item" id="about-nebulai-btn">
     <i class="fas fa-info-circle"></i>
     <span>About</span>
 </div>
@@ -1964,10 +1965,180 @@ document.getElementById('aboutModal').addEventListener('click', function(e) {
 
 
 
+<!-- Add this just before </body> -->
 
+<!-- Popup Overlay Background -->
+<div id="nebulai-popup-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;"></div>
 
+<!-- Popup Content -->
+<div id="nebulai-popup" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10000; width: 90%; max-width: 500px; background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); overflow: hidden; font-family: Arial, sans-serif;">
+    
+    <!-- Popup Header -->
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 25px 20px; color: white; text-align: center;">
+        <h1 style="margin: 0; font-size: 2.2em; font-weight: bold;">NEBULAAI</h1>
+        <p style="margin: 8px 0 0 0; opacity: 0.9; font-size: 1.1em;">Type a message...</p>
+    </div>
+    
+    <!-- Popup Body -->
+    <div style="padding: 20px; max-height: 60vh; overflow-y: auto;">
+        
+        <!-- About Section -->
+        <div style="margin-bottom: 25px;">
+            <h2 style="color: #667eea; border-bottom: 2px solid #667eea; padding-bottom: 8px; margin: 0 0 15px 0;">About Nebula AI</h2>
+            <div style="background: #f7f7f7; padding: 15px; border-radius: 8px;">
+                <h3 style="margin: 0; color: #333;">NEBULAAI</h3>
+                <p style="margin: 5px 0 0 0; color: #666;">V2.0 ARM</p>
+            </div>
+        </div>
+        
+        <!-- Academic Research Section -->
+        <div style="margin-bottom: 25px;">
+            <h2 style="color: #667eea; border-bottom: 2px solid #667eea; padding-bottom: 8px; margin: 0 0 15px 0;">Academic Research Model</h2>
+            <p style="color: #555; line-height: 1.6; margin: 0 0 20px 0;">
+                AI-powered assistant for students, researchers, and educators. Specialized in academic support, research assistance, and study guidance.
+            </p>
+            
+            <div style="background: #f0f5ff; padding: 15px; border-radius: 8px; border-left: 4px solid #667eea;">
+                <h3 style="margin: 0 0 10px 0; color: #333;">Key Features</h3>
+                <ul style="margin: 0; padding-left: 20px; color: #555;">
+                    <li style="margin-bottom: 8px;">Research Assistance</li>
+                    <li style="margin-bottom: 8px;">Study Help</li>
+                    <li style="margin-bottom: 8px;">Essay Writing</li>
+                    <li style="margin-bottom: 0;">Homework Support</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Creator Section -->
+        <div style="background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%); padding: 20px; border-radius: 10px; border: 1px solid #e0e7ff;">
+            <h3 style="margin: 0 0 15px 0; color: #667eea;">Creator</h3>
+            <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                <div style="color: #10b981; font-size: 1.3em; margin-right: 10px;">✔️</div>
+                <div>
+                    <p style="margin: 0; font-weight: bold; color: #333; font-size: 1.1em;">Mauluk Makwana</p>
+                    <p style="margin: 3px 0 0 0; color: #666;">Full Stack Developer</p>
+                </div>
+            </div>
+            <div style="color: #555; margin-top: 15px;">
+                <p style="margin: 5px 0;">Powered by Giroa</p>
+                <p style="margin: 5px 0;">API Secured by Vercel</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Popup Footer -->
+    <div style="padding: 20px; background: #f9f9f9; border-top: 1px solid #eee; display: flex; justify-content: space-between;">
+        <a href="#" style="padding: 10px 20px; background: #667eea; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; transition: background 0.3s;">Portfolio</a>
+        <button id="close-popup-btn" style="padding: 10px 25px; background: #ef4444; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: background 0.3s;">Close</button>
+    </div>
+</div>
 
+<script>
+// Function to open the popup
+function openNebulaPopup() {
+    document.getElementById('nebulai-popup-overlay').style.display = 'flex';
+    document.getElementById('nebulai-popup').style.display = 'block';
+    document.body.style.overflow = 'hidden'; // Prevent scrolling
+}
 
+// Function to close the popup
+function closeNebulaPopup() {
+    document.getElementById('nebulai-popup-overlay').style.display = 'none';
+    document.getElementById('nebulai-popup').style.display = 'none';
+    document.body.style.overflow = 'auto'; // Re-enable scrolling
+}
+
+// Set up event listeners when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Method 1: Connect to your specific About menu item with ID
+    const aboutBtn = document.getElementById('about-nebulai-btn');
+    if (aboutBtn) {
+        aboutBtn.addEventListener('click', function(e) {
+            openNebulaPopup();
+        });
+    }
+    
+    // Method 2: Also look for menu-item with "About" text (backup method)
+    const menuItems = document.querySelectorAll('.menu-item');
+    menuItems.forEach(item => {
+        // Check if this menu item contains "About" text
+        const span = item.querySelector('span');
+        if (span && span.textContent.trim() === 'About') {
+            // Only add event listener if not already added (prevent duplicates)
+            if (!item.hasAttribute('data-nebulai-bound')) {
+                item.setAttribute('data-nebulai-bound', 'true');
+                item.addEventListener('click', function(e) {
+                    openNebulaPopup();
+                });
+            }
+        }
+    });
+    
+    // Close popup button
+    const closeBtn = document.getElementById('close-popup-btn');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeNebulaPopup);
+    }
+    
+    // Close popup when clicking overlay
+    const overlay = document.getElementById('nebulai-popup-overlay');
+    if (overlay) {
+        overlay.addEventListener('click', function(e) {
+            if (e.target === overlay) {
+                closeNebulaPopup();
+            }
+        });
+    }
+    
+    // Close popup with Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeNebulaPopup();
+        }
+    });
+});
+
+// Make functions available globally
+window.openNebulaPopup = openNebulaPopup;
+window.closeNebulaPopup = closeNebulaPopup;
+
+// Also keep the showAbout() function for backward compatibility
+function showAbout() {
+    openNebulaPopup();
+}
+</script>
+
+<style>
+/* Animation for popup */
+#nebulai-popup {
+    animation: popupFadeIn 0.3s ease-out;
+}
+
+@keyframes popupFadeIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+/* Smooth transition for overlay */
+#nebulai-popup-overlay {
+    transition: opacity 0.3s ease;
+}
+
+/* Hover effects for buttons */
+#close-popup-btn:hover {
+    background: #dc2626;
+}
+
+a:hover {
+    background: #5a67d8;
+}
+</style>
 
 
 
