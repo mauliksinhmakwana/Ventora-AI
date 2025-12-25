@@ -1,37 +1,34 @@
-// Initialize Personalization Data
 window.personalization = JSON.parse(localStorage.getItem('nebula_pers')) || {
     userName: '',
     studyLevel: 'college',
-    responseStyle: 'friendly'
+    major: '',
+    responseStyle: 'balanced'
 };
 
-// Open the Popup
 window.openPersonalization = function() {
-    if(typeof closeMenu === "function") closeMenu(); // Close sidebar first
+    if(typeof closeMenu === "function") closeMenu();
     
-    // Fill the form with saved data
-    document.getElementById('persName').value = window.personalization.userName;
-    document.getElementById('persLevel').value = window.personalization.studyLevel;
-    document.getElementById('persStyle').value = window.personalization.responseStyle;
+    document.getElementById('persName').value = window.personalization.userName || '';
+    document.getElementById('persLevel').value = window.personalization.studyLevel || 'college';
+    document.getElementById('persMajor').value = window.personalization.major || '';
+    document.getElementById('persStyle').value = window.personalization.responseStyle || 'balanced';
     
-    // Show the modal
     document.getElementById('personalizationModal').classList.add('active');
 };
 
-// Close the Popup
 window.closePersonalization = function() {
     document.getElementById('personalizationModal').classList.remove('active');
 };
 
-// Save and Close
 window.savePersonalization = function() {
-    window.personalization.userName = document.getElementById('persName').value.trim();
-    window.personalization.studyLevel = document.getElementById('persLevel').value;
-    window.personalization.responseStyle = document.getElementById('persStyle').value;
+    window.personalization = {
+        userName: document.getElementById('persName').value.trim(),
+        studyLevel: document.getElementById('persLevel').value,
+        major: document.getElementById('persMajor').value.trim(),
+        responseStyle: document.getElementById('persStyle').value
+    };
     
-    // Save to browser memory
     localStorage.setItem('nebula_pers', JSON.stringify(window.personalization));
-    
     window.closePersonalization();
-    if(typeof showToast === "function") showToast("Identity Updated! ✨");
+    if(typeof showToast === "function") showToast("Nebula updated! 🧬");
 };
