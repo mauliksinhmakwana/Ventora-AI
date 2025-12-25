@@ -1697,15 +1697,12 @@ const rawText = data.choices[0].message.content;
             el.style.height = el.scrollHeight + 'px';
         }
 
-        function getTime() {
-            return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        }
-
-        function formatTime(isoString) {
-            const date = new Date(isoString);
-            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        }
-
+       function getTime() {
+    const now = new Date();
+    const dateStr = now.toLocaleDateString([], { month: 'short', day: 'numeric' });
+    const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return `${dateStr} • ${timeStr}`;
+}
        
         function formatAIResponse(text) {
     // Convert **bold** to <strong>bold</strong>
