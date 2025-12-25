@@ -1,36 +1,43 @@
 /* manu/manu.css */
+
+/* Fix the sidebar layout */
 .menu-container {
     display: flex;
     flex-direction: column;
     height: 100%;
-    background: #0f0f0f;
+    overflow: hidden; /* Prevent the whole sidebar from scrolling */
 }
 
-/* Allow history to fill the middle and scroll */
+/* Make history area scrollable */
 #conversationsList {
-    flex: 1;
+    flex: 1; /* Fills all middle space */
     overflow-y: auto;
+    padding-bottom: 10px;
     scrollbar-width: thin;
 }
 
+/* Push trigger and slide-up to bottom */
 .menu-bottom-wrapper {
-    margin-top: auto; /* Pushes to absolute bottom */
+    margin-top: auto;
     background: #0a0a0a;
     border-top: 1px solid var(--border);
+    position: relative;
 }
 
+/* Slide-up Animation */
 .menu-expanded-options {
     max-height: 0;
     overflow: hidden;
-    transition: max-height 0.3s ease-out;
+    transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     background: #0f0f0f;
 }
 
 .menu-expanded-options.active {
-    max-height: 350px; /* Room for all 5 buttons */
+    max-height: 400px; /* Adjust to fit your items */
     border-bottom: 1px solid var(--border);
 }
 
+/* Trigger Button Styles */
 .menu-trigger-btn {
     display: flex;
     align-items: center;
@@ -48,7 +55,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     font-weight: bold;
     color: white;
 }
@@ -56,13 +63,11 @@
 .trigger-text {
     flex: 1;
     font-size: 0.9rem;
-    color: var(--text-primary);
 }
 
 .trigger-icon {
     font-size: 0.8rem;
-    color: var(--text-secondary);
-    transition: transform 0.3s ease;
+    transition: transform 0.3s;
 }
 
 .menu-expanded-options.active ~ .menu-trigger-btn .trigger-icon {
