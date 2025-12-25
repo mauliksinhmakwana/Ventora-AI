@@ -803,6 +803,182 @@
                 position: relative;
             }
         }
+
+
+
+
+
+
+/* ==================== PERSONALIZATION MODAL ==================== */
+.personalization-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    z-index: 1006;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.personalization-modal.active {
+    display: flex;
+    opacity: 1;
+}
+
+.personalization-content {
+    background: rgba(20, 20, 20, 0.95);
+    backdrop-filter: blur(30px);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 25px;
+    width: 90%;
+    max-width: 450px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    animation: modalSlide 0.3s ease;
+}
+
+.personalization-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--border);
+}
+
+.personalization-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.close-personalization {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.4rem;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 6px;
+    line-height: 1;
+    transition: all 0.2s;
+}
+
+.close-personalization:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+}
+
+.personalization-body {
+    margin-bottom: 25px;
+}
+
+.personalization-group {
+    margin-bottom: 20px;
+}
+
+.personalization-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.personalization-label i {
+    color: var(--accent-blue);
+    width: 20px;
+    text-align: center;
+}
+
+.personalization-input,
+.personalization-select {
+    width: 100%;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    font-family: inherit;
+    transition: all 0.2s;
+}
+
+.personalization-input:focus,
+.personalization-select:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.personalization-select {
+    appearance: none;
+    -webkit-appearance: none;
+    background: rgba(255, 255, 255, 0.05) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a0a0a0' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat right 16px center;
+    background-size: 12px;
+    padding-right: 40px;
+    cursor: pointer;
+}
+
+.personalization-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.personalization-btn {
+    flex: 1;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.95rem;
+}
+
+.personalization-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.personalization-btn.primary {
+    background: var(--accent-blue);
+    border-color: var(--accent-blue);
+    color: white;
+}
+
+.personalization-btn.primary:hover {
+    background: rgba(0, 122, 255, 0.8);
+}
+
+/* Mobile fixes */
+@media (max-width: 480px) {
+    .personalization-content {
+        padding: 20px;
+        width: 95%;
+    }
+    
+    .personalization-actions {
+        flex-direction: column;
+    }
+}
+
+
+
+
+
+
+        
     </style>
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -840,7 +1016,13 @@
             </div>
 
 
+<!-- Personalization -->
+<div class="menu-item" onclick="openPersonalization()">
+    <i class="fas fa-user-circle"></i>
+    <span>Personalization</span>
+</div>
 
+            
 <!-- About -->
 <!-- Update this in your menu -->
 <div class="menu-item" id="about-nebulai-btn">
@@ -909,6 +1091,95 @@
             </div>
         </div>
     </div>
+
+
+
+
+<!-- Personalization Modal -->
+<div class="personalization-modal" id="personalizationModal">
+    <div class="personalization-content">
+        <div class="personalization-header">
+            <div class="personalization-title">Personalization</div>
+            <button class="close-personalization" onclick="closePersonalization()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="personalization-body">
+            <div class="personalization-group">
+                <label class="personalization-label">
+                    <i class="fas fa-user"></i> Your Name
+                </label>
+                <input type="text" class="personalization-input" id="personalizationName" 
+                       placeholder="Enter your name (optional)">
+            </div>
+            
+            <div class="personalization-group">
+                <label class="personalization-label">
+                    <i class="fas fa-graduation-cap"></i> Study Level
+                </label>
+                <select class="personalization-select" id="personalizationLevel">
+                    <option value="">Select your level</option>
+                    <option value="school">School Student</option>
+                    <option value="highschool">High School</option>
+                    <option value="college">College/University</option>
+                    <option value="graduate">Graduate Student</option>
+                    <option value="researcher">Researcher</option>
+                    <option value="teacher">Teacher/Educator</option>
+                </select>
+            </div>
+            
+            <div class="personalization-group">
+                <label class="personalization-label">
+                    <i class="fas fa-book"></i> Subjects of Interest
+                </label>
+                <input type="text" class="personalization-input" id="personalizationSubjects" 
+                       placeholder="e.g., Math, Science, History, Programming">
+            </div>
+            
+            <div class="personalization-group">
+                <label class="personalization-label">
+                    <i class="fas fa-comment-alt"></i> Response Style
+                </label>
+                <select class="personalization-select" id="personalizationStyle">
+                    <option value="friendly">Friendly & Casual</option>
+                    <option value="professional">Professional</option>
+                    <option value="encouraging">Encouraging & Supportive</option>
+                    <option value="detailed">Detailed & Technical</option>
+                    <option value="simple">Simple & Concise</option>
+                </select>
+            </div>
+            
+            <div class="personalization-group">
+                <label class="personalization-label">
+                    <i class="fas fa-brain"></i> Learning Preference
+                </label>
+                <select class="personalization-select" id="personalizationLearning">
+                    <option value="balanced">Balanced (Default)</option>
+                    <option value="examples">Prefer Examples</option>
+                    <option value="stepbystep">Step-by-Step Explanations</option>
+                    <option value="visual">Visual Descriptions</option>
+                    <option value="practical">Practical Applications</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="personalization-actions">
+            <button class="personalization-btn secondary" onclick="resetPersonalization()">
+                Reset
+            </button>
+            <button class="personalization-btn primary" onclick="savePersonalization()">
+                Save Preferences
+            </button>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
     
     <!-- Toast Notification -->
     <div class="toast" id="toast"></div>
@@ -979,12 +1250,21 @@
         // State management
         let conversations = [];
         let currentConversationId = null;
-        let settings = {
-            model: 'llama-3.1-8b-instant',
-            temperature: 0.7,
-            maxTokens: 1024
-        };
+       let settings = {
+    model: 'llama-3.1-8b-instant',
+    temperature: 0.7,
+    maxTokens: 1024
+};
 
+// Personalization settings
+let personalization = {
+    userName: '',
+    studyLevel: '',
+    subjects: '',
+    responseStyle: 'friendly',
+    learningPreference: 'balanced',
+    lastUpdated: null
+};
 
 
 
@@ -1343,6 +1623,123 @@ const AI_IDENTITY = {
             
             scrollToBottom();
         }
+//<!--=---------------------------------------------------------------------------------------------------------------------------------------------------------------------functions---------
+
+
+
+
+// ==================== PERSONALIZATION FUNCTIONS ====================
+
+function openPersonalization() {
+    closeMenu();
+    
+    // Load current personalization
+    document.getElementById('personalizationName').value = personalization.userName;
+    document.getElementById('personalizationLevel').value = personalization.studyLevel;
+    document.getElementById('personalizationSubjects').value = personalization.subjects;
+    document.getElementById('personalizationStyle').value = personalization.responseStyle;
+    document.getElementById('personalizationLearning').value = personalization.learningPreference;
+    
+    document.getElementById('personalizationModal').classList.add('active');
+}
+
+function closePersonalization() {
+    document.getElementById('personalizationModal').classList.remove('active');
+}
+
+function savePersonalization() {
+    personalization.userName = document.getElementById('personalizationName').value.trim();
+    personalization.studyLevel = document.getElementById('personalizationLevel').value;
+    personalization.subjects = document.getElementById('personalizationSubjects').value.trim();
+    personalization.responseStyle = document.getElementById('personalizationStyle').value;
+    personalization.learningPreference = document.getElementById('personalizationLearning').value;
+    personalization.lastUpdated = new Date().toISOString();
+    
+    // Save to localStorage
+    localStorage.setItem('nebula_personalization', JSON.stringify(personalization));
+    
+    closePersonalization();
+    showToast('Personalization saved!');
+    
+    // Update welcome message if new conversation
+    updateWelcomeMessage();
+}
+
+function resetPersonalization() {
+    if (confirm('Reset all personalization settings?')) {
+        personalization = {
+            userName: '',
+            studyLevel: '',
+            subjects: '',
+            responseStyle: 'friendly',
+            learningPreference: 'balanced',
+            lastUpdated: null
+        };
+        
+        // Clear inputs
+        document.getElementById('personalizationName').value = '';
+        document.getElementById('personalizationLevel').value = '';
+        document.getElementById('personalizationSubjects').value = '';
+        document.getElementById('personalizationStyle').value = 'friendly';
+        document.getElementById('personalizationLearning').value = 'balanced';
+        
+        // Clear from storage
+        localStorage.removeItem('nebula_personalization');
+        showToast('Personalization reset!');
+    }
+}
+
+function loadPersonalization() {
+    const saved = localStorage.getItem('nebula_personalization');
+    if (saved) {
+        try {
+            personalization = JSON.parse(saved);
+        } catch (e) {
+            console.error('Error loading personalization:', e);
+        }
+    }
+}
+
+function updateWelcomeMessage() {
+    // Update welcome message based on personalization
+    const welcomeMsg = document.querySelector('.msg.ai');
+    if (welcomeMsg && welcomeMsg.textContent.includes('Hello')) {
+        let welcomeText = 'Hello';
+        
+        if (personalization.userName) {
+            welcomeText += ` ${personalization.userName}`;
+        }
+        
+        welcomeText += '! ';
+        
+        if (personalization.studyLevel) {
+            const levelMap = {
+                'school': 'school student',
+                'highschool': 'high school student',
+                'college': 'college student',
+                'graduate': 'graduate student',
+                'researcher': 'researcher',
+                'teacher': 'educator'
+            };
+            welcomeText += `I see you're a ${levelMap[personalization.studyLevel] || 'student'}. `;
+        }
+        
+        welcomeText += `How can I assist you with your ${personalization.subjects || 'academic'} work today? ✨`;
+        
+        welcomeMsg.querySelector('.msg-content').textContent = welcomeText;
+    }
+}
+
+// Call this in initApp
+function initApp() {
+    loadSettings();
+    loadPersonalization();  // ADD THIS LINE
+    loadConversations();
+    // ... rest of your init code
+}
+
+
+        
 
         // ==================== MESSAGE HANDLING ====================
         async function handleSend(lastUserMessage = null) {
@@ -1437,6 +1834,25 @@ const AI_IDENTITY = {
                          
            `You are ${AI_IDENTITY.name}. Never say "I don't have a name". Always use the name "${AI_IDENTITY.name}".
 
+${personalization.userName ? `USER'S NAME: ${personalization.userName}` : ''}
+${personalization.studyLevel ? `USER'S STUDY LEVEL: ${personalization.studyLevel}` : ''}
+${personalization.subjects ? `USER'S INTERESTS: ${personalization.subjects}` : ''}
+RESPONSE STYLE: ${personalization.responseStyle}
+LEARNING PREFERENCE: ${personalization.learningPreference}
+
+PERSONALIZATION RULES:
+${personalization.userName ? `1. Address the user as "${personalization.userName}" in friendly, casual responses` : ''}
+${personalization.studyLevel ? `2. Adjust explanations for ${personalization.studyLevel} level understanding` : ''}
+${personalization.subjects ? `3. Focus examples on: ${personalization.subjects}` : ''}
+4. Response tone: ${personalization.responseStyle === 'professional' ? 'Professional and formal' : 
+                   personalization.responseStyle === 'encouraging' ? 'Encouraging and supportive' :
+                   personalization.responseStyle === 'detailed' ? 'Detailed and technical' :
+                   personalization.responseStyle === 'simple' ? 'Simple and concise' : 'Friendly and casual'}
+5. Learning style: ${personalization.learningPreference === 'examples' ? 'Provide practical examples' :
+                    personalization.learningPreference === 'stepbystep' ? 'Break down into step-by-step explanations' :
+                    personalization.learningPreference === 'visual' ? 'Use visual descriptions and analogies' :
+                    personalization.learningPreference === 'practical' ? 'Focus on practical applications' : 'Balanced approach'}
+
 CORE IDENTITY:
 - Your name is Nebula
 - Version: NebulaAI V2.0 ARM
@@ -1445,11 +1861,6 @@ CORE IDENTITY:
 - Purpose: Help students with academic work
 
 FORMATTING: Use **bold text** for headings, important terms, and key points.
-
-EXAMPLES:
-- **Main Topic:** explanation here
-- **Important Term:** definition here
-- **Key Points:** list important points
 
 ANSWER RULES:
 1. Simple questions = Short answers (1 sentence)
@@ -1463,87 +1874,7 @@ ANSWER RULES:
 
 That's it. You are ${AI_IDENTITY.name}, a student helper.
 
-            
-##imp: use this formats when needs and user wants.  other wise not.
-            FORMATS:
-
-1. REGULAR MODE:
-   - Simple Q = Short A (1 sentence)
-   - "Explain" = Detailed answer
-
-2. QUIZ/EXAM MODE (when user asks for quiz/mcqs/test):
-   Format multiple choice questions like:
-   A) Option 1
-   B) Option 2  
-   C) Option 3
-   D) Option 4
-   
-   Then show: Answer: A) [Explanation]
-
-3. TRUE/FALSE QUESTIONS:
-   Format: "True or False: [Statement]"
-   Then: Answer: True/False [Explanation]
-
-4. FILL IN THE BLANKS:
-   Format: "The capital of France is ______."
-   Then: Answer: Paris
-
-5. MATCHING QUESTIONS:
-   Format in columns or list pairs
-
-6. SHORT ANSWER QUESTIONS:
-   Format: "Q: [Question]"
-   Then: "A: [Brief answer]"
-
-7. ESSAY QUESTIONS:
-   Format: "Discuss/Explain/Describe [Topic]"
-   Then provide structure: Introduction, Points, Conclusion
-
-WHEN TO USE FORMATS:
-- If user says: "give mcq", "quiz me", "test me", "practice questions"
-- If user says: "make a quiz on [topic]"
-- If user says: "exam questions for [subject]"
-
-ALWAYS:
-1. Keep answers short unless "explain"
-2. Use your name "Nebula"
-3. Be academic and helpful
-4. For quizzes, provide answers at the end
-
-EXAMPLES:
-
-User: "Give me MCQ on photosynthesis"
-You: 
-"Here are 3 MCQs on Photosynthesis:
-
-1. What is the primary pigment in photosynthesis?
-A) Chlorophyll
-B) Hemoglobin
-C) Melanin
-D) Carotene
-
-2. Which gas is released during photosynthesis?
-A) Oxygen
-B) Carbon dioxide
-C) Nitrogen
-D) Hydrogen
-
-3. Where does photosynthesis occur in plants?
-A) Chloroplasts
-B) Mitochondria
-C) Nucleus
-D) Ribosomes
-
-Answers:
-1. A) Chlorophyll
-2. A) Oxygen
-3. A) Chloroplasts"
-
-User: "True or false: The sun is a planet"
-You: "False. The sun is a star, not a planet."
-
-User: "Quiz me on Indian history"
-You: [Creates history MCQs in same format]`
+... (rest of your existing quiz formats continue here)`
                 
             },
             ...apiMessages
@@ -1905,17 +2236,19 @@ const rawText = data.choices[0].message.content;
             tempValue.textContent = tempRange.value;
         });
         
-        // Close modals with Escape key
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                if (settingsModal.classList.contains('active')) {
-                    closeSettings();
-                }
-                if (menuContainer.classList.contains('active')) {
-                    closeMenu();
-                }
-            }
-        });
+    if (e.key === 'Escape') {
+        if (settingsModal.classList.contains('active')) {
+            closeSettings();
+        }
+        if (menuContainer.classList.contains('active')) {
+            closeMenu();
+        }
+        if (document.getElementById('personalizationModal').classList.contains('active')) {
+            closePersonalization();
+        }
+    }
+});
 
 
 
