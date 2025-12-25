@@ -1,0 +1,66 @@
+/* manu/manu.css */
+
+/* Container for the sticky bottom section */
+.menu-bottom-wrapper {
+    position: sticky;
+    bottom: 0;
+    background: #0a0a0a;
+    border-top: 1px solid var(--border);
+    z-index: 100;
+}
+
+/* The hidden container that slides up */
+.menu-expanded-options {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: rgba(20, 20, 20, 0.95);
+}
+
+.menu-expanded-options.active {
+    max-height: 300px; /* Adjust based on number of items */
+    padding-bottom: 10px;
+}
+
+/* The Trigger Button (looks like ChatGPT profile) */
+.menu-trigger-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px 20px;
+    cursor: pointer;
+    transition: background 0.2s;
+    width: 100%;
+}
+
+.menu-trigger-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.user-avatar-mini {
+    width: 28px;
+    height: 28px;
+    background: var(--accent-blue);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.trigger-text {
+    flex: 1;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.trigger-icon {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    transition: transform 0.3s;
+}
+
+.menu-expanded-options.active ~ .menu-trigger-btn .trigger-icon {
+    transform: rotate(180deg);
+}
