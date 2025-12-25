@@ -1314,6 +1314,7 @@ const AI_IDENTITY = {
         // ==================== INITIALIZATION ====================
         function initApp() {
             loadSettings();
+            loadPersonalization();
             loadConversations();
             
             if (conversations.length === 0) {
