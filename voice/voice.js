@@ -23,7 +23,7 @@ function toggleSpeech(btn) {
     // 2. Get and Clean the Text
     const msgDiv = btn.closest('.msg');
     let text = msgDiv.innerText
-        .replace(/[A-Z][a-z]{2}\s\d{1,2}\s•\s\d{1,2}:\d{2}\s(AM|PM)/g, '')
+        .replace(/[A-Z][a-z]{2}\s\d{1,2}\s•\s\d{1,2}:\d{2}\s/g, '')
         .replace(/Copy|↻ Regenerate|Read|Stop/g, '') // Remove UI text
         .replace(/```[\s\S]*?```/g, ' [reading code skipped] ') // Skip large code blocks
         .replace(/\*\*/g, '') // Remove bold markdown
@@ -37,7 +37,7 @@ function toggleSpeech(btn) {
 
     // 4. UI Feedback
     btn.classList.add('speaking');
-    btn.innerHTML = '<i class="fas fa-stop"></i> Stop Reading';
+    btn.innerHTML = '<i class="fas fa-stop"></i> Stop';
 
     // 5. Cleanup when finished
     utterance.onend = () => resetVoiceUI();
