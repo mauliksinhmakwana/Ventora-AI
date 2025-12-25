@@ -1330,12 +1330,12 @@ const AI_IDENTITY = {
                     wrapper.className = 'msg-wrapper ai-wrapper';
                     const msgDiv = document.createElement('div');
                     msgDiv.className = 'msg ai';
-                   msgDiv.innerHTML = formatted +
-    `<div class="timestamp">${showDateTime(msg.timestamp)}</div>` +
-    `<div style="display: flex; gap: 16px; margin-top: 8px;">
-        <div class="regenerate-btn" onclick="copyFullResponse(this)">Copy</div>
-        <div class="regenerate-btn" onclick="regenerate(this)">↻ Regenerate</div>
-    </div>`;
+                    msgDiv.innerHTML = formatted +
+                        `<div class="timestamp">${formatTime(msg.timestamp)}</div>` +
+                        `<div style="display: flex; gap: 16px; margin-top: 8px;">
+                            <div class="regenerate-btn" onclick="copyFullResponse(this)">Copy</div>
+                            <div class="regenerate-btn" onclick="regenerate(this)">↻ Regenerate</div>
+                        </div>`;
                     wrapper.appendChild(msgDiv);
                     chatContainer.appendChild(wrapper);
                 }
@@ -1377,19 +1377,12 @@ const AI_IDENTITY = {
                 userInput.style.height = 'auto';
             }
 
-           //<- // Add user message to conversation
-          /*  const userMessageObj = {
+            // Add user message to conversation
+            const userMessageObj = {
                 role: 'user',
                 content: query,
                 timestamp: new Date().toISOString()
-            };*/
-
-            // Add assistant message
-conversation.messages.push({
-    role: 'assistant',
-    content: rawText,
-    timestamp: new Date().toISOString()  // Make sure this line is here
-});
+            };
             
             conversation.messages.push(userMessageObj);
             
@@ -1639,7 +1632,7 @@ const rawText = data.choices[0].message.content;
                 // Update the loading message with actual response
                 const formatted = formatAIResponse(rawText);
                 loadingMsg.innerHTML = formatted +
-                   `<div class="timestamp">${showDateTime()}</div>` +
+                    `<div class="timestamp">${getTime()}</div>` +
                     `<div style="display: flex; gap: 16px; margin-top: 8px;">
                         <div class="regenerate-btn" onclick="copyFullResponse(this)">Copy</div>
                         <div class="regenerate-btn" onclick="regenerate(this)">↻ Regenerate</div>
@@ -1735,12 +1728,6 @@ const rawText = data.choices[0].message.content;
             scrollBtn.style.display = diff > 100 ? 'flex' : 'none';
         };
 
-
-
-
-
-        
-/*
         function appendMessage(text, type) {
             const wrapper = document.createElement('div');
             wrapper.className = `msg-wrapper ${type}-wrapper`;
@@ -1761,7 +1748,7 @@ const rawText = data.choices[0].message.content;
                 }
             } else {
                 msg.innerText = text;
-                msg.innerHTML += `<div class="timestamp">${new Date().toLocaleDateString([], {month: 'short', day: 'numeric'})} • ${getTime()}</div>`;
+                msg.innerHTML += `<div class="timestamp">${getTime()}</div>`;
             }
 
             wrapper.appendChild(msg);
@@ -1769,47 +1756,7 @@ const rawText = data.choices[0].message.content;
             scrollToBottom();
             return msg;
         }
-*/
 
-        
-function appendMessage(text, type) {
-    const wrapper = document.createElement('div');
-    wrapper.className = `msg-wrapper ${type}-wrapper`;
-    const msg = document.createElement('div');
-    msg.className = `msg ${type}`;
-
-    // Get current date + time
-    const now = new Date();
-    const date = now.toLocaleDateString([], { month: 'short', day: 'numeric' });
-    const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    const datetime = `${date} • ${time}`;
-
-    if (type === 'ai') {
-        if (text.includes('typing-dots')) {
-            msg.innerHTML = text;
-        } else {
-            const formatted = formatAIResponse(text);
-           msg.innerHTML = formatted +
-    `<div class="timestamp">${showDateTime()}</div>` +
-    `<div style="display: flex; gap: 16px; margin-top: 8px;">
-        <div class="regenerate-btn" onclick="copyFullResponse(this)">Copy</div>
-        <div class="regenerate-btn" onclick="regenerate(this)">↻ Regenerate</div>
-    </div>`;
-        }
-    } else {
-        msg.innerText = text;
-        msg.innerHTML += `<div class="timestamp">${showDateTime()}</div>`;
-    }
-
-    wrapper.appendChild(msg);
-    chatContainer.appendChild(wrapper);
-    scrollToBottom();
-    return msg;
-}
-
-
-
-        
         function regenerate(btn) {
             const conversation = getCurrentConversation();
             if (!conversation) return;
@@ -2009,7 +1956,9 @@ document.getElementById('aboutModal').addEventListener('click', function(e) {
 
 
 
-<!-- About Modal - Fixed Layout -->
+
+
+<!-- About Modal - Final Refined Version -->
 <div id="about-modal" class="about-modal" role="dialog" aria-modal="true" aria-labelledby="about-title" aria-hidden="true">
     <div class="about-content">
         <div class="about-header">
@@ -2018,13 +1967,18 @@ document.getElementById('aboutModal').addEventListener('click', function(e) {
                     <path d="M18 6L6 18M6 6l12 12"/>
                 </svg>
             </button>
-            <h2 id="about-title" class="about-title">About</h2>
+            <h2 id="about-title" class="about-title">About Nebula AI</h2>
             <div class="header-spacer"></div>
         </div>
         
         <div class="about-body">
             <!-- Version Info -->
             <div class="version-section">
+                <div class="app-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                    </svg>
+                </div>
                 <div class="app-name">Nebula AI</div>
                 <div class="version-info">
                     <span class="version">Version 2.0</span>
@@ -2035,21 +1989,19 @@ document.getElementById('aboutModal').addEventListener('click', function(e) {
             <!-- Description -->
             <div class="description-section">
                 <p class="description">
-                    <p>Nebula AI is an advanced artificial intelligence assistant designed specifically for academic excellence and research support. Built with cutting-edge language models, it serves as your intelligent companion for learning, studying, and academic work.</p>
-
-                    <p>Specializing in comprehensive academic assistance, Nebula AI provides expert support for research methodology, study planning, essay writing, and assignment completion. Whether you need help with literature reviews, concept explanations, or homework solutions, it adapts to your specific academic requirements.</p>
-                 <p>Powered by sophisticated AI technology, Nebula AI offers personalized guidance while maintaining the highest standards of academic integrity. It emphasizes critical thinking, proper citation practices, and ethical research methods to ensure quality learning outcomes.</p>
-                 <p>Developed with a focus on educational impact, this tool supports students, researchers, and educators in achieving their academic goals. Its intuitive interface and responsive design make advanced academic assistance accessible to everyone.</p>
-               <p>Nebula AI continues to evolve with regular updates and improvements, ensuring it remains at the forefront of educational technology. Your reliable partner for smarter learning and more efficient research.</p> 
-            </p>
+                    Advanced AI assistant specialized in academic support, research assistance, and study guidance for students, researchers, and educators.
+                </p>
             </div>
             
-            <!-- Features Grid -->
+            <!-- Features -->
             <div class="features-section">
-                <h3 class="section-heading">Key Features</h3>
-                <div class="features-list">
-                  
-                    
+                <h3 class="section-heading">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                    </svg>
+                    Key Features
+                </h3>
+                <div class="features-grid">
                     <div class="feature-item">
                         <div class="feature-icon">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -2062,11 +2014,8 @@ document.getElementById('aboutModal').addEventListener('click', function(e) {
                             <div class="feature-desc">Academic research support</div>
                         </div>
                     </div>
-
-
-
                     
-                     <div class="feature-item">
+                    <div class="feature-item">
                         <div class="feature-icon">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M12 20h9"/>
@@ -2078,11 +2027,8 @@ document.getElementById('aboutModal').addEventListener('click', function(e) {
                             <div class="feature-desc">Learning support</div>
                         </div>
                     </div>
-
-
-
                     
-                     <div class="feature-item">
+                    <div class="feature-item">
                         <div class="feature-icon">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M12 19l7-7 3 3-7 7-3-3z"/>
@@ -2095,86 +2041,99 @@ document.getElementById('aboutModal').addEventListener('click', function(e) {
                         </div>
                     </div>
                     
-                     <div class="feature-item">
+                    <div class="feature-item">
                         <div class="feature-icon">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
                                 <path d="M22 4L12 14.01l-3-3"/>
                             </svg>
                         </div>
-
-                      
                         <div class="feature-content">
                             <div class="feature-title">Homework Support</div>
                             <div class="feature-desc">Assignment help</div>
                         </div>
-                      
                     </div>
                 </div>
             </div>
-
             
-            <!-- Creator Info -->
+            <!-- Creator -->
             <div class="creator-section">
-                <h3 class="section-heading">Creator</h3>
-                <div class="creator-info">
+                <h3 class="section-heading">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                    Creator
+                </h3>
+                <div class="creator-card">
                     <div class="creator-avatar">
                         <div class="avatar-initial">M</div>
                     </div>
                     <div class="creator-details">
                         <div class="creator-name">Maulik Makwana</div>
-                        <div class="creator-role">Developer</div> 
+                        <div class="creator-role">Developer</div>
+                        <div class="creator-email">@maulik_makwana</div>
                     </div>
-
-                     <!-- External Link -->
+                </div>
+            </div>
+            
+            <!-- Tech -->
+            <div class="tech-section">
+                <h3 class="section-heading">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                    </svg>
+                    Technology
+                </h3>
+                <div class="tech-grid">
+                    <div class="tech-item">
+                        <div class="tech-icon">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                            </svg>
+                        </div>
+                        <div class="tech-content">
+                            <div class="tech-label">Powered by</div>
+                            <div class="tech-value">Open Nebula</div>
+                        </div>
+                    </div>
+                    <div class="tech-item">
+                        <div class="tech-icon">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                            </svg>
+                        </div>
+                        <div class="tech-content">
+                            <div class="tech-label">Secured by</div>
+                            <div class="tech-value">Open Nebula</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- External Link -->
             <div class="external-link">
                 <a href="https://mauliksinhmakwana.github.io/Mauliksinh-Makwana/" target="_blank" class="link-button" onclick="window.open('https://mauliksinhmakwana.github.io/Mauliksinh-Makwana/', '_blank')">
-                    <span>Portfolio</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                        <path d="M15 3h6v6"/>
+                        <path d="M10 14L21 3"/>
+                    </svg>
+                    <span>Visit Portfolio</span>
                 </a>
-            </div> 
-                    
-                </div>
-
-              
-                
             </div>
-
-
-
-            
-            
-             <!-- Tech Stack -->
-            <div class="tech-section">
-                <div class="tech-item">
-                    <div class="tech-label">Powered by</div>
-                    <div class="tech-value">Open Nebula</div>
-                </div>
-                <div class="tech-item">
-                    <div class="tech-label">Secured by</div>
-                    <div class="tech-value">Open Nebula</div>
-                </div>
-            </div>
-
-
+        </div>
+    </div>
+</div>
 
 <script>
-
-
-    // Add this RIGHT AFTER <script> at line 650
-function showDateTime(timestamp = null) {
-    const dateObj = timestamp ? new Date(timestamp) : new Date();
-    const date = dateObj.toLocaleDateString([], { month: 'short', day: 'numeric' });
-    const time = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    return `${date} • ${time}`;
-}
-
-    
 // Function to open the About modal
 function openAboutModal() {
     const modal = document.getElementById('about-modal');
     modal.classList.add('active');
     modal.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
     
     // Set focus to the close button
     setTimeout(() => {
@@ -2188,7 +2147,8 @@ function closeAboutModal() {
     const modal = document.getElementById('about-modal');
     modal.classList.remove('active');
     modal.setAttribute('aria-hidden', 'true');
-    document.body.style.overflow = 'auto';
+    document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
     
     // Return focus to the button that opened the modal
     if (window.lastFocusedElement) {
@@ -2239,6 +2199,48 @@ document.addEventListener('DOMContentLoaded', function() {
             closeAboutModal();
         }
     });
+    
+    // Enhanced touch scrolling with passive listeners
+    let startY = 0;
+    let startScrollTop = 0;
+    let isDragging = false;
+    
+    aboutModal.addEventListener('touchstart', function(e) {
+        const aboutBody = this.querySelector('.about-body');
+        if (aboutBody && aboutBody.contains(e.target)) {
+            startY = e.touches[0].clientY;
+            startScrollTop = aboutBody.scrollTop;
+            isDragging = true;
+        }
+    }, { passive: true });
+    
+    aboutModal.addEventListener('touchmove', function(e) {
+        if (!isDragging) return;
+        
+        const aboutBody = this.querySelector('.about-body');
+        if (!aboutBody) return;
+        
+        const currentY = e.touches[0].clientY;
+        const deltaY = currentY - startY;
+        
+        // Check if we're at boundaries
+        const isAtTop = aboutBody.scrollTop === 0;
+        const isAtBottom = aboutBody.scrollTop + aboutBody.clientHeight >= aboutBody.scrollHeight;
+        
+        // Prevent pull-to-refresh when at top and pulling down
+        if (isAtTop && deltaY > 0) {
+            e.preventDefault();
+        }
+        
+        // Prevent overscroll when at bottom and pulling up
+        if (isAtBottom && deltaY < 0) {
+            e.preventDefault();
+        }
+    }, { passive: false });
+    
+    aboutModal.addEventListener('touchend', function() {
+        isDragging = false;
+    }, { passive: true });
 });
 
 // Make function available globally
@@ -2247,9 +2249,7 @@ window.closeAboutModal = closeAboutModal;
 </script>
 
 <style>
-
-  /* <!--  for blur  -------------------------------------------------------------------------------------------------------------------> */
-/* About Modal - Fixed CSS */
+/* About Modal - Final Refined CSS */
 .about-modal {
     position: fixed;
     top: 0;
@@ -2257,8 +2257,8 @@ window.closeAboutModal = closeAboutModal;
     right: 0;
     bottom: 0;
     background: rgba(0, 0, 0, 0.85);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     z-index: 1005;
     display: none;
     align-items: center;
@@ -2267,6 +2267,7 @@ window.closeAboutModal = closeAboutModal;
     transition: opacity 0.2s ease;
     padding: 16px;
     pointer-events: none;
+    overflow: hidden;
 }
 
 .about-modal.active {
@@ -2275,18 +2276,19 @@ window.closeAboutModal = closeAboutModal;
     pointer-events: auto;
 }
 
+/* Desktop Size - Center Modal */
 .about-content {
-    background: rgba(30, 30, 30, 0.98);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(20px);
+    background: rgba(28, 28, 28, 0.98);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 16px;
     padding: 0;
     width: 100%;
-    max-width: 400px;
-    max-height: 85vh;
+    max-width: 440px; /* Desktop width */
+    max-height: 80vh; /* Desktop height */
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-    animation: modalSlideUp 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: modalSlideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -2296,22 +2298,22 @@ window.closeAboutModal = closeAboutModal;
 @keyframes modalSlideUp {
     from {
         opacity: 0;
-        transform: translateY(16px);
+        transform: translateY(20px) scale(0.98);
     }
     to {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateY(0) scale(1);
     }
 }
 
-/* Header - Fixed for mobile */
+/* Header */
 .about-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 20px 24px 16px 24px; /* Increased top padding */
+    padding: 18px 24px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    background: rgba(30, 30, 30, 0.98);
+    background: rgba(28, 28, 28, 0.98);
     backdrop-filter: blur(20px);
     position: sticky;
     top: 0;
@@ -2326,31 +2328,31 @@ window.closeAboutModal = closeAboutModal;
     margin: 0;
     text-align: center;
     flex: 1;
-    line-height: 1.2; /* Better line height */
+    letter-spacing: -0.3px;
 }
 
 .close-about {
-    background: none;
+    background: rgba(255, 255, 255, 0.08);
     border: none;
     color: var(--text-secondary);
     cursor: pointer;
-    padding: 10px; /* Larger padding */
+    padding: 8px;
     border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.15s ease;
+    transition: all 0.2s ease;
     flex-shrink: 0;
-    min-width: 44px; /* Minimum touch target */
-    min-height: 44px;
-    margin-top: -4px; /* Adjust vertical alignment */
+    min-width: 40px;
+    min-height: 40px;
 }
 
 .close-about:hover,
 .close-about:focus {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.12);
     color: var(--text-primary);
     outline: none;
+    transform: scale(1.05);
 }
 
 .close-about svg {
@@ -2358,20 +2360,23 @@ window.closeAboutModal = closeAboutModal;
 }
 
 .header-spacer {
-    width: 44px;
+    width: 40px;
     visibility: hidden;
 }
 
-/* Body */
+/* Body with FIXED Touch Scrolling */
 .about-body {
     flex: 1;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch; /* Smooth iOS scrolling */
     padding: 24px;
     color: var(--text-secondary);
     font-size: 0.9375rem;
     line-height: 1.5;
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+    overscroll-behavior: contain; /* Prevent pull-to-refresh */
+    touch-action: pan-y; /* Better touch control */
 }
 
 .about-body::-webkit-scrollbar {
@@ -2380,19 +2385,36 @@ window.closeAboutModal = closeAboutModal;
 
 .about-body::-webkit-scrollbar-track {
     background: transparent;
+    margin: 4px 0;
 }
 
 .about-body::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, 0.15);
     border-radius: 3px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.about-body::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
 }
 
 /* Version Section */
 .version-section {
     text-align: center;
-    margin-bottom: 24px;
-    padding-bottom: 20px;
+    margin-bottom: 28px;
+    padding-bottom: 24px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.app-icon {
+    color: var(--accent-blue);
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: center;
+}
+
+.app-icon svg {
+    display: block;
 }
 
 .app-name {
@@ -2400,7 +2422,7 @@ window.closeAboutModal = closeAboutModal;
     font-weight: 700;
     color: var(--text-primary);
     margin-bottom: 8px;
-    letter-spacing: -0.3px;
+    letter-spacing: -0.5px;
 }
 
 .version-info {
@@ -2413,6 +2435,7 @@ window.closeAboutModal = closeAboutModal;
     font-size: 0.9375rem;
     color: var(--accent-blue);
     font-weight: 500;
+    letter-spacing: 0.5px;
 }
 
 .model-type {
@@ -2423,7 +2446,12 @@ window.closeAboutModal = closeAboutModal;
 
 /* Description */
 .description-section {
-    margin-bottom: 24px;
+    margin-bottom: 28px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
 }
 
 .description {
@@ -2434,48 +2462,76 @@ window.closeAboutModal = closeAboutModal;
     text-align: center;
 }
 
-/* Features - Fixed bullet points */
+/* Features */
 .features-section {
-    margin-bottom: 24px;
+    margin-bottom: 28px;
 }
 
 .section-heading {
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: 600;
     color: var(--text-primary);
     margin: 0 0 18px 0;
-    padding-bottom: 12px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    letter-spacing: -0.3px;
 }
 
-.features-list {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+.section-heading svg {
+    color: var(--accent-blue);
+    flex-shrink: 0;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
 }
 
 .feature-item {
     display: flex;
     align-items: flex-start;
     gap: 12px;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    transition: all 0.2s ease;
+    cursor: default;
+    -webkit-tap-highlight-color: transparent;
 }
 
-.feature-bullet {
+.feature-item:hover {
+    background: rgba(255, 255, 255, 0.06);
+    transform: translateY(-1px);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.feature-icon {
     color: var(--accent-blue);
-    font-size: 1.5rem;
-    line-height: 1;
-    margin-top: -2px;
     flex-shrink: 0;
-    width: 20px;
-    text-align: center;
+    padding: 4px;
+    background: rgba(0, 122, 255, 0.1);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+}
+
+.feature-icon svg {
+    display: block;
 }
 
 .feature-content {
     flex: 1;
+    min-width: 0;
 }
 
 .feature-title {
-    font-size: 1rem;
+    font-size: 0.9375rem;
     font-weight: 500;
     color: var(--text-primary);
     margin-bottom: 4px;
@@ -2483,34 +2539,33 @@ window.closeAboutModal = closeAboutModal;
 }
 
 .feature-desc {
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     color: var(--text-secondary);
     opacity: 0.8;
     line-height: 1.4;
 }
 
-/* Creator Section */
+/* Creator */
 .creator-section {
-    margin-bottom: 24px;
-    padding-bottom: 24px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    margin-bottom: 28px;
 }
 
-.creator-info {
+.creator-card {
     display: flex;
     align-items: center;
     gap: 16px;
-    padding: 16px;
+    padding: 18px;
     background: rgba(255, 255, 255, 0.04);
     border: 1px solid rgba(255, 255, 255, 0.06);
     border-radius: 12px;
+    backdrop-filter: blur(10px);
 }
 
 .creator-avatar {
     width: 56px;
     height: 56px;
     background: linear-gradient(135deg, #667eea, #764ba2);
-    border-radius: 12px;
+    border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2527,10 +2582,11 @@ window.closeAboutModal = closeAboutModal;
 
 .creator-details {
     flex: 1;
+    min-width: 0;
 }
 
 .creator-name {
-    font-size: 1.1rem;
+    font-size: 1.0625rem;
     font-weight: 600;
     color: var(--text-primary);
     margin-bottom: 4px;
@@ -2540,58 +2596,105 @@ window.closeAboutModal = closeAboutModal;
 .creator-role {
     font-size: 0.875rem;
     color: var(--text-secondary);
+    margin-bottom: 2px;
     line-height: 1.4;
 }
 
-/* Tech Section */
+.creator-email {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    opacity: 0.7;
+    line-height: 1.4;
+}
+
+/* Tech */
 .tech-section {
+    margin-bottom: 28px;
+}
+
+.tech-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
-    margin-bottom: 24px;
+    gap: 14px;
 }
 
 .tech-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
     padding: 16px;
     background: rgba(255, 255, 255, 0.04);
     border: 1px solid rgba(255, 255, 255, 0.06);
     border-radius: 12px;
-    text-align: center;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.tech-item:hover {
+    background: rgba(255, 255, 255, 0.06);
+    transform: translateY(-1px);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.tech-icon {
+    color: var(--accent-blue);
+    flex-shrink: 0;
+    padding: 4px;
+    background: rgba(0, 122, 255, 0.1);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+}
+
+.tech-icon svg {
+    display: block;
+}
+
+.tech-content {
+    flex: 1;
+    min-width: 0;
 }
 
 .tech-label {
     font-size: 0.8125rem;
     color: var(--text-secondary);
-    margin-bottom: 6px;
+    margin-bottom: 4px;
     opacity: 0.8;
+    line-height: 1.3;
 }
 
 .tech-value {
-    font-size: 1rem;
-    font-weight: 600;
+    font-size: 0.9375rem;
+    font-weight: 500;
     color: var(--text-primary);
+    line-height: 1.3;
 }
 
 /* External Link */
 .external-link {
     text-align: center;
+    margin-top: 8px;
 }
 
 .link-button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 10px;
     color: var(--accent-blue);
     text-decoration: none;
     font-size: 0.9375rem;
     font-weight: 500;
     padding: 12px 24px;
     border-radius: 10px;
-    transition: all 0.15s ease;
+    transition: all 0.2s ease;
     background: rgba(0, 122, 255, 0.1);
     border: 1px solid rgba(0, 122, 255, 0.2);
     min-height: 44px;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .link-button:hover,
@@ -2600,23 +2703,32 @@ window.closeAboutModal = closeAboutModal;
     color: var(--accent-blue);
     outline: none;
     text-decoration: none;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
 }
 
-/* ===== MOBILE FIXES ===== */
+.link-button svg {
+    display: block;
+    flex-shrink: 0;
+}
+
+/* ===== MOBILE SPECIFIC STYLES (Different Size & Layout) ===== */
 @media (max-width: 768px) {
     .about-modal {
         padding: 0;
         align-items: flex-end;
     }
     
+    /* Mobile Size - Bottom Sheet */
     .about-content {
         max-width: 100%;
-        max-height: 90vh;
+        max-height: 90vh; /* Taller on mobile */
         border-radius: 20px 20px 0 0;
-        animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        animation: mobileSlideUp 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        margin: 0;
     }
     
-    @keyframes slideUp {
+    @keyframes mobileSlideUp {
         from {
             opacity: 0;
             transform: translateY(100%);
@@ -2627,37 +2739,53 @@ window.closeAboutModal = closeAboutModal;
         }
     }
     
-    /* FIX FOR HEADER BEING CUT OFF */
     .about-header {
-        padding-top: max(24px, env(safe-area-inset-top, 24px)) !important;
-        padding-left: max(20px, env(safe-area-inset-left, 20px)) !important;
-        padding-right: max(20px, env(safe-area-inset-right, 20px)) !important;
-        padding-bottom: 16px;
+        padding: 16px 20px;
     }
     
     .about-body {
         padding: 20px;
-        padding-left: max(20px, env(safe-area-inset-left, 20px)) !important;
-        padding-right: max(20px, env(safe-area-inset-right, 20px)) !important;
-        padding-bottom: max(20px, env(safe-area-inset-bottom, 20px)) !important;
-    }
-    
-    .close-about {
-        min-width: 44px;
-        min-height: 44px;
-        margin-top: 0; /* Reset margin */
-    }
-    
-    .tech-section {
-        grid-template-columns: 1fr;
-        gap: 12px;
+        padding-bottom: max(20px, env(safe-area-inset-bottom));
     }
     
     .app-name {
         font-size: 1.6rem;
     }
+    
+    .features-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .tech-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    /* Improved touch targets for mobile */
+    .close-about,
+    .link-button {
+        min-height: 48px;
+        min-width: 48px;
+    }
+    
+    .feature-item,
+    .creator-card,
+    .tech-item {
+        padding: 16px;
+        min-height: 56px;
+    }
+    
+    /* Bottom padding for safe area */
+    .about-content::after {
+        content: '';
+        display: block;
+        height: env(safe-area-inset-bottom);
+        background: transparent;
+    }
 }
 
+/* Small mobile devices */
 @media (max-width: 480px) {
     .about-content {
         max-height: 95vh;
@@ -2672,16 +2800,28 @@ window.closeAboutModal = closeAboutModal;
         font-size: 1.5rem;
     }
     
-    .section-heading {
-        font-size: 1rem;
-        margin-bottom: 16px;
-    }
-    
-    .feature-title {
+    .version {
         font-size: 0.9375rem;
     }
     
-    .feature-desc {
+    .model-type {
+        font-size: 0.875rem;
+    }
+    
+    .section-heading {
+        font-size: 0.9375rem;
+        margin-bottom: 16px;
+    }
+    
+    .feature-title,
+    .tech-value {
+        font-size: 0.9375rem;
+    }
+    
+    .feature-desc,
+    .tech-label,
+    .creator-role,
+    .creator-email {
         font-size: 0.8125rem;
     }
     
@@ -2694,31 +2834,126 @@ window.closeAboutModal = closeAboutModal;
         height: 52px;
         font-size: 1.3rem;
     }
+    
+    .link-button {
+        padding: 14px 20px;
+        font-size: 0.9375rem;
+    }
+}
+
+/* Extra small devices */
+@media (max-width: 360px) {
+    .about-body {
+        padding: 16px;
+    }
+    
+    .app-name {
+        font-size: 1.4rem;
+    }
+    
+    .description-section {
+        padding: 16px;
+    }
+    
+    .feature-item,
+    .creator-card,
+    .tech-item {
+        padding: 14px;
+    }
+    
+    .link-button {
+        padding: 12px 18px;
+    }
+}
+
+/* Landscape mode optimization */
+@media (max-height: 600px) and (orientation: landscape) {
+    .about-modal {
+        align-items: flex-start;
+        padding-top: 16px;
+    }
+    
+    .about-content {
+        max-height: 85vh;
+        max-width: 400px;
+        margin: 0 auto;
+        border-radius: 16px;
+    }
+    
+    .about-body {
+        max-height: 65vh;
+    }
+}
+
+/* Tablet optimization */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .about-content {
+        max-width: 500px;
+        max-height: 85vh;
+    }
+    
+    .about-body {
+        padding: 28px;
+    }
+    
+    .app-name {
+        font-size: 2rem;
+    }
+}
+
+/* Large desktop screens */
+@media (min-width: 1200px) {
+    .about-content {
+        max-width: 480px;
+        max-height: 80vh;
+    }
+    
+    .about-body {
+        padding: 28px;
+    }
 }
 
 /* Touch device optimizations */
 @media (hover: none) and (pointer: coarse) {
-    .close-about {
-        min-height: 48px;
-        min-width: 48px;
+    .close-about:active,
+    .link-button:active,
+    .feature-item:active,
+    .tech-item:active {
+        transform: scale(0.98);
+        transition: transform 0.1s ease;
     }
     
-    .link-button {
-        min-height: 48px;
-        padding: 14px 20px;
+    .feature-item:hover,
+    .tech-item:hover,
+    .link-button:hover {
+        transform: none;
+    }
+    
+    .close-about:hover,
+    .link-button:hover {
+        background: rgba(255, 255, 255, 0.08);
+    }
+    
+    .feature-item:hover,
+    .tech-item:hover {
+        background: rgba(255, 255, 255, 0.04);
     }
 }
 
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
     .about-modal,
-    .about-content {
+    .about-content,
+    .close-about,
+    .feature-item,
+    .tech-item,
+    .link-button {
         transition: none;
         animation: none;
     }
     
     .about-content {
-        animation: fadeIn 0.15s ease;
+        animation: fadeIn 0.2s ease;
     }
     
     @keyframes fadeIn {
@@ -2726,7 +2961,30 @@ window.closeAboutModal = closeAboutModal;
         to { opacity: 1; }
     }
 }
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+    .about-content {
+        border: 2px solid var(--text-primary);
+        background: var(--bg);
+    }
+    
+    .feature-item,
+    .creator-card,
+    .tech-item,
+    .description-section {
+        border: 1px solid var(--text-primary);
+        background: var(--surface);
+    }
+}
 </style>
+
+
+
+
+
+
+
 
 
 </body>
