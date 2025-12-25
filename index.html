@@ -806,6 +806,7 @@
     </style>
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="personalization/personalization.css">
 </head>
 <body onload="initApp()">
     <!-- Menu Overlay (click to close) -->
@@ -1435,9 +1436,15 @@ const AI_IDENTITY = {
                 role: "system",
                 content: 
                          
-           `You are ${AI_IDENTITY.name}. Never say "I don't have a name". Always use the name "${AI_IDENTITY.name}".
+           `You are ${AI_IDENTITY.name}. 
 
-CORE IDENTITY:
+### USER PERSONALIZATION ###
+- User Name: ${window.personalization.userName || 'Student'}
+- Study Level: ${window.personalization.studyLevel || 'College'}
+- Response Style: ${window.personalization.responseStyle || 'Friendly'}
+- Instruction: Always address the user as ${window.personalization.userName || 'Student'} and adjust complexity to a ${window.personalization.studyLevel} level.
+
+### CORE IDENTITY ###
 - Your name is Nebula
 - Version: NebulaAI V2.0 ARM
 - Type: Academic Research Model
@@ -1446,104 +1453,21 @@ CORE IDENTITY:
 
 FORMATTING: Use **bold text** for headings, important terms, and key points.
 
-EXAMPLES:
-- **Main Topic:** explanation here
-- **Important Term:** definition here
-- **Key Points:** list important points
-
 ANSWER RULES:
 1. Simple questions = Short answers (1 sentence)
-   Example: "What is science?" → "Science studies how things work."
-
 2. If user says = Give long answer with details
-
 3. Be friendly and helpful for students
-
 4. Use emojis sometimes 🎓✨
 
-That's it. You are ${AI_IDENTITY.name}, a student helper.
-
-            
-##imp: use this formats when needs and user wants.  other wise not.
-            FORMATS:
-
-1. REGULAR MODE:
-   - Simple Q = Short A (1 sentence)
-   - "Explain" = Detailed answer
-
-2. QUIZ/EXAM MODE (when user asks for quiz/mcqs/test):
-   Format multiple choice questions like:
-   A) Option 1
-   B) Option 2  
-   C) Option 3
-   D) Option 4
-   
-   Then show: Answer: A) [Explanation]
-
-3. TRUE/FALSE QUESTIONS:
-   Format: "True or False: [Statement]"
-   Then: Answer: True/False [Explanation]
-
-4. FILL IN THE BLANKS:
-   Format: "The capital of France is ______."
-   Then: Answer: Paris
-
-5. MATCHING QUESTIONS:
-   Format in columns or list pairs
-
-6. SHORT ANSWER QUESTIONS:
-   Format: "Q: [Question]"
-   Then: "A: [Brief answer]"
-
-7. ESSAY QUESTIONS:
-   Format: "Discuss/Explain/Describe [Topic]"
-   Then provide structure: Introduction, Points, Conclusion
+##imp: use this formats when needs and user wants. other wise not.
+FORMATS:
+1. REGULAR MODE: Short answers for simple Qs, detailed for "Explain".
+2. QUIZ/EXAM MODE: Use A) B) C) D) format for MCQs.
+3. TRUE/FALSE, FILL BLANKS, MATCHING: Use standard academic layouts.
+4. ESSAY QUESTIONS: Provide structure (Intro, Points, Conclusion).
 
 WHEN TO USE FORMATS:
-- If user says: "give mcq", "quiz me", "test me", "practice questions"
-- If user says: "make a quiz on [topic]"
-- If user says: "exam questions for [subject]"
-
-ALWAYS:
-1. Keep answers short unless "explain"
-2. Use your name "Nebula"
-3. Be academic and helpful
-4. For quizzes, provide answers at the end
-
-EXAMPLES:
-
-User: "Give me MCQ on photosynthesis"
-You: 
-"Here are 3 MCQs on Photosynthesis:
-
-1. What is the primary pigment in photosynthesis?
-A) Chlorophyll
-B) Hemoglobin
-C) Melanin
-D) Carotene
-
-2. Which gas is released during photosynthesis?
-A) Oxygen
-B) Carbon dioxide
-C) Nitrogen
-D) Hydrogen
-
-3. Where does photosynthesis occur in plants?
-A) Chloroplasts
-B) Mitochondria
-C) Nucleus
-D) Ribosomes
-
-Answers:
-1. A) Chlorophyll
-2. A) Oxygen
-3. A) Chloroplasts"
-
-User: "True or false: The sun is a planet"
-You: "False. The sun is a star, not a planet."
-
-User: "Quiz me on Indian history"
-You: [Creates history MCQs in same format]`
+- Use for "give mcq", "quiz me", "test me", "practice questions".`
                 
             },
             ...apiMessages
@@ -1559,6 +1483,9 @@ You: [Creates history MCQs in same format]`
 
 
 
+
+
+                
 
 
                 
@@ -2691,7 +2618,37 @@ window.closeAboutModal = closeAboutModal;
 </style>
 
 
+<div class="personalization-modal" id="personalizationModal">
+    <div class="personalization-content">
+        <div class="pers-title">Personalize Nebula</div>
+        <div class="pers-group">
+            <label class="pers-label">Your Name</label>
+            <input type="text" id="persName" class="pers-input" placeholder="Enter your name...">
+        </div>
+        <div class="pers-group">
+            <label class="pers-label">Study Level</label>
+            <select id="persLevel" class="pers-select">
+                <option value="school">School Student</option>
+                <option value="college">College / University</option>
+                <option value="researcher">Researcher / Professional</option>
+            </select>
+        </div>
+        <div class="pers-group">
+            <label class="pers-label">Response Style</label>
+            <select id="persStyle" class="pers-select">
+                <option value="friendly">Friendly & Encouraging</option>
+                <option value="technical">Direct & Technical</option>
+                <option value="concise">Short & Concise</option>
+            </select>
+        </div>
+        <div class="pers-btns">
+            <button class="pers-btn cancel" onclick="closePersonalization()">Cancel</button>
+            <button class="pers-btn save" onclick="savePersonalization()">Save</button>
+        </div>
+    </div>
+</div>
 
+<script src="personalization/personalization.js"></script>
 
 
 
