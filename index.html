@@ -812,6 +812,9 @@
 <script src="voice/voice.js"></script>
 <link rel="stylesheet" href="goal/goal.css">
 <script src="goal/goal.js"></script>
+
+    <link rel="stylesheet" href="manu/manu.css">
+<script src="manu/manu.js"></script>
     
 </head>
 <body onload="initApp()">
@@ -828,56 +831,51 @@
         </div>
         
         <div class="menu-items" id="conversationsList">
-            <!-- New Chat button -->
-            <div class="menu-item" onclick="createNewConversation()">
-                <i class="fas fa-plus"></i>
-                <span>New Chat</span>
+         
+            
+            <div class="menu-bottom-wrapper">
+        
+        <div class="menu-expanded-options" id="menuExpandedOptions">
+            <div class="menu-item" onclick="handleMenuAction('toggleGoalModal')">
+                <i class="fas fa-check-circle"></i>
+                <span>Study Goals</span>
             </div>
-            
-            <div class="menu-divider"></div>
-            
-            <!-- Conversation history will be loaded here -->
-            
-            <div class="menu-divider"></div>
-
-
-
-
-            <div class="menu-item" onclick="toggleGoalModal()">
-    <i class="fas fa-check-circle"></i>
-    <span>Study Goals</span>
-</div>
-
-<!-- Personalization -->
-            <div class="menu-item" onclick="openPersonalization()">
-    <i class="fas fa-user-circle"></i>
-    <span>Personalization</span>
-</div>
-            <!-- Settings and Export -->
-            <div class="menu-item" onclick="openSettings()">
+            <div class="menu-item" onclick="handleMenuAction('openPersonalization')">
+                <i class="fas fa-user-circle"></i>
+                <span>Personalization</span>
+            </div>
+            <div class="menu-item" onclick="handleMenuAction('openSettings')">
                 <i class="fas fa-cog"></i>
                 <span>Settings</span>
             </div>
-
-
-
-<!-- About -->
-<!-- Update this in your menu -->
-<div class="menu-item" id="about-nebulai-btn">
-    <i class="fas fa-info-circle"></i>
-    <span>About</span>
-</div>
-
-
-
-
-            
-            <div class="menu-item" onclick="exportChat()">
+            <div class="menu-item" onclick="handleMenuAction('exportChat')">
                 <i class="fas fa-download"></i>
                 <span>Export Chat</span>
             </div>
         </div>
+
+        <div class="menu-trigger-btn" onclick="toggleBottomMenu()">
+            <div class="user-avatar-mini">M</div>
+            <div class="trigger-text">Maulik Makwana</div>
+            <i class="fas fa-chevron-up trigger-icon"></i>
+        </div>
+        
     </div>
+</div> ```
+
+        
+            
+            
+        
+    </div> 
+
+
+
+
+
+
+
+
     
     <!-- Settings Modal -->
     <div class="settings-modal" id="settingsModal">
