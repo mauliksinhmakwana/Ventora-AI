@@ -23,7 +23,7 @@ function toggleSpeech(btn) {
     // 2. Get and Clean the Text
     const msgDiv = btn.closest('.msg');
     let text = msgDiv.innerText
-        .replace(/Copy|Regenerate|Read Aloud|Stop/g, '') // Remove UI text
+        .replace(/Read|Stop/g, '') // Remove UI text
         .replace(/```[\s\S]*?```/g, ' [reading code skipped] ') // Skip large code blocks
         .replace(/\*\*/g, '') // Remove bold markdown
         .trim();
@@ -49,6 +49,6 @@ function resetVoiceUI() {
     const allBtns = document.querySelectorAll('.voice-btn');
     allBtns.forEach(b => {
         b.classList.remove('speaking');
-        b.innerHTML = '<i class="fas fa-volume-up"></i> Read Aloud';
+        b.innerHTML = 'Read';
     });
 }
