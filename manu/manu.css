@@ -82,3 +82,17 @@
 .menu-expanded-options .menu-item:hover {
     background: rgba(255, 255, 255, 0.05);
 }
+
+
+/* Add to your existing CSS */
+#conversationsList {
+    overflow-y: auto !important;
+    max-height: calc(100vh - 200px) !important;
+}
+
+.conversation-item {
+    padding: 12px 20px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
