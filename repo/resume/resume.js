@@ -1,3 +1,4 @@
+// Resume Generator for ChatGPT-like interface
 class ResumeGenerator {
     constructor() {
         this.resumeData = {
@@ -201,7 +202,6 @@ class ResumeGenerator {
     }
     
     createDefaultItems() {
-        // Add one empty item for each dynamic section
         this.addEducationItem();
         this.addExperienceItem();
         this.addProjectItem();
@@ -209,9 +209,8 @@ class ResumeGenerator {
     }
     
     addEducationItem(data = {}) {
-        const id = Date.now() + Math.random();
         const html = `
-            <div class="list-item" data-id="${id}">
+            <div class="list-item">
                 <div class="list-item-content">
                     <div class="form-row">
                         <div class="form-group">
@@ -259,9 +258,8 @@ class ResumeGenerator {
     }
     
     addExperienceItem(data = {}) {
-        const id = Date.now() + Math.random();
         const html = `
-            <div class="list-item" data-id="${id}">
+            <div class="list-item">
                 <div class="list-item-content">
                     <div class="form-row">
                         <div class="form-group">
@@ -316,9 +314,8 @@ class ResumeGenerator {
     }
     
     addProjectItem(data = {}) {
-        const id = Date.now() + Math.random();
         const html = `
-            <div class="list-item" data-id="${id}">
+            <div class="list-item">
                 <div class="list-item-content">
                     <div class="form-row">
                         <div class="form-group">
@@ -354,9 +351,8 @@ class ResumeGenerator {
     }
     
     addCertificationItem(data = {}) {
-        const id = Date.now() + Math.random();
         const html = `
-            <div class="list-item" data-id="${id}">
+            <div class="list-item">
                 <div class="list-item-content">
                     <div class="form-row">
                         <div class="form-group">
@@ -394,12 +390,6 @@ class ResumeGenerator {
     }
     
     setupEventListeners() {
-        // Open popup
-        document.getElementById('resumeGeneratorBtn')?.addEventListener('click', (e) => {
-            e.preventDefault();
-            this.openPopup();
-        });
-        
         // Close popup
         document.getElementById('closeResumePopup')?.addEventListener('click', () => this.closePopup());
         document.getElementById('resumePopup')?.addEventListener('click', (e) => {
@@ -419,7 +409,7 @@ class ResumeGenerator {
         document.getElementById('addProject')?.addEventListener('click', () => this.addProjectItem());
         document.getElementById('addCertification')?.addEventListener('click', () => this.addCertificationItem());
         
-        // Remove item buttons (delegated)
+        // Remove item buttons
         document.addEventListener('click', (e) => {
             if (e.target.closest('.remove-item')) {
                 e.target.closest('.list-item')?.remove();
@@ -438,7 +428,7 @@ class ResumeGenerator {
         // Download PDF from preview
         document.getElementById('downloadPdf')?.addEventListener('click', () => this.downloadPDF());
         
-        // Load example data
+        // Load example data when DOM is loaded
         document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 this.loadExampleData();
@@ -462,7 +452,6 @@ class ResumeGenerator {
     }
     
     collectFormData() {
-        // Personal Info
         this.resumeData.personalInfo = {
             name: document.getElementById('fullName').value,
             email: document.getElementById('email').value,
@@ -473,7 +462,6 @@ class ResumeGenerator {
             github: document.getElementById('github').value
         };
         
-        // Education
         this.resumeData.education = [];
         document.querySelectorAll('#educationList .list-item').forEach(item => {
             this.resumeData.education.push({
@@ -487,7 +475,6 @@ class ResumeGenerator {
             });
         });
         
-        // Experience
         this.resumeData.experience = [];
         document.querySelectorAll('#experienceList .list-item').forEach(item => {
             this.resumeData.experience.push({
@@ -501,7 +488,6 @@ class ResumeGenerator {
             });
         });
         
-        // Skills
         this.resumeData.skills = {
             languages: document.getElementById('programmingLanguages').value.split(',').map(s => s.trim()).filter(s => s),
             frameworks: document.getElementById('frameworks').value.split(',').map(s => s.trim()).filter(s => s),
@@ -509,7 +495,6 @@ class ResumeGenerator {
             languagesSpoken: document.getElementById('languages').value.split(',').map(s => s.trim()).filter(s => s)
         };
         
-        // Projects
         this.resumeData.projects = [];
         document.querySelectorAll('#projectsList .list-item').forEach(item => {
             this.resumeData.projects.push({
@@ -521,7 +506,6 @@ class ResumeGenerator {
             });
         });
         
-        // Certifications
         this.resumeData.certifications = [];
         document.querySelectorAll('#certificationsList .list-item').forEach(item => {
             this.resumeData.certifications.push({
@@ -555,7 +539,6 @@ class ResumeGenerator {
     }
     
     loadExampleData() {
-        // Example data based on John Doe's CV
         const exampleData = {
             personalInfo: {
                 name: 'John Doe',
@@ -632,14 +615,12 @@ class ResumeGenerator {
             ]
         };
         
-        // Only load example if no user data exists
         if (!localStorage.getItem('resumeDraft')) {
             this.populateForm(exampleData);
         }
     }
     
     populateForm(data) {
-        // Personal Info
         document.getElementById('fullName').value = data.personalInfo.name || '';
         document.getElementById('email').value = data.personalInfo.email || '';
         document.getElementById('phone').value = data.personalInfo.phone || '';
@@ -648,28 +629,20 @@ class ResumeGenerator {
         document.getElementById('linkedin').value = data.personalInfo.linkedin || '';
         document.getElementById('github').value = data.personalInfo.github || '';
         
-        // Clear existing lists
         document.getElementById('educationList').innerHTML = '';
         document.getElementById('experienceList').innerHTML = '';
         document.getElementById('projectsList').innerHTML = '';
         document.getElementById('certificationsList').innerHTML = '';
         
-        // Education
         data.education?.forEach(edu => this.addEducationItem(edu));
-        
-        // Experience
         data.experience?.forEach(exp => this.addExperienceItem(exp));
         
-        // Skills
         document.getElementById('programmingLanguages').value = data.skills?.languages?.join(', ') || '';
         document.getElementById('frameworks').value = data.skills?.frameworks?.join(', ') || '';
         document.getElementById('tools').value = data.skills?.tools?.join(', ') || '';
         document.getElementById('languages').value = data.skills?.languagesSpoken?.join(', ') || '';
         
-        // Projects
         data.projects?.forEach(proj => this.addProjectItem(proj));
-        
-        // Certifications
         data.certifications?.forEach(cert => this.addCertificationItem(cert));
     }
     
@@ -677,11 +650,9 @@ class ResumeGenerator {
         this.collectFormData();
         const resumeHTML = this.generateResumeHTML();
         
-        // Create a blob URL for the HTML
         const blob = new Blob([resumeHTML], { type: 'text/html' });
         const url = URL.createObjectURL(blob);
         
-        // Show in iframe
         document.getElementById('resumePreview').src = url;
         document.getElementById('resumePreviewModal').classList.add('active');
         document.body.style.overflow = 'hidden';
@@ -690,233 +661,61 @@ class ResumeGenerator {
     generateResumeHTML() {
         const data = this.resumeData;
         
-        // Format date
         const formatDate = (dateStr) => {
             if (!dateStr) return 'Present';
             const date = new Date(dateStr + '-01');
             return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
         };
         
-        return `
-<!DOCTYPE html>
+        return `<!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
     <title>${data.personalInfo.name} - Resume</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Calibri', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background: white;
-            padding: 40px;
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-        
-        .resume {
-            background: white;
-            padding: 40px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
-        }
-        
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-            border-bottom: 2px solid #2c3e50;
-            padding-bottom: 20px;
-        }
-        
-        .name {
-            font-size: 36px;
-            font-weight: bold;
-            color: #2c3e50;
-            margin-bottom: 10px;
-            letter-spacing: 1px;
-        }
-        
-        .contact-info {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 20px;
-            margin-bottom: 10px;
-        }
-        
-        .contact-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #555;
-            font-size: 14px;
-        }
-        
-        .section {
-            margin-bottom: 30px;
-        }
-        
-        .section-title {
-            font-size: 20px;
-            font-weight: bold;
-            color: #2c3e50;
-            margin-bottom: 15px;
-            padding-bottom: 5px;
-            border-bottom: 1px solid #eee;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        
-        .education-item,
-        .experience-item,
-        .project-item {
-            margin-bottom: 20px;
-        }
-        
-        .item-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
-        }
-        
-        .item-title {
-            font-size: 16px;
-            font-weight: bold;
-            color: #333;
-        }
-        
-        .item-subtitle {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 5px;
-        }
-        
-        .item-date {
-            font-size: 14px;
-            color: #2c3e50;
-            font-weight: 500;
-        }
-        
-        .item-details {
-            font-size: 14px;
-            color: #555;
-            margin-top: 5px;
-            white-space: pre-line;
-        }
-        
-        .skills-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-        }
-        
-        .skill-category {
-            margin-bottom: 10px;
-        }
-        
-        .skill-category h4 {
-            font-size: 14px;
-            color: #2c3e50;
-            margin-bottom: 5px;
-            font-weight: 600;
-        }
-        
-        .skill-list {
-            font-size: 14px;
-            color: #555;
-        }
-        
-        ul {
-            padding-left: 20px;
-        }
-        
-        li {
-            margin-bottom: 3px;
-        }
-        
-        .certification-item {
-            margin-bottom: 10px;
-        }
-        
-        .certification-name {
-            font-weight: 500;
-            color: #333;
-        }
-        
-        .certification-details {
-            font-size: 13px;
-            color: #666;
-        }
-        
-        @media print {
-            body {
-                padding: 0;
-            }
-            
-            .resume {
-                box-shadow: none;
-                padding: 20px;
-            }
-            
-            .no-print {
-                display: none;
-            }
-        }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Calibri', 'Segoe UI', sans-serif; line-height: 1.6; color: #333; background: white; padding: 40px; max-width: 1000px; margin: 0 auto; }
+        .resume { background: white; padding: 40px; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+        .header { text-align: center; margin-bottom: 40px; border-bottom: 2px solid #2c3e50; padding-bottom: 20px; }
+        .name { font-size: 36px; font-weight: bold; color: #2c3e50; margin-bottom: 10px; }
+        .contact-info { display: flex; justify-content: center; flex-wrap: wrap; gap: 20px; margin-bottom: 10px; font-size: 14px; color: #555; }
+        .section { margin-bottom: 30px; }
+        .section-title { font-size: 20px; font-weight: bold; color: #2c3e50; margin-bottom: 15px; padding-bottom: 5px; border-bottom: 1px solid #eee; text-transform: uppercase; }
+        .item-header { display: flex; justify-content: space-between; margin-bottom: 5px; }
+        .item-title { font-size: 16px; font-weight: bold; color: #333; }
+        .item-subtitle { font-size: 14px; color: #666; margin-bottom: 5px; }
+        .item-date { font-size: 14px; color: #2c3e50; font-weight: 500; }
+        .item-details { font-size: 14px; color: #555; margin-top: 5px; white-space: pre-line; }
+        .skills-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        .skill-category h4 { font-size: 14px; color: #2c3e50; margin-bottom: 5px; font-weight: 600; }
+        .skill-list { font-size: 14px; color: #555; }
+        ul { padding-left: 20px; }
+        li { margin-bottom: 3px; }
         @media (max-width: 768px) {
-            body {
-                padding: 20px;
-            }
-            
-            .resume {
-                padding: 20px;
-            }
-            
-            .name {
-                font-size: 28px;
-            }
-            
-            .contact-info {
-                flex-direction: column;
-                align-items: center;
-                gap: 10px;
-            }
-            
-            .skills-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .item-header {
-                flex-direction: column;
-            }
-            
-            .item-date {
-                margin-top: 5px;
-            }
+            body { padding: 20px; }
+            .resume { padding: 20px; }
+            .name { font-size: 28px; }
+            .contact-info { flex-direction: column; align-items: center; gap: 10px; }
+            .skills-grid { grid-template-columns: 1fr; }
+            .item-header { flex-direction: column; }
+            .item-date { margin-top: 5px; }
         }
     </style>
 </head>
 <body>
     <div class="resume">
-        <!-- Header -->
         <div class="header">
             <h1 class="name">${data.personalInfo.name}</h1>
             <div class="contact-info">
-                ${data.personalInfo.email ? `<div class="contact-item">📧 ${data.personalInfo.email}</div>` : ''}
-                ${data.personalInfo.phone ? `<div class="contact-item">📱 ${data.personalInfo.phone}</div>` : ''}
-                ${data.personalInfo.location ? `<div class="contact-item">📍 ${data.personalInfo.location}</div>` : ''}
-                ${data.personalInfo.website ? `<div class="contact-item">🌐 ${data.personalInfo.website}</div>` : ''}
-                ${data.personalInfo.linkedin ? `<div class="contact-item">💼 ${data.personalInfo.linkedin}</div>` : ''}
-                ${data.personalInfo.github ? `<div class="contact-item">💻 ${data.personalInfo.github}</div>` : ''}
+                ${data.personalInfo.email ? `<div>📧 ${data.personalInfo.email}</div>` : ''}
+                ${data.personalInfo.phone ? `<div>📱 ${data.personalInfo.phone}</div>` : ''}
+                ${data.personalInfo.location ? `<div>📍 ${data.personalInfo.location}</div>` : ''}
+                ${data.personalInfo.website ? `<div>🌐 ${data.personalInfo.website}</div>` : ''}
+                ${data.personalInfo.linkedin ? `<div>💼 ${data.personalInfo.linkedin}</div>` : ''}
+                ${data.personalInfo.github ? `<div>💻 ${data.personalInfo.github}</div>` : ''}
             </div>
         </div>
         
-        <!-- Education -->
         ${data.education.length > 0 ? `
         <div class="section">
             <h2 class="section-title">Education</h2>
@@ -933,7 +732,6 @@ class ResumeGenerator {
         </div>
         ` : ''}
         
-        <!-- Experience -->
         ${data.experience.length > 0 ? `
         <div class="section">
             <h2 class="section-title">Experience</h2>
@@ -950,7 +748,6 @@ class ResumeGenerator {
         </div>
         ` : ''}
         
-        <!-- Skills -->
         ${Object.values(data.skills).flat().length > 0 ? `
         <div class="section">
             <h2 class="section-title">Skills</h2>
@@ -986,7 +783,6 @@ class ResumeGenerator {
         </div>
         ` : ''}
         
-        <!-- Projects -->
         ${data.projects.length > 0 ? `
         <div class="section">
             <h2 class="section-title">Projects</h2>
@@ -1004,7 +800,6 @@ class ResumeGenerator {
         </div>
         ` : ''}
         
-        <!-- Certifications -->
         ${data.certifications.length > 0 ? `
         <div class="section">
             <h2 class="section-title">Certifications</h2>
@@ -1022,8 +817,7 @@ class ResumeGenerator {
         </div>
         ` : ''}
         
-        <!-- Footer -->
-        <div class="footer no-print" style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; color: #666; font-size: 12px;">
+        <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; color: #666; font-size: 12px;">
             Generated with Resume Generator • ${new Date().toLocaleDateString()}
         </div>
     </div>
@@ -1037,17 +831,14 @@ class ResumeGenerator {
         try {
             const data = this.collectFormData();
             
-            // Validate required fields
             if (!data.personalInfo.name || !data.personalInfo.email) {
                 this.showToast('Please fill in required fields (Name and Email)', 'error');
                 this.showLoading(false);
                 return;
             }
             
-            // Generate HTML
             const resumeHTML = this.generateResumeHTML();
             
-            // Create a temporary iframe for printing
             const iframe = document.createElement('iframe');
             iframe.style.display = 'none';
             document.body.appendChild(iframe);
@@ -1057,13 +848,11 @@ class ResumeGenerator {
             iframeDoc.write(resumeHTML);
             iframeDoc.close();
             
-            // Wait for content to load
             await new Promise(resolve => {
                 iframe.onload = resolve;
                 iframeDoc.addEventListener('load', resolve);
             });
             
-            // Use browser's print to PDF
             setTimeout(() => {
                 iframe.contentWindow.focus();
                 iframe.contentWindow.print();
@@ -1072,7 +861,6 @@ class ResumeGenerator {
                 this.showToast('PDF generated successfully! Check your print dialog.', 'success');
                 this.closePopup();
                 
-                // Clean up
                 setTimeout(() => document.body.removeChild(iframe), 1000);
             }, 1000);
             
@@ -1104,11 +892,9 @@ class ResumeGenerator {
         const title = toast.querySelector('.toast-content h4');
         const text = toast.querySelector('.toast-content p');
         
-        // Update toast content
         title.textContent = type === 'success' ? 'Success' : 'Error';
         text.textContent = message;
         
-        // Update icon
         if (type === 'success') {
             icon.className = 'fas fa-check-circle';
             toast.className = 'toast success';
@@ -1117,17 +903,36 @@ class ResumeGenerator {
             toast.className = 'toast error';
         }
         
-        // Show toast
         toast.classList.add('show');
         
-        // Hide after 3 seconds
         setTimeout(() => {
             toast.classList.remove('show');
         }, 3000);
     }
 }
 
-// Initialize Resume Generator when DOM is loaded
+// Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     window.resumeGenerator = new ResumeGenerator();
+    
+    // Add menu item click handler - FOR YOUR MENU STRUCTURE
+    const resumeMenuItem = document.createElement('div');
+    resumeMenuItem.className = 'menu-item';
+    resumeMenuItem.id = 'resumeMenuItem';
+    resumeMenuItem.innerHTML = `
+        <i class="fas fa-file-alt"></i>
+        <span>Resume Generator</span>
+    `;
+    
+    // Find your menu and append the item
+    const menu = document.querySelector('.menu-items') || document.querySelector('.sidebar nav') || document.querySelector('nav');
+    if (menu) {
+        menu.appendChild(resumeMenuItem);
+        
+        // Add click event
+        resumeMenuItem.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.resumeGenerator.openPopup();
+        });
+    }
 });
