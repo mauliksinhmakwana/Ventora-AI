@@ -1065,30 +1065,34 @@ const AI_IDENTITY = {
         }
 
         // ==================== CONVERSATION MANAGEMENT ====================
-        function createNewConversation() {
-            const id = Date.now().toString();
-            const conversation = {
-                id,
-                title: "New Chat",
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-                messages: []
-            };
+       function createNewConversation() {
+    const id = Date.now().toString();
+    const welcomeText = `Hello! I'm ${AI_IDENTITY.name}, your smart study buddy! What's on your academic agenda today? ✨`;
+    
+    const conversation = {
+        id,
+        title: "New Chat",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        messages: [{
+            role: 'assistant',
+            content: welcomeText,
+            timestamp: new Date().toISOString()
+        }]
+    };
+    
+    conversations.unshift(conversation);
+    currentConversationId = id;
+    saveConversations(); // This now saves the welcome message!
+    renderConversationsList();
+    switchConversation(id);
+    
+    if (window.innerWidth <= 768) {
+        closeMenu();
+    }
+}
+
             
-            conversations.unshift(conversation);
-            currentConversationId = id;
-            saveConversations();
-            renderConversationsList();
-            switchConversation(id);
-            
-            // Clear chat container and add welcome message
-            chatContainer.innerHTML = '';
-           appendMessage(`Hello! I'm ${AI_IDENTITY.name}, your smart study buddy! What's on your academic agenda today? ✨`, 'ai');
-           // Hey! I'm Nebula, your smart study buddy! What's on your academic agenda today?
-            // Close menu on mobile
-            if (window.innerWidth <= 768) {
-                closeMenu();
-            }
             
             saveConversations();
         }
@@ -1330,10 +1334,10 @@ const AI_IDENTITY = {
         function renderMessages(messages) {
             chatContainer.innerHTML = '';
             
-            if (messages.length === 0) {
-                appendMessage('Hello! I am Ventora AI. How can I assist you today?', 'ai');
-                return;
-            }
+           // if (messages.length === 0) {
+           //     appendMessage('Hello! I am Ventora AI. How can I assist you today?', 'ai');
+           //     return;
+         //   }
             
             messages.forEach(msg => {
                 if (msg.role === 'user') {
