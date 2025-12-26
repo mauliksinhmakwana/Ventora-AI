@@ -1806,6 +1806,7 @@ const rawText = data.choices[0].message.content;
                         `<div class="timestamp">${getTime()}</div>` +
                         `<div style="display: flex; gap: 16px; margin-top: 8px;">
                             <div class="regenerate-btn" onclick="copyFullResponse(this)">Copy</div>
+                            <div class="voice-btn" onclick="toggleSpeech(this)">Read</div>
                             <div class="regenerate-btn" onclick="regenerate(this)">↻ Regenerate</div>
                         </div>`;
                 }
