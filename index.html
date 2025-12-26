@@ -1113,6 +1113,15 @@
         </div>
         
         <div class="profile-menu-content">
+
+
+
+
+
+            
+
+
+            
             <!-- Settings -->
             <div class="profile-menu-item" onclick="openSettings()">
                 <div class="profile-menu-icon">
@@ -1425,6 +1434,134 @@ const AI_IDENTITY = {
             }
         }
 
+
+
+
+
+
+
+
+
+// =============== PROFILE MENU FUNCTIONS ===============
+// Add this near your other menu functions like closeMenu(), openSettings(), etc.
+
+let isProfileMenuOpen = false;
+
+function toggleProfileMenu() {
+    const profileButton = document.getElementById('profileButton');
+    const profileMenu = document.getElementById('profileMenu');
+    const overlay = document.getElementById('profileMenuOverlay');
+    
+    if (!isProfileMenuOpen) {
+        // Open profile menu
+        profileMenu.classList.add('active');
+        overlay.classList.add('active');
+        profileButton.classList.add('active');
+        isProfileMenuOpen = true;
+        
+        // Prevent body scroll
+        document.body.style.overflow = 'hidden';
+    } else {
+        closeProfileMenu();
+    }
+}
+
+function closeProfileMenu() {
+    const profileButton = document.getElementById('profileButton');
+    const profileMenu = document.getElementById('profileMenu');
+    const overlay = document.getElementById('profileMenuOverlay');
+    
+    profileMenu.classList.remove('active');
+    overlay.classList.remove('active');
+    profileButton.classList.remove('active');
+    isProfileMenuOpen = false;
+    
+    // Restore body scroll
+    document.body.style.overflow = '';
+}
+
+// =============== EVENT LISTENERS ===============
+// Add this code AFTER DOMContentLoaded or at the end of your main JS file
+
+function setupProfileMenuEvents() {
+    // Profile button click
+    const profileButton = document.getElementById('profileButton');
+    if (profileButton) {
+        profileButton.addEventListener('click', toggleProfileMenu);
+    }
+    
+    // Overlay click to close
+    const overlay = document.getElementById('profileMenuOverlay');
+    if (overlay) {
+        overlay.addEventListener('click', closeProfileMenu);
+    }
+    
+    // Transfer About button functionality
+    const aboutBtn = document.getElementById('about-nebulai-btn-profile');
+    const originalAboutBtn = document.getElementById('about-nebulai-btn');
+    
+    if (aboutBtn && originalAboutBtn) {
+        aboutBtn.addEventListener('click', function() {
+            // Copy whatever the original about button does
+            if (typeof window.openAboutModal === 'function') {
+                window.openAboutModal();
+            }
+            closeProfileMenu();
+        });
+        
+        // Remove old about button from menu (keep it hidden)
+        if (originalAboutBtn) {
+            originalAboutBtn.style.display = 'none';
+        }
+    }
+    
+    // Close profile menu on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && isProfileMenuOpen) {
+            closeProfileMenu();
+        }
+    });
+}
+
+// =============== UPDATE EXISTING FUNCTIONS ===============
+// Modify your existing functions to close profile menu
+
+// If you have openSettings function:
+function openSettings() {
+    closeProfileMenu();
+    // ... your existing openSettings code ...
+}
+
+// If you have openPersonalization function:
+function openPersonalization() {
+    closeProfileMenu();
+    // ... your existing openPersonalization code ...
+}
+
+// If you have exportChat function:
+function exportChat() {
+    closeProfileMenu();
+    // ... your existing exportChat code ...
+}
+
+// =============== INITIALIZE ===============
+// Add this to your existing DOMContentLoaded event
+document.addEventListener('DOMContentLoaded', function() {
+    // Your existing initialization code...
+    
+    // Add profile menu initialization
+    setupProfileMenuEvents();
+    
+    // Initialize resume generator (will add its own menu item)
+    if (typeof ResumeGenerator !== 'undefined') {
+        window.resumeGenerator = new ResumeGenerator();
+    }
+});
+
+
+
+
+        
         // ==================== MENU FUNCTIONS ====================
         function openMenu() {
             menuOverlay.classList.add('active');
