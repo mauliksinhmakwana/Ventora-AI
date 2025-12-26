@@ -32,36 +32,61 @@ export default async function handler(req, res) {
       return res.status(resp.status).json(await resp.json());
     }
 
+
+
+
+
+
+    
     // ================= GEMINI =================
-    if (model.startsWith("google:")) {
-      const geminiModel = model.replace("google:", "");
-      const prompt = messages.map(m => m.content).join("\n");
+   
 
-      const resp = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${process.env.GEMINI_API_KEY}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }]
-          })
-        }
-      );
+   if (model.startsWith("google:")) {
+  const geminiModel = model.replace("google:", "");
 
-      const data = await resp.json();
+  // Gemini hates system/role stuffing → send only last user message
+  const lastUserMessage =
+    [...messages].reverse().find(m => m.role === "user")?.content
+    || "Hello";
 
-      return res.status(200).json({
-        choices: [
+  const resp = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${process.env.GEMINI_API_KEY}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [
           {
-            message: {
-              role: "assistant",
-              content: data.candidates?.[0]?.content?.parts?.[0]?.text || "No response"
-            }
+            role: "user",
+            parts: [{ text: lastUserMessage }]
           }
         ]
-      });
+      })
     }
+  );
 
+  const data = await resp.json();
+
+  return res.status(200).json({
+    choices: [
+      {
+        message: {
+          role: "assistant",
+          content:
+            data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+            "Gemini returned an empty response."
+        }
+      }
+    ]
+  });
+}
+
+
+
+
+
+
+    
     // ================= OPENAI =================
     if (model.startsWith("openai:")) {
       const resp = await fetch("https://api.openai.com/v1/chat/completions", {
