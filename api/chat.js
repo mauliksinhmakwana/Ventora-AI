@@ -40,14 +40,23 @@ export default async function handler(req, res) {
     
     // ================= GEMINI =================
    
-
-   if (model.startsWith("google:")) {
+if (model.startsWith("google:")) {
   const geminiModel = model.replace("google:", "");
 
-  // Gemini hates system/role stuffing → send only last user message
-  const lastUserMessage =
-    [...messages].reverse().find(m => m.role === "user")?.content
-    || "Hello";
+  const lastUserMessage = String(
+    [...messages].reverse().find(m => m.role === "user")?.content || ""
+  ).trim();
+
+  if (!lastUserMessage) {
+    return res.status(200).json({
+      choices: [{
+        message: {
+          role: "assistant",
+          content: "Please enter a message."
+        }
+      }]
+    });
+  }
 
   const resp = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${process.env.GEMINI_API_KEY}`,
@@ -57,10 +66,13 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         contents: [
           {
-            role: "user",
             parts: [{ text: lastUserMessage }]
           }
-        ]
+        ],
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 1024
+        }
       })
     }
   );
@@ -74,14 +86,12 @@ export default async function handler(req, res) {
           role: "assistant",
           content:
             data?.candidates?.[0]?.content?.parts?.[0]?.text ||
-            "Gemini returned an empty response."
+            "Gemini returned no text."
         }
       }
     ]
   });
 }
-
-
 
 
 
