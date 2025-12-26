@@ -968,6 +968,39 @@
     </header>
     
     <main id="chat-container"></main>
+
+
+<div id="hero-welcome" style="
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    pointer-events: none;
+">
+    <div>
+        <div style="
+            font-size: clamp(2.8rem, 6vw, 3.6rem);
+            font-weight: 700;
+            color: var(--accent-blue);
+            margin-bottom: 14px;
+            letter-spacing: -0.5px;
+        ">
+            Hello, again
+        </div>
+
+        <div style="
+            font-size: 1.15rem;
+            color: var(--text-secondary);
+            max-width: 480px;
+            line-height: 1.6;
+            margin: 0 auto;
+        ">
+            How can I help you sharpen your ideas today?
+        </div>
+    </div>
+</div>
+
     
     <div class="bottom-section">
         <div class="input-section">
@@ -997,6 +1030,10 @@
 
     
     <script>
+function hideHeroWelcome() {
+    const hero = document.getElementById('hero-welcome');
+    if (hero) hero.style.display = 'none';
+}
 
 
       //<!-------------------------------------------------------------------------------------------------------------------------------------------KEY-------------------------->
@@ -1342,6 +1379,12 @@ const AI_IDENTITY = {
 
         function renderMessages(messages) {
             chatContainer.innerHTML = '';
+
+const hero = document.getElementById('hero-welcome');
+if (hero) {
+    hero.style.display = messages.length ? 'none' : 'flex';
+}
+
             
             if (messages.length === 0) {
                 appendMessage('Hello! I am Ventora AI. How can I assist you today?', 'ai');
@@ -1422,6 +1465,7 @@ const AI_IDENTITY = {
             
             // Display user message
             appendMessage(query, 'user');
+            hideHeroWelcome();
 
             // Update conversation title if needed
             if (conversation.messages.length === 1 && conversation.title === "New Chat") {
