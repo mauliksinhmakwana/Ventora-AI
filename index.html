@@ -1064,31 +1064,45 @@ const AI_IDENTITY = {
             userInput.focus();
         }
 
+
+
+
+
+        
         // ==================== CONVERSATION MANAGEMENT ====================
         function createNewConversation() {
-            const id = Date.now().toString();
-            const conversation = {
-                id,
-                title: "New Chat",
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-                messages: []
-            };
-            
-            conversations.unshift(conversation);
-            currentConversationId = id;
-            saveConversations();
-            renderConversationsList();
-            switchConversation(id);
-            
-            // Clear chat container and add welcome message
-            chatContainer.innerHTML = '';
-           appendMessage(`Hello! I'm ${AI_IDENTITY.name}, your smart study buddy! What's on your academic agenda today? ✨`, 'ai');
-           // Hey! I'm Nebula, your smart study buddy! What's on your academic agenda today?
-            // Close menu on mobile
-            if (window.innerWidth <= 768) {
-                closeMenu();
-            }
+    const id = Date.now().toString();
+    // THE REPAIR: Define the message first
+    const welcomeText = `Hello! I'm ${AI_IDENTITY.name}, your smart study buddy! What's on your academic agenda today? ✨`;
+    
+    const conversation = {
+        id,
+        title: "New Chat",
+        updatedAt: new Date().toISOString(),
+        // THE REPAIR: Add the message to the object so it stays after refresh
+        messages: [{ 
+            role: 'assistant', 
+            content: welcomeText, 
+            timestamp: new Date().toISOString() 
+        }]
+    };
+    
+    conversations.unshift(conversation);
+    currentConversationId = id;
+    
+    // Save to memory immediately
+    saveConversations();
+    renderConversationsList();
+    
+    // Render the messages (this now includes the welcome message automatically)
+    renderMessages(conversation.messages);
+    
+    if (window.innerWidth <= 768) closeMenu();
+}
+
+
+
+
             
             saveConversations();
         }
