@@ -385,12 +385,30 @@
         }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .msg {
-            max-width: 90%; line-height: 1.6; font-size: 0.95rem; white-space: pre-wrap; position: relative;
+            max-width: 90%; 
+            line-height: 1.5; 
+            font-size: 0.95rem;
+            white-space: pre-wrap; 
+            position: relative;
+            display: flex;
+            flex-direction: column; 
+            gap: 4px;
+            
         }
+
+
+        
         .user { align-self: flex-end; border-right: 2px solid white; padding-right: 15px; text-align: right; }
-        .ai { align-self: flex-start; border-left: 1px solid var(--border); padding-left: 15px; color: var(--text-secondary); }
+        .ai { align-self: flex-start; 
+             border-left: 1px solid var(--border); 
+             padding: 8px 0 8px 15px; 
+             color: var(--text-secondary); 
+            }
+
+
+        
         .timestamp {
-            font-size: 0.65rem; color: #666; margin-top: 6px; opacity: 0.8;
+            font-size: 0.65rem; color: #666; margin-top: 2px; opacity: 0.8;
         }
         .regenerate-btn {
             cursor: pointer; font-size: 0.8rem; color: var(--accent-blue); margin-top: 8px; opacity: 0.7;
@@ -1771,24 +1789,27 @@ const rawText = data.choices[0].message.content;
 
                 // Update the loading message with actual response         //------------------------------------------------------READ 2--------------------------------------------------//
                // Inside handleSend, when the AI finishes:
-         await pause(1200);
+       
+
+// Inside handleSend, when the AI finishes:
+await pause(1200);
 
 const formatted = formatAIResponse(rawText);
 
-// Render UI immediately (unchanged)
+// Render UI with minimal gaps
 loadingMsg.innerHTML = `
-  <div class="ai-text"></div>
-  <div class="timestamp">${getTime()}</div>
-  <div style="display: flex; gap: 16px; align-items: center; margin-top: 8px;">
+  <div class="ai-text" style="margin-bottom: 4px;"></div>
+  <div class="timestamp" style="margin-bottom: 4px;">${getTime()}</div>
+  <div style="display: flex; gap: 16px; align-items: center;">
       <div class="regenerate-btn" onclick="copyFullResponse(this)">Copy</div>
       <div class="voice-btn" onclick="toggleSpeech(this)">Read</div>
       <div class="regenerate-btn" onclick="regenerate(this)">↻ Regenerate</div>
   </div>`;
 
-// Type ONLY the text
+// Type ONLY the text into the container
 const aiTextEl = loadingMsg.querySelector(".ai-text");
 await typeText(aiTextEl, formatted, 25);
-
+                
                 // Save updated conversation
                 conversation.updatedAt = new Date().toISOString();
                 saveConversations();
