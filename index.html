@@ -1131,19 +1131,19 @@
             </button>
             <div id="file-status" class="file-status"></div>
             <div id="file-clear-section" style="display: none; margin-top: 8px;">
-                <button class="file-clear-btn" onclick="clearAttachedFile()" style="
-                    background: rgba(255, 59, 48, 0.1);
-                    color: #ff3b30;
-                    border: 1px solid rgba(255, 59, 48, 0.3);
-                    padding: 6px 12px;
-                    border-radius: 6px;
-                    font-size: 0.75rem;
-                    cursor: pointer;
-                    width: 100%;
-                ">
-                    Remove File
-                </button>
-            </div>
+    <button class="file-clear-btn" onclick="clearAttachedFile()" style="
+        background: rgba(255, 59, 48, 0.1);
+        color: #ff3b30;
+        border: 1px solid rgba(255, 59, 48, 0.3);
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        cursor: pointer;
+        width: 100%;
+    ">
+        Remove File
+    </button>
+</div>
         </div>
     </div>
 </div>
@@ -1259,6 +1259,42 @@ const AI_IDENTITY = {
         }
 
         // ==================== CONVERSATION MANAGEMENT ====================
+        
+        function createNewConversation() {
+    const id = Date.now().toString();
+    const conversation = {
+        id,
+        title: "New Chat",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        messages: []
+    };
+    
+    conversations.unshift(conversation);
+    currentConversationId = id;
+    saveConversations();
+    renderConversationsList();
+    switchConversation(id);
+    
+    // Clear chat container
+    chatContainer.innerHTML = '';
+    
+    // Clear file when starting new chat
+    if (window.fileContext && window.fileContext.text) {
+        if (typeof clearAttachedFile === 'function') {
+            clearAttachedFile();
+        }
+    }
+    
+    // Close menu on mobile
+    if (window.innerWidth <= 768) {
+        closeMenu();
+    }
+    
+    saveConversations();
+}
+        
+        /*
         function createNewConversation() {
             const id = Date.now().toString();
             const conversation = {
@@ -1287,28 +1323,41 @@ const AI_IDENTITY = {
             saveConversations();
         }
 
-        function switchConversation(id) {
-            currentConversationId = id;
-            const conversation = getConversationById(id);
-            
-            if (!conversation) return;
-            
-            // Render messages
-            renderMessages(conversation.messages);
-            
-            // Update conversation title if needed
-            if (conversation.messages.length > 0 && conversation.title === "New Chat") {
-                updateConversationTitle(id, conversation.messages[0].content);
-            }
-            
-            // Update UI
-            renderConversationsList();
-            
-            // Close menu on mobile
-            if (window.innerWidth <= 768) {
-                closeMenu();
-            }
+*/
+
+        
+        
+       function switchConversation(id) {
+    // Clear file when switching to different conversation
+    if (currentConversationId !== id && window.fileContext && window.fileContext.text) {
+        if (typeof clearAttachedFile === 'function') {
+            clearAttachedFile();
         }
+    }
+    
+    currentConversationId = id;
+    const conversation = getConversationById(id);
+    
+    if (!conversation) return;
+    
+    // Render messages
+    renderMessages(conversation.messages);
+    
+    // Update conversation title if needed
+    if (conversation.messages.length > 0 && conversation.title === "New Chat") {
+        updateConversationTitle(id, conversation.messages[0].content);
+    }
+    
+    // Update UI
+    renderConversationsList();
+    
+    // Close menu on mobile
+    if (window.innerWidth <= 768) {
+        closeMenu();
+    }
+}
+
+        
 
         function getCurrentConversation() {
             return getConversationById(currentConversationId);
@@ -1875,12 +1924,7 @@ const rawText = data.choices[0].message.content;
                     timestamp: new Date().toISOString()
                 });
 
-                // Clear file after successful send
-                if (window.fileContext && window.fileContext.text) {
-                    if (typeof clearAttachedFile === 'function') {
-                        clearAttachedFile();
-                    }
-                }
+             
 
                 // Update the loading message with actual response
                 // ... rest of your code continues ...
@@ -1918,12 +1962,7 @@ await typeText(aiTextEl, formatted, 25);
                 
             } catch (err) {
                 console.error('API Error:', err);
-                // Clear file on error
-                if (window.fileContext && window.fileContext.text) {
-                    if (typeof clearAttachedFile === 'function') {
-                        clearAttachedFile();
-                    }
-                }
+               
                 
                 
                 // Remove the user message if the API call failed
