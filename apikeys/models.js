@@ -1,27 +1,22 @@
 export const MODELS = [
   {
     id: "groq:llama-3.1-8b-instant",
-    label: "VEA – General",
+    label: "VEA – General (Fast)",
     maxTokens: 8192
   },
   {
-    id: "groq:llama-3.1-70b-versatile",
+    id: "groq:llama-3.1-70b",
     label: "VEA – Research Pro",
     maxTokens: 8192
   },
   {
-    id: "google:gemini-1.5-flash",
+    id: "aiml:gpt-4o-mini",
     label: "VEA – Reasoning",
-    maxTokens: 16384
+    maxTokens: 4096
   },
   {
-    id: "google:gemini-1.5-pro",
-    label: "VEA – Gemini",
-    maxTokens: 32768
-  },
-  {
-    id: "openai:gpt-4o-mini",
-    label: "VEA – Advanced Reasoning",
-    maxTokens: 16384
+    id: "aiml:mistral-7b-instruct",
+    label: "VEA – Study Helper",
+    maxTokens: 8192
   }
 ];
