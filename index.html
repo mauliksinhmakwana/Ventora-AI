@@ -1797,6 +1797,7 @@ await pause(1200);
 const formatted = formatAIResponse(rawText);
 
 // Render UI with minimal gaps
+// Render UI shell (NO formatted text yet)
 loadingMsg.innerHTML = `
   <div class="ai-text" style="margin-bottom: 4px;"></div>
   <div class="timestamp" style="margin-bottom: 4px;">${getTime()}</div>
@@ -1806,9 +1807,15 @@ loadingMsg.innerHTML = `
       <div class="regenerate-btn" onclick="regenerate(this)">↻ Regenerate</div>
   </div>`;
 
-// Type ONLY the text into the container
+// 1️⃣ Type RAW TEXT (no HTML)
 const aiTextEl = loadingMsg.querySelector(".ai-text");
-await typeText(aiTextEl, formatted, 25);
+await typeText(aiTextEl, rawText, 25);
+
+// 2️⃣ Apply formatting AFTER typing finishes
+aiTextEl.innerHTML = formatAIResponse(aiTextEl.innerText);
+
+
+
                 
                 // Save updated conversation
                 conversation.updatedAt = new Date().toISOString();
