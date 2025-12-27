@@ -1,3 +1,18 @@
+.file-anchor {
+    position: relative;
+}
+
+.file-popup {
+    position: absolute;
+    bottom: 54px;
+    left: 10px;
+    display: none;
+    z-index: 9999;
+}
+
+.file-popup.active {
+    display: block;
+}
 /* FILE BUTTON */
 #file-btn {
     background: transparent;
