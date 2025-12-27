@@ -19,17 +19,19 @@ async function typeWriterEffect(element, text, speed = 40) {
         resolve();
         return;
       }
-
       element.innerHTML += words[index] + " ";
       index++;
-      scrollToBottom?.();
+      if (typeof scrollToBottom === "function") scrollToBottom();
     }, speed);
   });
 }
 
-// Public helper to render AI message
-async function renderAIResponse(container, rawText) {
-  // thinking pause (illusion)
-  await sleep(600);
-  await typeWriterEffect(container, rawText, 45);
+// 🔴 THIS MUST EXIST
+async function renderAIResponse(container, text) {
+  await sleep(600); // thinking pause
+  await typeWriterEffect(container, text, 45);
 }
+
+// 🔴 MAKE IT GLOBAL (IMPORTANT)
+window.renderAIResponse = renderAIResponse;
+
