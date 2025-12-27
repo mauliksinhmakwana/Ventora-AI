@@ -1592,90 +1592,127 @@ if (hero) {
             scrollToBottom();
         }
 
+
+
+
+        
         // ==================== MESSAGE HANDLING ====================
-        async function handleSend(lastUserMessage = null) {
-            // Prevent rapid successive sends (especially on mobile)
-            const now = Date.now();
-            if (isSending || (now - lastSendTime < 1000)) {
-                showToast('Please wait...', 'info');
-                return;
-            }
-            
-            isSending = true;
-            lastSendTime = now;
-            sendBtn.classList.add('sending');
-            
-            let query = lastUserMessage || userInput.value.trim();
-            
-            // ADD FILE TEXT IF AVAILABLE
-            if (window.fileContext && window.fileContext.text) {
-                if (query) {
-                    query = query + "\n\n[File attached]\n" + window.fileContext.text;
-                } else {
-                    query = "[File attached]\n" + window.fileContext.text;
-                }
-            }
-            
-            if (!query.trim()) {
-                isSending = false;
-                sendBtn.classList.remove('sending');
-                return;
-            }
+      async function handleSend(lastUserMessage = null) {
+    const now = Date.now();
+    if (isSending || (now - lastSendTime < 1000)) {
+        showToast('Please wait...', 'info');
+        return;
+    }
 
-            const conversation = getCurrentConversation();
-            if (!conversation) {
-                isSending = false;
-                sendBtn.classList.remove('sending');
-                return;
-            }
+    // Identify current prompt
+    let query = lastUserMessage || userInput.value.trim();
+    
+    // Check if a file is attached from your fileupload.js
+    const attachedFile = window.fileContext || null;
 
-            // Clear input immediately to prevent double sending
-            if (!lastUserMessage) {
-                userInput.value = '';
-                userInput.style.height = 'auto';
-            }
+    // Prevent sending if both are empty
+    if (!query && !attachedFile) return;
 
-            // Add user message to conversation
-            const userMessageObj = {
-                role: 'user',
-                content: query,
-                timestamp: new Date().toISOString()
-            };
-            
-            conversation.messages.push(userMessageObj);
-            
-            // Display user message
-            appendMessage(query, 'user');
-            hideHeroWelcome();
+    isSending = true;
+    lastSendTime = now;
+    sendBtn.classList.add('sending');
 
-            // Update conversation title if needed
-            if (conversation.messages.length === 1 && conversation.title === "New Chat") {
-                updateConversationTitle(conversation.id, query);
-            }
+    const conversation = getCurrentConversation();
+    if (!conversation) {
+        isSending = false;
+        sendBtn.classList.remove('sending');
+        return;
+    }
 
-            // Add typing indicator
-            const loadingMsg = appendMessage(
-                '<div class="typing-dots"><span></span><span></span><span></span></div>', 'ai'
-            );
+    // Reset input field
+    if (!lastUserMessage) {
+        userInput.value = '';
+        userInput.style.height = 'auto';
+    }
 
-            // Save conversation
-            conversation.updatedAt = new Date().toISOString();
-            saveConversations();
-            renderConversationsList();
+    // Prepare message for UI (don't show full file text in chat bubble)
+    const displayMsg = attachedFile && !query ? `Uploaded file: ${attachedFile.name}` : query;
+    
+    // Prepare message for AI (Inject file text hiddenly)
+    let aiContent = query;
+    if (attachedFile && attachedFile.text) {
+        aiContent = `[Attached File: ${attachedFile.name}]\n${attachedFile.text}\n\nUser Question: ${query}`;
+    }
 
-            try {
-                // Prepare messages for API (remove timestamp field)
-                const apiMessages = conversation.messages.map(msg => ({
-                    role: msg.role,
-                    content: msg.content
-                }));
+    const userMessageObj = {
+        role: 'user',
+        content: aiContent,
+        displayContent: displayMsg, // Optional: for UI rendering
+        timestamp: new Date().toISOString()
+    };
 
-                // Validate that we have at least one message
-                if (apiMessages.length === 0) {
-                    throw new Error('No messages to send. Please try again.');
-                }
+    conversation.messages.push(userMessageObj);
+    appendMessage(displayMsg, 'user');
+    hideHeroWelcome();
 
+    const loadingMsg = appendMessage('<div class="typing-dots"><span></span><span></span><span></span></div>', 'ai');
 
+    try {
+        const apiMessages = conversation.messages.map(msg => ({
+            role: msg.role,
+            content: msg.content
+        }));
+
+        const response = await fetch('https://ventora-ai.vercel.app/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                model: settings.model,
+                messages: [
+                    {
+                        role: "system",
+                        content: `You are ${AI_IDENTITY.name}. Address the user as ${window.personalization?.userName || 'Student'}. Use the provided file content if relevant.`
+                    },
+                    ...apiMessages
+                ],
+                temperature: settings.temperature,
+                max_tokens: settings.maxTokens
+            })
+        });
+
+        if (!response.ok) throw new Error('API Error');
+
+        const data = await response.json();
+        const rawText = data.choices[0].message.content;
+
+        conversation.messages.push({
+            role: 'assistant',
+            content: rawText,
+            timestamp: new Date().toISOString()
+        });
+
+        await pause(800);
+        const formatted = formatAIResponse(rawText);
+        
+        loadingMsg.innerHTML = `
+            <div class="ai-text"></div>
+            <div class="timestamp">${getTime()}</div>
+            <div style="display: flex; gap: 16px; align-items: center; margin-top: 8px;">
+                <div class="regenerate-btn" onclick="copyFullResponse(this)">Copy</div>
+                <div class="voice-btn" onclick="toggleSpeech(this)">Read</div>
+                <div class="regenerate-btn" onclick="regenerate(this)">↻ Regenerate</div>
+            </div>`;
+
+        const aiTextEl = loadingMsg.querySelector(".ai-text");
+        await typeText(aiTextEl, formatted, 25);
+
+        // CLEAR FILE AFTER SENDING
+        if (typeof clearAttachedFile === 'function') {
+            clearAttachedFile();
+        }
+
+    } catch (err) {
+        loadingMsg.innerHTML = `Error: ${err.message}`;
+    } finally {
+        isSending = false;
+        sendBtn.classList.remove('sending');
+    }
+}
 
 
               
