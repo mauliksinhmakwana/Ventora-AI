@@ -548,30 +548,22 @@
         }
         
         /* MOBILE FIXES */
-       /* MOBILE FIXES */
-@media (max-width: 480px) {
-    .bottom-section {
-        padding-bottom: max(20px, env(safe-area-inset-bottom));
-    }
-    .input-bar {
-        padding: 10px 6px 10px 12px;
-    }
-    #send-btn {
-        width: 34px; height: 34px; margin-left: 6px;
-    }
-    .file-btn {
-        width: 32px; height: 32px; padding: 6px;
-    }
-    .file-btn svg {
-        width: 18px;
-        height: 18px;
-    }
-    textarea {
-        font-size: 0.95rem;
-    }
-    .footer-info { font-size: 0.6rem; }
-    main { padding: 15px; }
-    header { padding: 0 15px; }
+        @media (max-width: 480px) {
+            .bottom-section {
+                padding-bottom: max(20px, env(safe-area-inset-bottom)); /* Extra safe space */
+            }
+            .input-bar {
+                padding: 10px 8px 10px 14px;
+            }
+            #send-btn {
+                width: 34px; height: 34px; margin-left: 8px;
+            }
+            textarea {
+                font-size: 0.95rem; /* Prevents iOS zoom */
+            }
+            .footer-info { font-size: 0.6rem; }
+            main { padding: 15px; }
+            header { padding: 0 15px; }
 
 
 
@@ -872,8 +864,6 @@
 <script src="menu/menu.js" defer></script>
 <script src="./typing-illusion/typing.js"></script>
 
-    <link rel="stylesheet" href="fileupload/fileupload.css">
-        <script src="fileupload/fileupload.js" defer></script>
 </head>
 <body onload="initApp()">
     <!-- Menu Overlay (click to close) -->
@@ -1111,59 +1101,8 @@
           <!--  <div class="clear-bar">
            <!--     // <div class="tiny-new-chat" onclick="createNewConversation()">New Chat</div> -->
            <!-- </div> -->
-            
             <div class="input-bar">
-
-
-<!-- File Upload Button -->
-                <div class="file-upload-wrapper">
-                    <button class="file-btn" id="file-btn" title="Attach file">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
-                        </svg>
-                    </button>
-                    
-                    <!-- File Popup (ChatGPT style) -->
-                    <div class="file-popup" id="file-popup">
-                        <input type="file" id="file-input" hidden accept=".txt,.pdf,.doc,.docx,.rtf,.md,.html,.csv" />
-                        
-                        <div class="file-popup-content">
-                            <div class="file-title">Upload file</div>
-                            <button class="file-action" onclick="pickFile()">
-                                Choose file
-                            </button>
-                            <div id="file-status" class="file-status"></div>
-                            <div id="file-clear-section" style="display: none; margin-top: 8px;">
-                                <button class="file-clear-btn" onclick="clearAttachedFile()" style="
-                                    background: rgba(255, 59, 48, 0.1);
-                                    color: #ff3b30;
-                                    border: 1px solid rgba(255, 59, 48, 0.3);
-                                    padding: 6px 12px;
-                                    border-radius: 6px;
-                                    font-size: 0.75rem;
-                                    cursor: pointer;
-                                    width: 100%;
-                                ">
-                                    Remove File
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-
-
-
-
-
-
-
-
-
-                
                 <textarea id="user-input" rows="1" placeholder="Type a message..." oninput="autoExpand(this)"></textarea>
-
-         
                 <button id="send-btn">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                         <line x1="22" y1="2" x2="11" y2="13"></line>
@@ -1171,11 +1110,6 @@
                     </svg>
                 </button>
             </div>
-
-
-
-
-            
             <div class="footer-info">
                 Ventora AI can make mistakes. • Created by <b>Maulik Makwana</b>
             </div>
@@ -1266,15 +1200,9 @@ const AI_IDENTITY = {
         const toast = document.getElementById('toast');
 
         // ==================== INITIALIZATION ====================
-        // ==================== INITIALIZATION ====================
-               function initApp() {
+        function initApp() {
             loadSettings();
             loadConversations();
-            
-            // Initialize file upload
-            if (typeof initFileUpload === 'function') {
-                setTimeout(initFileUpload, 100);
-            }
             
             if (conversations.length === 0) {
                 createNewConversation();
@@ -1592,127 +1520,80 @@ if (hero) {
             scrollToBottom();
         }
 
-
-
-
-        
         // ==================== MESSAGE HANDLING ====================
-      async function handleSend(lastUserMessage = null) {
-    const now = Date.now();
-    if (isSending || (now - lastSendTime < 1000)) {
-        showToast('Please wait...', 'info');
-        return;
-    }
+        async function handleSend(lastUserMessage = null) {
+            // Prevent rapid successive sends (especially on mobile)
+            const now = Date.now();
+            if (isSending || (now - lastSendTime < 1000)) {
+                showToast('Please wait...', 'info');
+                return;
+            }
+            
+            isSending = true;
+            lastSendTime = now;
+            sendBtn.classList.add('sending');
+            
+            const query = lastUserMessage || userInput.value.trim();
+            if (!query) {
+                isSending = false;
+                sendBtn.classList.remove('sending');
+                return;
+            }
 
-    // Identify current prompt
-    let query = lastUserMessage || userInput.value.trim();
-    
-    // Check if a file is attached from your fileupload.js
-    const attachedFile = window.fileContext || null;
+            const conversation = getCurrentConversation();
+            if (!conversation) {
+                isSending = false;
+                sendBtn.classList.remove('sending');
+                return;
+            }
 
-    // Prevent sending if both are empty
-    if (!query && !attachedFile) return;
+            // Clear input immediately to prevent double sending
+            if (!lastUserMessage) {
+                userInput.value = '';
+                userInput.style.height = 'auto';
+            }
 
-    isSending = true;
-    lastSendTime = now;
-    sendBtn.classList.add('sending');
+            // Add user message to conversation
+            const userMessageObj = {
+                role: 'user',
+                content: query,
+                timestamp: new Date().toISOString()
+            };
+            
+            conversation.messages.push(userMessageObj);
+            
+            // Display user message
+            appendMessage(query, 'user');
+            hideHeroWelcome();
 
-    const conversation = getCurrentConversation();
-    if (!conversation) {
-        isSending = false;
-        sendBtn.classList.remove('sending');
-        return;
-    }
+            // Update conversation title if needed
+            if (conversation.messages.length === 1 && conversation.title === "New Chat") {
+                updateConversationTitle(conversation.id, query);
+            }
 
-    // Reset input field
-    if (!lastUserMessage) {
-        userInput.value = '';
-        userInput.style.height = 'auto';
-    }
+            // Add typing indicator
+            const loadingMsg = appendMessage(
+                '<div class="typing-dots"><span></span><span></span><span></span></div>', 'ai'
+            );
 
-    // Prepare message for UI (don't show full file text in chat bubble)
-    const displayMsg = attachedFile && !query ? `Uploaded file: ${attachedFile.name}` : query;
-    
-    // Prepare message for AI (Inject file text hiddenly)
-    let aiContent = query;
-    if (attachedFile && attachedFile.text) {
-        aiContent = `[Attached File: ${attachedFile.name}]\n${attachedFile.text}\n\nUser Question: ${query}`;
-    }
+            // Save conversation
+            conversation.updatedAt = new Date().toISOString();
+            saveConversations();
+            renderConversationsList();
 
-    const userMessageObj = {
-        role: 'user',
-        content: aiContent,
-        displayContent: displayMsg, // Optional: for UI rendering
-        timestamp: new Date().toISOString()
-    };
+            try {
+                // Prepare messages for API (remove timestamp field)
+                const apiMessages = conversation.messages.map(msg => ({
+                    role: msg.role,
+                    content: msg.content
+                }));
 
-    conversation.messages.push(userMessageObj);
-    appendMessage(displayMsg, 'user');
-    hideHeroWelcome();
+                // Validate that we have at least one message
+                if (apiMessages.length === 0) {
+                    throw new Error('No messages to send. Please try again.');
+                }
 
-    const loadingMsg = appendMessage('<div class="typing-dots"><span></span><span></span><span></span></div>', 'ai');
 
-    try {
-        const apiMessages = conversation.messages.map(msg => ({
-            role: msg.role,
-            content: msg.content
-        }));
-
-        const response = await fetch('https://ventora-ai.vercel.app/api/chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                model: settings.model,
-                messages: [
-                    {
-                        role: "system",
-                        content: `You are ${AI_IDENTITY.name}. Address the user as ${window.personalization?.userName || 'Student'}. Use the provided file content if relevant.`
-                    },
-                    ...apiMessages
-                ],
-                temperature: settings.temperature,
-                max_tokens: settings.maxTokens
-            })
-        });
-
-        if (!response.ok) throw new Error('API Error');
-
-        const data = await response.json();
-        const rawText = data.choices[0].message.content;
-
-        conversation.messages.push({
-            role: 'assistant',
-            content: rawText,
-            timestamp: new Date().toISOString()
-        });
-
-        await pause(800);
-        const formatted = formatAIResponse(rawText);
-        
-        loadingMsg.innerHTML = `
-            <div class="ai-text"></div>
-            <div class="timestamp">${getTime()}</div>
-            <div style="display: flex; gap: 16px; align-items: center; margin-top: 8px;">
-                <div class="regenerate-btn" onclick="copyFullResponse(this)">Copy</div>
-                <div class="voice-btn" onclick="toggleSpeech(this)">Read</div>
-                <div class="regenerate-btn" onclick="regenerate(this)">↻ Regenerate</div>
-            </div>`;
-
-        const aiTextEl = loadingMsg.querySelector(".ai-text");
-        await typeText(aiTextEl, formatted, 25);
-
-        // CLEAR FILE AFTER SENDING
-        if (typeof clearAttachedFile === 'function') {
-            clearAttachedFile();
-        }
-
-    } catch (err) {
-        loadingMsg.innerHTML = `Error: ${err.message}`;
-    } finally {
-        isSending = false;
-        sendBtn.classList.remove('sending');
-    }
-}
 
 
               
@@ -1724,44 +1605,32 @@ if (hero) {
        // 'Authorization': `Bearer ${GROQ_API_KEY}`,
         'Content-Type': 'application/json'
     },
-                    body: JSON.stringify({
-                    model: settings.model,
-                    messages: [
-                        {
-                            role: "system",
-                            content: 
-                            `You are ${AI_IDENTITY.name}. Never say "I don't have a name". Always use the name "${AI_IDENTITY.name}".
+    body: JSON.stringify({
+        model: settings.model,
+        messages: [
+            {
+                role: "system",
+                content: 
+                         
+           `You are ${AI_IDENTITY.name}. Never say "I don't have a name". Always use the name "${AI_IDENTITY.name}".
 
 You are ${AI_IDENTITY.name}. 
-User Name: ${window.personalization?.userName || ''}
-Academic Level: ${window.personalization?.studyLevel || ''}
-Major/Focus: ${window.personalization?.major || ''}
-Tone: ${window.personalization?.responseStyle || ''}
+User Name: ${window.personalization.userName ||''}
+Academic Level: ${window.personalization.studyLevel}
+Major/Focus: ${window.personalization.major || ''}
+Tone: ${window.personalization.responseStyle}
 
 ### CUSTOM USER INSTRUCTIONS ###
-${window.personalization?.customInstructions || ''}
-
-${window.fileContext?.text
-    ? `
-### ATTACHED FILE CONTEXT ###
-File: ${window.fileContext.name} (${window.fileContext.size})
-
-Extracted content:
-"""
-${window.fileContext.text}
-"""
-`
-    : ''
-}
+${window.personalization.customInstructions}
 
 RULES:
-1. Always address the user by their name (${window.personalization?.userName || ''}).
-2. Match explanation complexity to their academic level.
-3. When referencing the attached file, mention it naturally.
-4. Use the file content to provide more accurate answers.
+1. Always address the user by their name (${window.personalization.userName || ''}).
+2. Match explanation complexity to a ${window.personalization.studyLevel} level.
+3. Use examples from ${window.personalization.major || 'various fields'}.
+
 
 CORE IDENTITY:
-- Your name is Ventora
+- Your name is ventora
 - Version: VentoraAI V4.1 VEA
 - Type: Virtual Educational Assistant
 - Creator/Developer: Maulik Makwana
@@ -1862,12 +1731,16 @@ You: "False. The sun is a star, not a planet."
 
 User: "Quiz me on Indian history"
 You: [Creates history MCQs in same format]`
-                        },
-                        ...apiMessages
-                    ],
-                    temperature: settings.temperature,
-                    max_tokens: settings.maxTokens
-                })
+                
+            },
+            ...apiMessages
+        ],
+        temperature: settings.temperature,
+        max_tokens: settings.maxTokens
+    })
+});
+
+
 
 
 
@@ -2217,14 +2090,12 @@ await typeText(aiTextEl, formatted, 25);
             }
         }
 
-
-
-        
         // ==================== EVENT LISTENERS ====================
         userInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
-                handleSend();
+                // Small delay for mobile
+                setTimeout(() => handleSend(), 50);
             }
         });
         
@@ -2234,6 +2105,34 @@ await typeText(aiTextEl, formatted, 25);
             if (sendBtn.classList.contains('sending')) return;
             handleSend();
         });
+        
+        // Update temperature value when slider changes
+        tempRange.addEventListener('input', () => {
+            tempValue.textContent = tempRange.value;
+        });
+        
+        // Close modals with Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (settingsModal.classList.contains('active')) {
+                    closeSettings();
+                }
+                if (menuContainer.classList.contains('active')) {
+                    closeMenu();
+                }
+            }
+        });
+
+
+
+
+
+
+
+
+
+
+
 
 
 
