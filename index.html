@@ -1104,7 +1104,8 @@
             <div class="input-bar">
                 <textarea id="user-input" rows="1" placeholder="Type a message..." oninput="autoExpand(this)"></textarea>
 
-    <button id="attach-btn" type="button" title="Attach File">
+    <!-- FILE BUTTON -->
+    <button id="file-btn" title="Attach file">
         <i class="fas fa-paperclip"></i>
     </button>
                     
@@ -1115,6 +1116,16 @@
                     </svg>
                 </button>
             </div>
+            
+            <!-- FILE UPLOAD POPUP -->
+<div id="file-popup" class="file-popup">
+    <input type="file" id="file-input" hidden />
+    <div class="file-popup-content">
+        <div class="file-title">Upload file</div>
+        <button class="file-action" onclick="pickFile()">Choose file</button>
+        <div id="file-status" class="file-status"></div>
+    </div>
+</div>
             <div class="footer-info">
                 Ventora AI can make mistakes. • Created by <b>Maulik Makwana</b>
             </div>
@@ -1625,8 +1636,20 @@ Academic Level: ${window.personalization.studyLevel}
 Major/Focus: ${window.personalization.major || ''}
 Tone: ${window.personalization.responseStyle}
 
+
 ### CUSTOM USER INSTRUCTIONS ###
 ${window.personalization.customInstructions}
+
+${window.fileContext?.text
+? `
+### USER UPLOADED FILE CONTEXT ###
+File name: ${window.fileContext.name}
+
+Extracted text:
+"""${window.fileContext.text}"""
+`
+: ""
+}
 
 RULES:
 1. Always address the user by their name (${window.personalization.userName || ''}).
