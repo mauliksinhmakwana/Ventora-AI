@@ -1075,6 +1075,11 @@
 
     
     <script>
+
+        function pause(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 function hideHeroWelcome() {
     const hero = document.getElementById('hero-welcome');
     if (hero) hero.style.display = 'none';
@@ -1765,6 +1770,7 @@ const rawText = data.choices[0].message.content;
 
                 // Update the loading message with actual response         //------------------------------------------------------READ 2--------------------------------------------------//
                // Inside handleSend, when the AI finishes:
+            await pause(1200);
 const formatted = formatAIResponse(rawText);
 loadingMsg.innerHTML = formatted +
     `<div class="timestamp">${getTime()}</div>` +
