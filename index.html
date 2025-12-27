@@ -1605,8 +1605,18 @@ if (hero) {
             lastSendTime = now;
             sendBtn.classList.add('sending');
             
-            const query = lastUserMessage || userInput.value.trim();
-            if (!query) {
+            let query = lastUserMessage || userInput.value.trim();
+            
+            // ADD FILE TEXT IF AVAILABLE
+            if (window.fileContext && window.fileContext.text) {
+                if (query) {
+                    query = query + "\n\n[File attached]\n" + window.fileContext.text;
+                } else {
+                    query = "[File attached]\n" + window.fileContext.text;
+                }
+            }
+            
+            if (!query.trim()) {
                 isSending = false;
                 sendBtn.classList.remove('sending');
                 return;
@@ -2174,20 +2184,10 @@ await typeText(aiTextEl, formatted, 25);
 
         
         // ==================== EVENT LISTENERS ====================
-               // ==================== EVENT LISTENERS ====================
-                // ==================== EVENT LISTENERS ====================
         userInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
-                // Clear file after sending
-                if (window.fileContext?.text) {
-                    setTimeout(() => {
-                        if (typeof clearAttachedFile === 'function') {
-                            clearAttachedFile();
-                        }
-                    }, 100);
-                }
-                setTimeout(() => handleSend(), 50);
+                handleSend();
             }
         });
         
@@ -2195,14 +2195,6 @@ await typeText(aiTextEl, formatted, 25);
             e.preventDefault();
             // Prevent double-tap on mobile
             if (sendBtn.classList.contains('sending')) return;
-            // Clear file after sending
-            if (window.fileContext?.text) {
-                setTimeout(() => {
-                    if (typeof clearAttachedFile === 'function') {
-                        clearAttachedFile();
-                    }
-                }, 100);
-            }
             handleSend();
         });
 
