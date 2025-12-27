@@ -1,0 +1,73 @@
+/* --- FILE UPLOAD BUTTON --- */
+#attach-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    font-size: 1.1rem;
+}
+
+#attach-btn.active {
+    color: var(--accent-blue);
+    text-shadow: 0 0 8px rgba(0, 122, 255, 0.5);
+}
+
+/* --- MINI POPUP ATTACHMENT MENU --- */
+.file-popup {
+    position: absolute;
+    bottom: 70px; /* Positioned above the input bar */
+    right: 50px;  /* Positioned to the left of the send button area */
+    background: rgba(20, 20, 20, 0.9);
+    backdrop-filter: blur(15px);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    width: 200px;
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 2000;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    animation: popupFade 0.2s ease-out;
+}
+
+@keyframes popupFade {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.file-popup.active {
+    display: flex;
+}
+
+.file-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--text-primary);
+    transition: background 0.2s;
+    font-size: 0.9rem;
+}
+
+.file-option:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.file-option i {
+    color: var(--accent-blue);
+}
+
+.file-status-indicator {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-top: 4px;
+    text-align: center;
+}
