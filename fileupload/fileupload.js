@@ -133,14 +133,14 @@ function pickFile() {
     document.getElementById("file-input").click();
 }
 
-// Extract text from PDF (basic method)
+// Extract text from PDF
 async function extractPdfText(file) {
     try {
         const arrayBuffer = await file.arrayBuffer();
         const decoder = new TextDecoder('utf-8');
         const text = decoder.decode(arrayBuffer);
         
-        // Look for text streams in PDF
+        // Look for text in PDF
         const textMatches = text.match(/\((.*?)\)/g);
         if (textMatches) {
             const extracted = textMatches.map(match => 
@@ -149,13 +149,12 @@ async function extractPdfText(file) {
             if (extracted.trim().length > 50) return extracted;
         }
         
-        // Alternative extraction for PDFs
+        // Alternative extraction
         const lines = text.split('\n');
         const readableLines = lines.filter(line => 
             line.trim().length > 10 && 
             !line.includes('%PDF') && 
-            !line.includes('stream') &&
-            !line.includes('endstream')
+            !line.includes('stream')
         );
         
         if (readableLines.length > 0) {
@@ -173,7 +172,6 @@ async function extractPdfText(file) {
 // Extract text from DOCX
 async function extractDocxText(file) {
     try {
-        // For DOCX, we'll read it as text and filter
         const text = await file.text();
         
         // Look for readable content
@@ -188,7 +186,7 @@ async function extractDocxText(file) {
             return lines.slice(0, 100).join(' ');
         }
         
-        // Fallback: extract ASCII characters
+        // Fallback
         const asciiText = text.replace(/[^\x20-\x7E\n\r\t]/g, ' ');
         const cleanAscii = asciiText.replace(/\s+/g, ' ').trim();
         
@@ -272,11 +270,10 @@ function clearAttachedFile() {
 
 // Initialize when DOM is loaded
 document.addEventListener("DOMContentLoaded", function() {
-    // Wait a bit for other scripts to load
     setTimeout(initFileUpload, 500);
 });
 
-// Export for use in main script
+// Export functions
 window.initFileUpload = initFileUpload;
 window.pickFile = pickFile;
 window.clearAttachedFile = clearAttachedFile;
