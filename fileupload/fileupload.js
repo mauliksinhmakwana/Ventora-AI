@@ -1,64 +1,62 @@
-window.extractedFileText = "";
+// GLOBAL FILE CONTEXT
+window.fileContext = {
+    text: "",
+    name: ""
+};
 
-document.addEventListener('DOMContentLoaded', () => {
-    // Inject the mini-popup HTML dynamically into the input-section
-    const inputSection = document.querySelector('.input-section');
-    const popupHTML = `
-        <div id="filePopup" class="file-popup">
-            <div class="file-option" id="uploadOption">
-                <i class="fas fa-file-alt"></i>
-                <span>Upload Text File</span>
-            </div>
-            <div id="fileStatus" class="file-status-indicator">No file selected</div>
-        </div>
-        <input type="file" id="file-input" style="display: none;" accept=".txt,.js,.css,.html,.json,.md,.py,.cpp">
-    `;
-    inputSection.insertAdjacentHTML('afterbegin', popupHTML);
+// ELEMENTS
+const fileBtn = document.getElementById("file-btn");
+const filePopup = document.getElementById("file-popup");
+const fileInput = document.getElementById("file-input");
+const fileStatus = document.getElementById("file-status");
 
-    const attachBtn = document.getElementById('attach-btn');
-    const filePopup = document.getElementById('filePopup');
-    const uploadOption = document.getElementById('uploadOption');
-    const fileInput = document.getElementById('file-input');
-    const fileStatus = document.getElementById('fileStatus');
+// TOGGLE POPUP
+fileBtn.onclick = () => {
+    filePopup.classList.toggle("active");
+};
 
-    // Toggle the mini-popup
-    attachBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        filePopup.classList.toggle('active');
-    });
+// PICK FILE
+function pickFile() {
+    fileInput.click();
+}
 
-    // Close popup when clicking outside
-    document.addEventListener('click', () => {
-        filePopup.classList.remove('active');
-    });
+// HANDLE FILE
+fileInput.onchange = async () => {
+    const file = fileInput.files[0];
+    if (!file) return;
 
-    uploadOption.addEventListener('click', () => fileInput.click());
+    fileStatus.textContent = "Reading file...";
 
-    fileInput.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (!file) return;
+    const ext = file.name.split(".").pop().toLowerCase();
 
-        const reader = new FileReader();
-        
-        reader.onload = function(event) {
-            const text = event.target.result;
-            
-            // STRICT VALIDATION: If no text, don't accept the file
-            if (!text || text.trim().length === 0) {
-                if (window.showToast) window.showToast("Error: Your file has no text.", "error");
-                window.extractedFileText = "";
-                attachBtn.classList.remove('active');
-                fileStatus.innerText = "No text detected.";
-                fileInput.value = ""; // Clear file
-            } else {
-                window.extractedFileText = text;
-                attachBtn.classList.add('active');
-                fileStatus.innerText = `Ready: ${file.name}`;
-                if (window.showToast) window.showToast("Uploaded successfully!", "info");
-            }
-        };
+    try {
+        let text = "";
 
-        reader.readAsText(file);
-        filePopup.classList.remove('active');
-    });
-});
+        if (ext === "txt") {
+            text = await file.text();
+        } 
+        else if (ext === "pdf") {
+            text = await extractPdfText(file);
+        } 
+        else if (ext === "docx") {
+            text = await extractDocxText(file);
+        } 
+        else {
+            throw "Unsupported file";
+        }
+
+        if (!text || text.trim().length < 20) {
+            throw "No readable text found";
+        }
+
+        window.fileContext.text = text.slice(0, 15000); // limit
+        window.fileContext.name = file.name;
+
+        fileStatus.textContent = "File uploaded successfully ✓";
+        filePopup.classList.remove("active");
+
+    } catch (err) {
+        window.fileContext = { text: "", name: "" };
+        fileStatus.textContent = "Your file has no readable text";
+    }
+};
