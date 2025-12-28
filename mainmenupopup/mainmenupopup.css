@@ -1,4 +1,4 @@
-/* Main Menu Popup - DeepSeek Style - UPDATED */
+/* Main Menu Popup - DeepSeek Style - FINAL */
 
 :root {
     --menu-bg: rgba(0, 0, 0, 0.95);
@@ -24,7 +24,7 @@
     display: none;
     align-items: center;
     justify-content: center;
-    padding: 20px;
+    padding: 0;
     box-sizing: border-box;
     opacity: 0;
     transition: opacity 0.3s ease;
@@ -34,6 +34,7 @@
     .mainmenu-modal {
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
+        padding: 20px;
     }
 }
 
@@ -68,17 +69,21 @@
     }
 }
 
-/* Mobile Fullscreen */
+/* Mobile Fullscreen - FIXED for browser cutting */
 @media (max-width: 768px) {
     .mainmenu-modal {
         padding: 0;
+        height: 100vh;
+        height: 100dvh; /* Use dynamic viewport height */
     }
     
     .mainmenu-container {
         width: 100%;
         height: 100vh;
+        height: 100dvh;
         max-width: 100%;
         max-height: 100vh;
+        max-height: 100dvh;
         border-radius: 0;
         border: none;
         animation: mobileSlideIn 0.3s ease;
@@ -107,10 +112,43 @@
     overflow: hidden;
 }
 
-/* Sidebar Header */
+/* Sidebar Header with Mobile Close Button */
 .sidebar-header {
     padding: 24px;
     border-bottom: 1px solid var(--menu-border);
+    position: relative;
+}
+
+@media (max-width: 768px) {
+    .sidebar-header {
+        padding-right: 60px; /* Make room for close button */
+    }
+    
+    .sidebar-close {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: none;
+        border: none;
+        color: var(--menu-text-secondary);
+        font-size: 1.3rem;
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        -webkit-tap-highlight-color: transparent;
+        z-index: 100;
+    }
+    
+    .sidebar-close:active {
+        background: rgba(255, 255, 255, 0.1);
+    }
+    
+    .sidebar-close:hover {
+        color: var(--menu-text);
+    }
 }
 
 .sidebar-title {
@@ -200,6 +238,10 @@
         background: rgba(255, 255, 255, 0.1);
         transition: background 0.1s;
     }
+    
+    .menu-item {
+        min-height: 48px;
+    }
 }
 
 .menu-item i {
@@ -216,7 +258,7 @@
     flex: 1;
 }
 
-/* Sidebar Footer - Remove logout */
+/* Sidebar Footer - Ventora Info */
 .sidebar-footer {
     padding: 20px 24px;
     border-top: 1px solid var(--menu-border);
@@ -300,6 +342,11 @@
 }
 
 @media (max-width: 768px) {
+    .content-header {
+        padding: 20px;
+        padding-top: max(20px, env(safe-area-inset-top));
+    }
+    
     .content-back {
         display: block;
         min-width: 44px;
@@ -311,6 +358,14 @@
     
     .content-back:active {
         background: rgba(255, 255, 255, 0.1);
+    }
+    
+    .content-close, .content-back {
+        min-width: 44px;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 }
 
@@ -368,11 +423,6 @@
     
     .mainmenu-container.content-view .menu-content {
         display: flex;
-    }
-    
-    .content-header {
-        padding: 20px;
-        padding-top: max(20px, env(safe-area-inset-top));
     }
     
     .content-body {
@@ -792,80 +842,87 @@
     line-height: 1.5;
 }
 
-/* Loading State */
-.loading-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 60px 20px;
-}
-
-.loading-spinner {
-    width: 40px;
-    height: 40px;
-    border: 3px solid rgba(255, 255, 255, 0.1);
-    border-top-color: var(--menu-accent);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin-bottom: 20px;
-}
-
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-
 /* Better touch for mobile */
 @media (max-width: 768px) {
     .btn, .task-add-btn, .form-input, .form-select, .form-textarea {
         font-size: 16px; /* Prevent iOS zoom */
     }
-    
-    .menu-item {
-        min-height: 48px;
-    }
-    
-    .content-close, .content-back {
-        min-width: 44px;
-        min-height: 44px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
 }
 
+/* Preview Modal Styles */
+.preview-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    padding: 20px;
+    box-sizing: border-box;
+}
 
+.preview-modal-content {
+    background: var(--menu-surface-secondary);
+    border: 1px solid var(--menu-border);
+    border-radius: 16px;
+    padding: 24px;
+    max-width: 500px;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+}
 
+.preview-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
 
+.preview-modal-title {
+    margin: 0;
+    color: var(--menu-text);
+}
 
+.preview-modal-close {
+    background: none;
+    border: none;
+    color: var(--menu-text-secondary);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 6px;
+}
 
+.preview-modal-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
 
+.preview-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+}
 
-/* Add close button for mobile in sidebar */
-@media (max-width: 768px) {
-    .sidebar-header {
-        position: relative;
-        padding-right: 60px; /* Make room for close button */
-    }
-    
-    .sidebar-close {
-        position: absolute;
-        top: 20px;
-        right: 20px;
-        background: none;
-        border: none;
-        color: var(--menu-text-secondary);
-        font-size: 1.3rem;
-        cursor: pointer;
-        padding: 8px;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        -webkit-tap-highlight-color: transparent;
-    }
-    
-    .sidebar-close:active {
-        background: rgba(255, 255, 255, 0.1);
-    }
+.preview-action-btn {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.preview-action-btn.primary {
+    background: var(--menu-accent);
+    color: white;
+}
+
+.preview-action-btn.secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--menu-text);
 }
