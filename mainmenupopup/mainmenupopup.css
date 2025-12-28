@@ -1,0 +1,91 @@
+.mm-popup {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.6);
+  display: none;
+  z-index: 3000;
+}
+
+.mm-popup.active {
+  display: flex;
+}
+
+.mm-sheet {
+  background: #0f0f0f;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.mm-header {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.mm-back {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+}
+
+.mm-body {
+  flex: 1;
+  display: flex;
+}
+
+.mm-options {
+  width: 240px;
+  border-right: 1px solid rgba(255,255,255,.08);
+}
+
+.mm-options button {
+  width: 100%;
+  padding: 14px;
+  background: none;
+  border: none;
+  text-align: left;
+  color: white;
+}
+
+.mm-options button:hover {
+  background: rgba(255,255,255,.05);
+}
+
+.mm-content {
+  flex: 1;
+  padding: 22px;
+  overflow-y: auto;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .mm-body {
+    flex-direction: column;
+  }
+
+  .mm-options,
+  .mm-content {
+    width: 100%;
+  }
+}
+
+/* DESKTOP POPUP */
+@media (min-width: 900px) {
+  .mm-popup.active {
+    align-items: center;
+    justify-content: center;
+  }
+
+  .mm-sheet {
+    width: 720px;
+    height: 80vh;
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,.08);
+  }
+}
