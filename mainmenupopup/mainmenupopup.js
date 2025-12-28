@@ -1,4 +1,4 @@
-// Main Menu Popup - DeepSeek Style
+// Main Menu Popup - DeepSeek Style - UPDATED
 
 // Global state
 let currentSection = null;
@@ -18,15 +18,15 @@ let sections = {
         icon: 'fas fa-cog',
         render: renderSettingsSection
     },
-    'about': {
-        title: 'About',
-        icon: 'fas fa-info-circle',
-        render: renderAboutSection
-    },
     'export': {
         title: 'Export Chat',
         icon: 'fas fa-download',
         render: renderExportSection
+    },
+    'privacy': {
+        title: 'Privacy & Security',
+        icon: 'fas fa-shield-alt',
+        render: renderPrivacySection
     }
 };
 
@@ -51,14 +51,24 @@ function openMainMenuPopup() {
         container.classList.add('menu-view');
         container.classList.remove('content-view');
         currentSection = null;
+    } else {
+        // On desktop, open with first section
+        if (!currentSection) {
+            currentSection = 'personalization';
+        }
     }
     
     // Show modal
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
     
-    // Render menu
+    // Render menu and initial section
     renderMenu();
+    
+    // On desktop, show the first section
+    if (window.innerWidth > 768 && currentSection) {
+        renderSection(currentSection);
+    }
 }
 
 // Close the popup
@@ -106,10 +116,6 @@ function renderMenu() {
     const menuContainer = document.querySelector('.sidebar-menu');
     if (!menuContainer) return;
     
-    // User info
-    const userEmail = localStorage.getItem('userEmail') || 'user@example.com';
-    const userName = localStorage.getItem('userName') || 'User';
-    
     // Menu HTML
     menuContainer.innerHTML = `
         <div class="menu-section">
@@ -130,22 +136,9 @@ function renderMenu() {
         
         <div class="menu-section">
             <h4 class="section-title">About</h4>
-            ${renderMenuItem('about', 'About Ventora', 'fas fa-info-circle')}
-            <div class="menu-item">
-                <i class="fas fa-shield-alt"></i>
-                <span>Privacy & Security</span>
-            </div>
+            ${renderMenuItem('privacy', 'Privacy & Security', 'fas fa-shield-alt')}
         </div>
     `;
-    
-    // Update user info
-    const userAvatar = document.querySelector('.user-avatar');
-    const userNameEl = document.querySelector('.user-name');
-    const userEmailEl = document.querySelector('.user-email');
-    
-    if (userAvatar) userAvatar.textContent = userName.charAt(0).toUpperCase();
-    if (userNameEl) userNameEl.textContent = userName;
-    if (userEmailEl) userEmailEl.textContent = userEmail;
 }
 
 // Helper to render menu item
@@ -366,96 +359,102 @@ function renderGoalsSection(container) {
     }
 }
 
-// About Section
-function renderAboutSection(container) {
+// Privacy & Security Section
+function renderPrivacySection(container) {
     container.innerHTML = `
         <div class="about-logo">VENTORA<span>AI</span></div>
         <div class="about-tagline">Medical Information Assistant</div>
         
         <div class="about-description">
-            Ventora AI helps people understand medicines, diseases, nutrition, 
-            and health concepts from a pharmaceutical science perspective — 
-            for education and awareness, not medical instruction.
+            Your privacy and security are our top priority. Ventora AI is designed with
+            privacy-first principles to ensure your data remains secure and private.
         </div>
         
-        <div class="form-group">
-            <label class="form-label">Version</label>
-            <div class="form-input" style="background: rgba(0,122,255,0.1); border-color: rgba(0,122,255,0.3); font-weight: 500;">
-                <strong>V5.4 MIA</strong> (Medical Information Assistant)
+        <div class="privacy-content">
+            <div class="privacy-point">
+                <i class="fas fa-lock"></i>
+                <span><strong>Local Storage:</strong> All your conversations, settings, and personal data are stored locally in your browser. No data is sent to external servers for storage.</span>
+            </div>
+            
+            <div class="privacy-point">
+                <i class="fas fa-shield-alt"></i>
+                <span><strong>No Account Required:</strong> Ventora AI doesn't require you to create an account. Your data stays with you on your device.</span>
+            </div>
+            
+            <div class="privacy-point">
+                <i class="fas fa-user-secret"></i>
+                <span><strong>No Personal Tracking:</strong> We don't track your personal information, browsing history, or usage patterns. Your interactions remain private.</span>
+            </div>
+            
+            <div class="privacy-point">
+                <i class="fas fa-database"></i>
+                <span><strong>Data Ownership:</strong> You own all your data. You can export your conversations at any time or clear all data with one click.</span>
+            </div>
+            
+            <div class="privacy-point">
+                <i class="fas fa-code"></i>
+                <span><strong>Open Source:</strong> Ventora AI's code is transparent. You can review how it handles your data and verify its security measures.</span>
+            </div>
+            
+            <div class="privacy-point">
+                <i class="fas fa-heartbeat"></i>
+                <span><strong>Medical Disclaimer:</strong> Ventora AI provides educational information only. It is not a substitute for professional medical advice.</span>
             </div>
         </div>
         
-        <div class="form-group">
-            <label class="form-label">Developer</label>
-            <div class="form-input" style="font-weight: 500;">
-                Created by <strong>Maulik Makwana</strong>
-            </div>
-        </div>
-        
-        <div class="form-group">
-            <label class="form-label">Privacy & Security</label>
-            <div class="form-textarea" style="font-size: 0.9rem; line-height: 1.6; background: rgba(255,255,255,0.03);">
-                • Conversations stay in your browser<br>
-                • No external data storage<br>
-                • Secure API connections only<br>
-                • No personal information shared
-            </div>
-        </div>
-        
-        <div class="social-links">
-            <a href="#" class="social-link" target="_blank" aria-label="LinkedIn">
-                <i class="fab fa-linkedin-in"></i>
-            </a>
-            <a href="#" class="social-link" target="_blank" aria-label="Facebook">
-                <i class="fab fa-facebook-f"></i>
-            </a>
-            <a href="#" class="social-link" target="_blank" aria-label="X">
-                <i class="fab fa-x-twitter"></i>
-            </a>
+        <div class="form-info" style="margin-top: 20px; text-align: center;">
+            <i class="fas fa-info-circle"></i> Created by Maulik Makwana • Version V5.4 MIA
         </div>
     `;
 }
 
-// Export Section
+// Export Section - UPDATED with conversation selection
 function renderExportSection(container) {
-    const conversation = getCurrentConversation();
-    const hasConversation = conversation && conversation.messages.length > 0;
-    const messageCount = hasConversation ? conversation.messages.length : 0;
-    const userMessages = hasConversation ? conversation.messages.filter(m => m.role === 'user').length : 0;
-    const aiMessages = hasConversation ? conversation.messages.filter(m => m.role === 'assistant').length : 0;
+    const conversations = JSON.parse(localStorage.getItem('nebula_conversations')) || [];
+    const currentConversationId = localStorage.getItem('current_conversation_id') || (conversations[0]?.id || '');
     
-    if (!hasConversation) {
-        container.innerHTML = `
-            <div class="empty-state">
-                <i class="fas fa-comment-slash"></i>
-                <h4>No Conversation</h4>
-                <p>Start a chat to export it.</p>
+    let conversationOptions = '';
+    let exportAllOption = '';
+    
+    if (conversations.length === 0) {
+        conversationOptions = '<div class="empty-state"><i class="fas fa-comment-slash"></i><h4>No conversations</h4><p>Start chatting to export conversations.</p></div>';
+    } else {
+        // Option to export all conversations
+        exportAllOption = `
+            <div class="conversation-option" onclick="selectExportOption('all')">
+                <input type="radio" name="export-option" id="export-all" ${currentConversationId === 'all' ? 'checked' : ''}>
+                <div class="conversation-info">
+                    <div class="conversation-title">Export All Conversations</div>
+                    <div class="conversation-date">${conversations.length} conversations • All data</div>
+                </div>
             </div>
         `;
-        return;
+        
+        // Individual conversation options
+        conversations.forEach(conv => {
+            const date = new Date(conv.updatedAt);
+            const dateStr = date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+            const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const isCurrent = conv.id === currentConversationId;
+            
+            conversationOptions += `
+                <div class="conversation-option" onclick="selectExportOption('${conv.id}')">
+                    <input type="radio" name="export-option" id="export-${conv.id}" ${isCurrent ? 'checked' : ''}>
+                    <div class="conversation-info">
+                        <div class="conversation-title">${conv.title}</div>
+                        <div class="conversation-date">${dateStr} • ${timeStr} • ${conv.messages?.length || 0} messages</div>
+                    </div>
+                </div>
+            `;
+        });
     }
     
     container.innerHTML = `
         <div class="form-group">
-            <label class="form-label">Current Conversation</label>
-            <div class="form-input" style="background: rgba(255,255,255,0.03);">
-                <strong>${conversation.title}</strong><br>
-                <small>Last updated: ${new Date(conversation.updatedAt).toLocaleString()}</small>
-            </div>
-        </div>
-        
-        <div class="export-stats">
-            <div class="stat-box">
-                <div class="stat-value">${messageCount}</div>
-                <div class="stat-label">Total Messages</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-value">${userMessages}</div>
-                <div class="stat-label">Your Messages</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-value">${aiMessages}</div>
-                <div class="stat-label">AI Responses</div>
+            <label class="form-label">Select Conversations to Export</label>
+            <div class="conversation-select">
+                ${exportAllOption}
+                ${conversationOptions}
             </div>
         </div>
         
@@ -466,7 +465,9 @@ function renderExportSection(container) {
                 <option value="json">JSON (.json)</option>
                 <option value="html">HTML (.html)</option>
                 <option value="markdown">Markdown (.md)</option>
+                <option value="pdf">PDF (.pdf)</option>
             </select>
+            <div class="form-info">PDF export may take longer to generate</div>
         </div>
         
         <div class="form-group">
@@ -478,7 +479,11 @@ function renderExportSection(container) {
                 </label>
                 <label style="display: flex; align-items: center; gap: 10px;">
                     <input type="checkbox" id="menu-include-metadata" checked>
-                    <span>Metadata (title, date)</span>
+                    <span>Metadata (titles, dates)</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 10px;">
+                    <input type="checkbox" id="menu-include-formatting" checked>
+                    <span>Formatting (bold, code blocks)</span>
                 </label>
             </div>
         </div>
@@ -488,13 +493,32 @@ function renderExportSection(container) {
             <button class="btn btn-secondary" onclick="previewMenuExport()">Preview</button>
         </div>
         
-        <div class="form-info" style="margin-top: 20px;">
+        <div class="form-info" style="margin-top: 20px; text-align: center;">
             <i class="fas fa-info-circle"></i> Exported files contain only your conversation data.
         </div>
     `;
+    
+    // Initialize export selection
+    if (currentConversationId) {
+        selectExportOption(currentConversationId);
+    } else if (conversations.length > 0) {
+        selectExportOption('all');
+    }
 }
 
 // ===== DATA MANAGEMENT FUNCTIONS =====
+
+// Export selection
+let selectedExportOption = 'all';
+
+function selectExportOption(optionId) {
+    selectedExportOption = optionId;
+    
+    // Update radio buttons
+    document.querySelectorAll('input[name="export-option"]').forEach(radio => {
+        radio.checked = radio.id === `export-${optionId}`;
+    });
+}
 
 // Save personalization
 function saveMenuPersonalization() {
@@ -584,25 +608,110 @@ function deleteMenuTask(index) {
     }
 }
 
-// Export chat
+// Export chat - UPDATED with PDF support
 function exportMenuChat() {
-    const conversation = getCurrentConversation();
-    if (!conversation || conversation.messages.length === 0) {
-        showMenuToast('No conversation to export');
-        return;
-    }
-    
     const format = document.getElementById('menu-export-format')?.value || 'txt';
     const includeTimestamps = document.getElementById('menu-include-timestamps')?.checked !== false;
     const includeMetadata = document.getElementById('menu-include-metadata')?.checked !== false;
+    const includeFormatting = document.getElementById('menu-include-formatting')?.checked !== false;
+    
+    if (selectedExportOption === 'all') {
+        // Export all conversations
+        exportAllConversations(format, includeTimestamps, includeMetadata, includeFormatting);
+    } else {
+        // Export single conversation
+        exportSingleConversation(selectedExportOption, format, includeTimestamps, includeMetadata, includeFormatting);
+    }
+}
+
+function exportAllConversations(format, includeTimestamps, includeMetadata, includeFormatting) {
+    const conversations = JSON.parse(localStorage.getItem('nebula_conversations')) || [];
+    
+    if (conversations.length === 0) {
+        showMenuToast('No conversations to export');
+        return;
+    }
+    
+    if (format === 'pdf') {
+        showMenuToast('PDF export for multiple conversations coming soon!');
+        return;
+    }
+    
+    let content = '';
+    let filename = `ventora-all-conversations-${new Date().toISOString().slice(0, 10)}`;
+    let mimeType = 'text/plain';
+    
+    if (includeMetadata) {
+        content += `=== Ventora AI - All Conversations ===\n\n`;
+        content += `Export Date: ${new Date().toLocaleString()}\n`;
+        content += `Total Conversations: ${conversations.length}\n\n`;
+    }
+    
+    conversations.forEach((conv, index) => {
+        if (includeMetadata) {
+            content += `\n--- Conversation ${index + 1}: ${conv.title} ---\n`;
+            content += `Date: ${new Date(conv.updatedAt).toLocaleString()}\n`;
+            content += `Messages: ${conv.messages?.length || 0}\n\n`;
+        }
+        
+        conv.messages?.forEach(msg => {
+            const role = msg.role === 'user' ? 'You' : 'Ventora AI';
+            const time = includeTimestamps ? `[${new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}] ` : '';
+            content += `${time}${role}:\n${msg.content}\n\n`;
+        });
+        
+        content += '\n';
+    });
+    
+    if (includeMetadata) {
+        content += '\n=== End of Export ===\n';
+    }
+    
+    switch(format) {
+        case 'txt':
+            filename += '.txt';
+            break;
+        case 'json':
+            content = JSON.stringify({ conversations, exportDate: new Date().toISOString() }, null, 2);
+            filename += '.json';
+            mimeType = 'application/json';
+            break;
+        case 'html':
+            // Simple HTML export for all conversations
+            content = generateAllConversationsHTML(conversations, includeTimestamps, includeMetadata);
+            filename += '.html';
+            mimeType = 'text/html';
+            break;
+        case 'markdown':
+            filename += '.md';
+            break;
+    }
+    
+    downloadFile(content, filename, mimeType);
+    showMenuToast(`Exported ${conversations.length} conversations!`);
+}
+
+function exportSingleConversation(conversationId, format, includeTimestamps, includeMetadata, includeFormatting) {
+    const conversations = JSON.parse(localStorage.getItem('nebula_conversations')) || [];
+    const conversation = conversations.find(c => c.id === conversationId);
+    
+    if (!conversation || !conversation.messages || conversation.messages.length === 0) {
+        showMenuToast('No conversation to export');
+        return;
+    }
     
     let content = '';
     let filename = `ventora-chat-${conversation.id}`;
     let mimeType = 'text/plain';
     
+    if (format === 'pdf') {
+        generatePDF(conversation, includeTimestamps, includeMetadata, includeFormatting);
+        return;
+    }
+    
     switch(format) {
         case 'txt':
-            content = exportConversationAsText(conversation, includeTimestamps, includeMetadata);
+            content = exportConversationAsText(conversation, includeTimestamps, includeMetadata, includeFormatting);
             filename += '.txt';
             break;
         case 'json':
@@ -611,32 +720,22 @@ function exportMenuChat() {
             mimeType = 'application/json';
             break;
         case 'html':
-            content = exportConversationAsHTML(conversation, includeTimestamps, includeMetadata);
+            content = exportConversationAsHTML(conversation, includeTimestamps, includeMetadata, includeFormatting);
             filename += '.html';
             mimeType = 'text/html';
             break;
         case 'markdown':
-            content = exportConversationAsMarkdown(conversation, includeTimestamps, includeMetadata);
+            content = exportConversationAsMarkdown(conversation, includeTimestamps, includeMetadata, includeFormatting);
             filename += '.md';
             break;
     }
     
-    // Download the file
-    const blob = new Blob([content], { type: mimeType });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    
+    downloadFile(content, filename, mimeType);
     showMenuToast('Chat exported!');
 }
 
 // Export helper functions
-function exportConversationAsText(conversation, includeTimestamps, includeMetadata) {
+function exportConversationAsText(conversation, includeTimestamps, includeMetadata, includeFormatting) {
     let text = '';
     
     if (includeMetadata) {
@@ -673,11 +772,11 @@ function exportConversationAsJSON(conversation) {
     return JSON.stringify(exportData, null, 2);
 }
 
-function exportConversationAsHTML(conversation, includeTimestamps, includeMetadata) {
+function exportConversationAsHTML(conversation, includeTimestamps, includeMetadata, includeFormatting) {
     let html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${conversation.title}</title>
-    <style>body{font-family:sans-serif;max-width:800px;margin:0 auto;padding:20px;line-height:1.6}
+    <style>body{font-family:-apple-system,sans-serif;max-width:800px;margin:0 auto;padding:20px;line-height:1.6}
     .message{margin-bottom:20px;padding:15px;border-radius:8px}.user{background:#f0f7ff}
-    .ai{background:#f8f9fa}.timestamp{font-size:0.8rem;color:#666}</style></head><body>`;
+    .ai{background:#f8f9fa}.timestamp{font-size:0.8rem;color:#666}pre{background:#1a1a1a;color:#fff;padding:10px;border-radius:5px}</style></head><body>`;
     
     if (includeMetadata) {
         html += `<h1>${conversation.title}</h1><p><small>${new Date(conversation.updatedAt).toLocaleString()}</small></p><hr>`;
@@ -697,7 +796,7 @@ function exportConversationAsHTML(conversation, includeTimestamps, includeMetada
     return html;
 }
 
-function exportConversationAsMarkdown(conversation, includeTimestamps, includeMetadata) {
+function exportConversationAsMarkdown(conversation, includeTimestamps, includeMetadata, includeFormatting) {
     let md = '';
     
     if (includeMetadata) {
@@ -713,6 +812,126 @@ function exportConversationAsMarkdown(conversation, includeTimestamps, includeMe
     });
     
     return md;
+}
+
+function generateAllConversationsHTML(conversations, includeTimestamps, includeMetadata) {
+    let html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Ventora AI Conversations</title>
+    <style>body{font-family:sans-serif;max-width:800px;margin:0 auto;padding:20px}
+    .conversation{margin-bottom:40px;border-bottom:2px solid #ddd;padding-bottom:20px}
+    .message{margin-bottom:15px;padding:10px;border-radius:5px}.user{background:#f0f7ff}
+    .ai{background:#f8f9fa}.timestamp{font-size:0.8rem;color:#666}</style></head><body>
+    <h1>Ventora AI Conversations</h1><p><small>Export Date: ${new Date().toLocaleString()}</small></p>`;
+    
+    conversations.forEach((conv, index) => {
+        html += `<div class="conversation"><h2>${index + 1}. ${conv.title}</h2>`;
+        html += `<p><small>${new Date(conv.updatedAt).toLocaleString()} • ${conv.messages?.length || 0} messages</small></p>`;
+        
+        conv.messages?.forEach(msg => {
+            const roleClass = msg.role === 'user' ? 'user' : 'ai';
+            const roleName = msg.role === 'user' ? 'You' : 'Ventora AI';
+            const time = includeTimestamps ? new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+            
+            html += `<div class="message ${roleClass}"><strong>${roleName}</strong><br>${msg.content.replace(/\n/g, '<br>')}`;
+            if (time) html += `<div class="timestamp">${time}</div>`;
+            html += `</div>`;
+        });
+        
+        html += `</div>`;
+    });
+    
+    html += `</body></html>`;
+    return html;
+}
+
+// PDF generation using jsPDF
+function generatePDF(conversation, includeTimestamps, includeMetadata, includeFormatting) {
+    // Check if jsPDF is available
+    if (typeof jspdf === 'undefined') {
+        showMenuToast('PDF export requires jsPDF library. Using HTML export instead.');
+        exportSingleConversation(conversation.id, 'html', includeTimestamps, includeMetadata, includeFormatting);
+        return;
+    }
+    
+    try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        let y = 20;
+        const lineHeight = 7;
+        const margin = 20;
+        const pageWidth = doc.internal.pageSize.width;
+        const maxWidth = pageWidth - 2 * margin;
+        
+        // Add title
+        doc.setFontSize(16);
+        doc.text(conversation.title, margin, y);
+        y += 15;
+        
+        // Add metadata
+        if (includeMetadata) {
+            doc.setFontSize(10);
+            doc.text(`Date: ${new Date(conversation.updatedAt).toLocaleString()}`, margin, y);
+            y += 10;
+        }
+        
+        // Add messages
+        doc.setFontSize(12);
+        
+        conversation.messages.forEach(msg => {
+            const role = msg.role === 'user' ? 'You' : 'Ventora AI';
+            
+            // Check if we need a new page
+            if (y > 280) {
+                doc.addPage();
+                y = 20;
+            }
+            
+            // Add role
+            doc.setFont('helvetica', 'bold');
+            let text = role;
+            if (includeTimestamps) {
+                text += ` [${new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}]`;
+            }
+            doc.text(text, margin, y);
+            y += lineHeight;
+            
+            // Add message content
+            doc.setFont('helvetica', 'normal');
+            const lines = doc.splitTextToSize(msg.content, maxWidth);
+            lines.forEach(line => {
+                if (y > 280) {
+                    doc.addPage();
+                    y = 20;
+                }
+                doc.text(line, margin, y);
+                y += lineHeight;
+            });
+            
+            y += lineHeight; // Space between messages
+        });
+        
+        // Save PDF
+        doc.save(`ventora-chat-${conversation.id}.pdf`);
+        showMenuToast('PDF exported!');
+        
+    } catch (error) {
+        console.error('PDF export error:', error);
+        showMenuToast('PDF export failed. Using HTML instead.');
+        exportSingleConversation(conversation.id, 'html', includeTimestamps, includeMetadata, includeFormatting);
+    }
+}
+
+// Download helper
+function downloadFile(content, filename, mimeType) {
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
 }
 
 // Clear all data
@@ -760,22 +979,6 @@ function clearAllMenuData() {
     }
 }
 
-// Helper to get current conversation
-function getCurrentConversation() {
-    if (typeof window.getCurrentConversation === 'function') {
-        return window.getCurrentConversation();
-    }
-    
-    const conversations = JSON.parse(localStorage.getItem('nebula_conversations')) || [];
-    const currentId = localStorage.getItem('current_conversation_id');
-    
-    if (currentId) {
-        return conversations.find(c => c.id === currentId);
-    }
-    
-    return conversations[0] || null;
-}
-
 // Toast notification
 function showMenuToast(message) {
     if (typeof showToast === 'function') {
@@ -806,7 +1009,7 @@ function showMenuToast(message) {
     }, 3000);
 }
 
-// Preview export (placeholder)
+// Preview export
 function previewMenuExport() {
     showMenuToast('Preview feature coming soon!');
 }
@@ -817,12 +1020,26 @@ function setupEventListeners() {
     const closeBtn = document.querySelector('.content-close');
     if (closeBtn) {
         closeBtn.addEventListener('click', closeMainMenuPopup);
+        // Add touch support
+        closeBtn.addEventListener('touchstart', function(e) {
+            this.style.transform = 'scale(0.95)';
+        });
+        closeBtn.addEventListener('touchend', function(e) {
+            this.style.transform = '';
+        });
     }
     
     // Back button for mobile
     const backBtn = document.querySelector('.content-back');
     if (backBtn) {
         backBtn.addEventListener('click', goBackToMenu);
+        // Add touch support
+        backBtn.addEventListener('touchstart', function(e) {
+            this.style.transform = 'scale(0.95)';
+        });
+        backBtn.addEventListener('touchend', function(e) {
+            this.style.transform = '';
+        });
     }
     
     // Close on background click
@@ -849,19 +1066,16 @@ function setupEventListeners() {
             renderMenu();
         }
     });
+    
+    // Better touch support for menu items
+    document.addEventListener('touchstart', function() {}, { passive: true });
 }
 
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', initMainMenuPopup);
 
-function logoutUser() {
-    if (confirm('Log out from Ventora AI?')) {
-        showMenuToast('Logged out');
-        closeMainMenuPopup();
-    }
-}
-
 // Export functions
 window.openMainMenuPopup = openMainMenuPopup;
 window.closeMainMenuPopup = closeMainMenuPopup;
 window.openSection = openSection;
+window.selectExportOption = selectExportOption;
