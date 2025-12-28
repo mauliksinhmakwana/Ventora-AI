@@ -833,3 +833,39 @@
         justify-content: center;
     }
 }
+
+
+
+
+
+
+
+
+/* Add close button for mobile in sidebar */
+@media (max-width: 768px) {
+    .sidebar-header {
+        position: relative;
+        padding-right: 60px; /* Make room for close button */
+    }
+    
+    .sidebar-close {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: none;
+        border: none;
+        color: var(--menu-text-secondary);
+        font-size: 1.3rem;
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        -webkit-tap-highlight-color: transparent;
+    }
+    
+    .sidebar-close:active {
+        background: rgba(255, 255, 255, 0.1);
+    }
+}
