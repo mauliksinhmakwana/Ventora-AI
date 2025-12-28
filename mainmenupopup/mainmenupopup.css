@@ -38,6 +38,14 @@
     }
 }
 
+/* Hide mobile close button on desktop */
+@media (min-width: 769px) {
+    .mobile-close-btn {
+        display: none !important;
+    }
+}
+
+
 .mainmenu-modal.active {
     display: flex;
     opacity: 1;
@@ -927,9 +935,4 @@
     color: var(--menu-text);
 }
 
-/* Hide mobile close button on desktop */
-@media (min-width: 769px) {
-    .mobile-close-btn {
-        display: none !important;
-    }
-}
+
