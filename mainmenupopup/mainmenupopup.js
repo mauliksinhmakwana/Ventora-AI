@@ -1,198 +1,206 @@
-// Main Menu Popup - Unified Settings Interface
+// Main Menu Popup - DeepSeek Style
 
 // Global state
-let currentView = 'menu';
 let currentSection = null;
-
-// Data structures
-const sections = {
-    personalization: {
-        id: 'personalization',
-        title: 'Personalization',
-        icon: 'fas fa-user-circle',
-        description: 'Customize how Ventora responds to you'
-    },
-    settings: {
-        id: 'settings',
-        title: 'Settings',
-        icon: 'fas fa-cog',
-        description: 'Configure model and preferences'
-    },
-    goals: {
-        id: 'goals',
+let sections = {
+    'goals': {
         title: 'Your Goals',
         icon: 'fas fa-check-circle',
-        description: 'Track your study goals and notes'
+        render: renderGoalsSection
     },
-    about: {
-        id: 'about',
+    'personalization': {
+        title: 'Personalization',
+        icon: 'fas fa-user-circle',
+        render: renderPersonalizationSection
+    },
+    'settings': {
+        title: 'Settings',
+        icon: 'fas fa-cog',
+        render: renderSettingsSection
+    },
+    'about': {
         title: 'About',
         icon: 'fas fa-info-circle',
-        description: 'Learn about Ventora AI'
+        render: renderAboutSection
     },
-    export: {
-        id: 'export',
+    'export': {
         title: 'Export Chat',
         icon: 'fas fa-download',
-        description: 'Export your current conversation'
+        render: renderExportSection
     }
 };
 
-// Initialize the popup
+// Initialize popup
 function initMainMenuPopup() {
-    // Load all data
-    loadPersonalizationData();
-    loadGoalsData();
-    loadSettingsData();
-    
-    // Set up event listeners
+    loadAllData();
     setupEventListeners();
-    
-    console.log('Main Menu Popup initialized');
 }
 
 // Open the main menu popup
 function openMainMenuPopup() {
     const modal = document.getElementById('mainmenu-modal');
-    if (!modal) return;
+    const container = document.querySelector('.mainmenu-container');
     
-    // Reset to menu view on open (especially for mobile)
-    currentView = 'menu';
-    currentSection = null;
+    if (!modal || !container) return;
     
-    // Update UI classes
+    // Close sidebar menu if open
+    if (typeof closeMenu === 'function') closeMenu();
+    
+    // Reset to menu view on mobile
+    if (window.innerWidth <= 768) {
+        container.classList.add('menu-view');
+        container.classList.remove('content-view');
+        currentSection = null;
+    }
+    
+    // Show modal
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
     
-    // Set appropriate view class
-    const content = modal.querySelector('.mainmenu-content');
-    if (window.innerWidth <= 768) {
-        content.classList.add('menu-view');
-        content.classList.remove('content-view');
-    } else {
-        content.classList.remove('menu-view');
-        content.classList.remove('content-view');
-    }
-    
-    // Render the menu
+    // Render menu
     renderMenu();
 }
 
-// Close the main menu popup
+// Close the popup
 function closeMainMenuPopup() {
     const modal = document.getElementById('mainmenu-modal');
     if (!modal) return;
     
     modal.classList.remove('active');
     document.body.style.overflow = '';
-    
-    // Reset after animation
-    setTimeout(() => {
-        currentView = 'menu';
-        currentSection = null;
-    }, 300);
-}
-
-// Render the left sidebar menu
-function renderMenu() {
-    const menuContainer = document.querySelector('.sidebar-menu');
-    if (!menuContainer) return;
-    
-    let menuHTML = '';
-    
-    // Add all menu items
-    Object.values(sections).forEach(section => {
-        const activeClass = currentSection === section.id ? 'active' : '';
-        menuHTML += `
-            <div class="menu-item ${activeClass}" onclick="openSection('${section.id}')">
-                <i class="${section.icon}"></i>
-                <span>${section.title}</span>
-            </div>
-        `;
-    });
-    
-    // Add "Clear All Data" at the bottom
-    menuHTML += `
-        <div class="menu-divider" style="margin: 16px 24px; height: 1px; background: var(--popup-border);"></div>
-        <div class="menu-item" onclick="showClearDataConfirm()">
-            <i class="fas fa-trash-alt" style="color: #ff3b30;"></i>
-            <span style="color: #ff3b30;">Clear All Data</span>
-        </div>
-    `;
-    
-    menuContainer.innerHTML = menuHTML;
-}
-
-// Open a specific section
-function openSection(sectionId) {
-    currentSection = sectionId;
-    const section = sections[sectionId];
-    
-    if (!section) {
-        console.error('Section not found:', sectionId);
-        return;
-    }
-    
-    // Update view state for mobile
-    if (window.innerWidth <= 768) {
-        currentView = 'content';
-        document.querySelector('.mainmenu-content').classList.remove('menu-view');
-        document.querySelector('.mainmenu-content').classList.add('content-view');
-    }
-    
-    // Update active state in menu
-    renderMenu();
-    
-    // Render the section content
-    renderSection(sectionId);
 }
 
 // Go back to menu (mobile)
 function goBackToMenu() {
     if (window.innerWidth <= 768) {
-        currentView = 'menu';
+        const container = document.querySelector('.mainmenu-container');
+        container.classList.add('menu-view');
+        container.classList.remove('content-view');
         currentSection = null;
-        
-        const content = document.querySelector('.mainmenu-content');
-        content.classList.add('menu-view');
-        content.classList.remove('content-view');
-        
-        renderMenu();
     }
 }
 
-// Render section content
-function renderSection(sectionId) {
-    const panelContent = document.querySelector('.panel-content');
-    const panelTitle = document.querySelector('.panel-title');
-    
-    if (!panelContent || !panelTitle) return;
-    
+// Open a section
+function openSection(sectionId) {
     const section = sections[sectionId];
-    panelTitle.textContent = section.title;
+    if (!section) return;
     
-    switch(sectionId) {
-        case 'personalization':
-            renderPersonalizationSection(panelContent);
-            break;
-        case 'settings':
-            renderSettingsSection(panelContent);
-            break;
-        case 'goals':
-            renderGoalsSection(panelContent);
-            break;
-        case 'about':
-            renderAboutSection(panelContent);
-            break;
-        case 'export':
-            renderExportSection(panelContent);
-            break;
-        default:
-            panelContent.innerHTML = `<div class="empty-state">
-                <i class="fas fa-question-circle"></i>
-                <h3>Section Not Found</h3>
-                <p>This section is not available.</p>
-            </div>`;
+    currentSection = sectionId;
+    
+    // Update UI based on device
+    if (window.innerWidth <= 768) {
+        const container = document.querySelector('.mainmenu-container');
+        container.classList.remove('menu-view');
+        container.classList.add('content-view');
+    }
+    
+    // Update active menu item
+    renderMenu();
+    
+    // Render the section
+    renderSection(sectionId);
+}
+
+// Render the sidebar menu
+function renderMenu() {
+    const menuContainer = document.querySelector('.sidebar-menu');
+    if (!menuContainer) return;
+    
+    // User info
+    const userEmail = localStorage.getItem('userEmail') || 'user@example.com';
+    const userName = localStorage.getItem('userName') || 'User';
+    
+    // Menu HTML
+    menuContainer.innerHTML = `
+        <div class="menu-section">
+            <h4 class="section-title">Preferences</h4>
+            ${renderMenuItem('goals', 'Your Goals', 'fas fa-check-circle')}
+            ${renderMenuItem('personalization', 'Personalization', 'fas fa-user-circle')}
+            ${renderMenuItem('settings', 'Settings', 'fas fa-cog')}
+        </div>
+        
+        <div class="menu-section">
+            <h4 class="section-title">Data</h4>
+            ${renderMenuItem('export', 'Export Chat', 'fas fa-download')}
+            <div class="menu-item" onclick="showClearDataConfirm()">
+                <i class="fas fa-trash-alt"></i>
+                <span>Clear All Data</span>
+            </div>
+        </div>
+        
+        <div class="menu-section">
+            <h4 class="section-title">About</h4>
+            ${renderMenuItem('about', 'About Ventora', 'fas fa-info-circle')}
+            <div class="menu-item">
+                <i class="fas fa-shield-alt"></i>
+                <span>Privacy & Security</span>
+            </div>
+        </div>
+    `;
+    
+    // Update user info
+    const userAvatar = document.querySelector('.user-avatar');
+    const userNameEl = document.querySelector('.user-name');
+    const userEmailEl = document.querySelector('.user-email');
+    
+    if (userAvatar) userAvatar.textContent = userName.charAt(0).toUpperCase();
+    if (userNameEl) userNameEl.textContent = userName;
+    if (userEmailEl) userEmailEl.textContent = userEmail;
+}
+
+// Helper to render menu item
+function renderMenuItem(id, title, icon) {
+    const activeClass = currentSection === id ? 'active' : '';
+    return `
+        <div class="menu-item ${activeClass}" onclick="openSection('${id}')">
+            <i class="${icon}"></i>
+            <span>${title}</span>
+        </div>
+    `;
+}
+
+// Render a section
+function renderSection(sectionId) {
+    const section = sections[sectionId];
+    if (!section) return;
+    
+    const contentTitle = document.querySelector('.content-title');
+    const contentBody = document.querySelector('.content-body');
+    
+    if (contentTitle) contentTitle.textContent = section.title;
+    if (contentBody) section.render(contentBody);
+}
+
+// Load all data
+function loadAllData() {
+    // Personalization
+    if (!window.personalization) {
+        window.personalization = JSON.parse(localStorage.getItem('nebula_pers')) || {
+            userName: '',
+            studyLevel: 'college',
+            major: '',
+            responseStyle: 'balanced',
+            customInstructions: ''
+        };
+    }
+    
+    // App Settings
+    if (!window.nebulaSettings) {
+        window.nebulaSettings = JSON.parse(localStorage.getItem('nebula_settings')) || {
+            model: 'groq:general',
+            temperature: 0.7,
+            maxTokens: 1024
+        };
+    }
+    
+    // Goals/Tasks
+    if (!window.ventoraTasks) {
+        window.ventoraTasks = JSON.parse(localStorage.getItem('ventora_tasks')) || [];
+    }
+    
+    // Study Notes
+    if (!window.ventoraNotes) {
+        window.ventoraNotes = localStorage.getItem('ventora_study_notes') || '';
     }
 }
 
@@ -200,119 +208,100 @@ function renderSection(sectionId) {
 
 // Personalization Section
 function renderPersonalizationSection(container) {
-    // Get current personalization data
-    const persData = window.personalization || {
-        userName: '',
-        studyLevel: 'college',
-        major: '',
-        responseStyle: 'balanced',
-        customInstructions: ''
-    };
-    
     container.innerHTML = `
         <div class="form-group">
-            <label class="form-label">Preferred Name</label>
-            <input type="text" class="form-input" id="mainmenu-pers-name" 
+            <label class="form-label">Your Name</label>
+            <input type="text" class="form-input" id="menu-pers-name" 
                    placeholder="What should I call you?" 
-                   value="${persData.userName || ''}">
+                   value="${window.personalization.userName || ''}">
         </div>
         
         <div class="form-group">
             <label class="form-label">Proficiency Level</label>
-            <select class="form-select" id="mainmenu-pers-level">
-                <option value="school" ${persData.studyLevel === 'school' ? 'selected' : ''}>Foundation</option>
-                <option value="highschool" ${persData.studyLevel === 'highschool' ? 'selected' : ''}>Intermediate</option>
-                <option value="college" ${persData.studyLevel === 'college' ? 'selected' : ''}>Advanced Academic</option>
-                <option value="researcher" ${persData.studyLevel === 'researcher' ? 'selected' : ''}>Expert / Scholar</option>
+            <select class="form-select" id="menu-pers-level">
+                <option value="school" ${window.personalization.studyLevel === 'school' ? 'selected' : ''}>Foundation</option>
+                <option value="highschool" ${window.personalization.studyLevel === 'highschool' ? 'selected' : ''}>Intermediate</option>
+                <option value="college" ${window.personalization.studyLevel === 'college' ? 'selected' : ''}>Advanced Academic</option>
+                <option value="researcher" ${window.personalization.studyLevel === 'researcher' ? 'selected' : ''}>Expert / Scholar</option>
             </select>
         </div>
         
         <div class="form-group">
             <label class="form-label">Interest / Major</label>
-            <input type="text" class="form-input" id="mainmenu-pers-major" 
-                   placeholder="e.g. Computer Science, Physics, Medicine"
-                   value="${persData.major || ''}">
+            <input type="text" class="form-input" id="menu-pers-major" 
+                   placeholder="e.g. Medicine, Computer Science"
+                   value="${window.personalization.major || ''}">
         </div>
         
         <div class="form-group">
-            <label class="form-label">Ventora Style</label>
-            <select class="form-select" id="mainmenu-pers-style">
-                <option value="balanced" ${persData.responseStyle === 'balanced' ? 'selected' : ''}>Standard (Optimal)</option>
-                <option value="technical" ${persData.responseStyle === 'technical' ? 'selected' : ''}>Technical & Analytical</option>
-                <option value="encouraging" ${persData.responseStyle === 'encouraging' ? 'selected' : ''}>Socratic Tutor</option>
-                <option value="concise" ${persData.responseStyle === 'concise' ? 'selected' : ''}>Direct & Precise</option>
+            <label class="form-label">Response Style</label>
+            <select class="form-select" id="menu-pers-style">
+                <option value="balanced" ${window.personalization.responseStyle === 'balanced' ? 'selected' : ''}>Standard (Optimal)</option>
+                <option value="technical" ${window.personalization.responseStyle === 'technical' ? 'selected' : ''}>Technical & Analytical</option>
+                <option value="encouraging" ${window.personalization.responseStyle === 'encouraging' ? 'selected' : ''}>Socratic Tutor</option>
+                <option value="concise" ${window.personalization.responseStyle === 'concise' ? 'selected' : ''}>Direct & Precise</option>
             </select>
         </div>
         
         <div class="form-group">
-            <label class="form-label">Your Instructions</label>
-            <textarea class="form-textarea" id="mainmenu-pers-custom" 
-                      placeholder="What would you like Ventora to know? Any specific preferences or context...">
-${persData.customInstructions || ''}</textarea>
+            <label class="form-label">Custom Instructions</label>
+            <textarea class="form-textarea" id="menu-pers-custom" 
+                      placeholder="What would you like Ventora to know? Any specific preferences...">
+${window.personalization.customInstructions || ''}</textarea>
         </div>
         
         <div class="btn-group">
-            <button class="btn btn-secondary" onclick="saveMainMenuPersonalization()">Save Changes</button>
-            <button class="btn" onclick="resetPersonalization()">Reset to Default</button>
+            <button class="btn btn-primary" onclick="saveMenuPersonalization()">Save Changes</button>
+            <button class="btn btn-secondary" onclick="resetMenuPersonalization()">Reset to Default</button>
         </div>
     `;
 }
 
 // Settings Section
 function renderSettingsSection(container) {
-    // Get current settings
-    const settings = JSON.parse(localStorage.getItem('nebula_settings')) || {
-        model: 'groq:llama-3.1-8b-instant',
-        temperature: 0.7,
-        maxTokens: 1024
-    };
-    
     container.innerHTML = `
-        <div class="settings-group">
+        <div class="form-group">
             <label class="form-label">AI Model</label>
-            <select class="form-select" id="mainmenu-settings-model">
-                <option value="groq:general" ${settings.model === 'groq:general' ? 'selected' : ''}>MIA – General</option>
-                <option value="groq:research" ${settings.model === 'groq:research' ? 'selected' : ''}>MIA – Research & Analysis</option>
-                <option value="groq:study" ${settings.model === 'groq:study' ? 'selected' : ''}>MIA – Clinical Reasoning</option>
-                <option value="groq:llama-3.1-8b-instant" ${settings.model === 'groq:llama-3.1-8b-instant' ? 'selected' : ''}>Llama 3.1 8B Instant</option>
-                <option value="groq:mixtral-8x7b-32768" ${settings.model === 'groq:mixtral-8x7b-32768' ? 'selected' : ''}>Mixtral 8x7B (32K)</option>
+            <select class="form-select" id="menu-settings-model">
+                <option value="groq:general" ${window.nebulaSettings.model === 'groq:general' ? 'selected' : ''}>MIA – General</option>
+                <option value="groq:research" ${window.nebulaSettings.model === 'groq:research' ? 'selected' : ''}>MIA – Research & Analysis</option>
+                <option value="groq:study" ${window.nebulaSettings.model === 'groq:study' ? 'selected' : ''}>MIA – Clinical Reasoning</option>
             </select>
-            <div class="settings-note">Choose the AI model for responses</div>
+            <div class="form-info">Choose the AI model for responses</div>
         </div>
         
-        <div class="settings-group">
-            <label class="form-label">Temperature: <span id="temp-value">${settings.temperature}</span></label>
-            <input type="range" class="form-range" id="mainmenu-settings-temp" 
-                   min="0" max="1" step="0.1" value="${settings.temperature}">
+        <div class="form-group">
+            <label class="form-label">Temperature: <span id="temp-value">${window.nebulaSettings.temperature}</span></label>
+            <input type="range" class="form-range" id="menu-settings-temp" 
+                   min="0" max="1" step="0.1" value="${window.nebulaSettings.temperature}">
             <div class="range-labels">
                 <span>Precise</span>
                 <span>Balanced</span>
                 <span>Creative</span>
             </div>
-            <div class="settings-note">Lower values = more focused, Higher values = more creative</div>
+            <div class="form-info">Lower values = more focused, Higher values = more creative</div>
         </div>
         
-        <div class="settings-group">
+        <div class="form-group">
             <label class="form-label">Max Tokens</label>
-            <select class="form-select" id="mainmenu-settings-tokens">
-                <option value="512" ${settings.maxTokens === 512 ? 'selected' : ''}>512</option>
-                <option value="1024" ${settings.maxTokens === 1024 ? 'selected' : ''}>1024</option>
-                <option value="2048" ${settings.maxTokens === 2048 ? 'selected' : ''}>2048</option>
-                <option value="4096" ${settings.maxTokens === 4096 ? 'selected' : ''}>4096</option>
-                <option value="8192" ${settings.maxTokens === 8192 ? 'selected' : ''}>8192</option>
-                <option value="32768" ${settings.maxTokens === 32768 ? 'selected' : ''}>32768 (Mixtral only)</option>
+            <select class="form-select" id="menu-settings-tokens">
+                <option value="512" ${window.nebulaSettings.maxTokens === 512 ? 'selected' : ''}>512</option>
+                <option value="1024" ${window.nebulaSettings.maxTokens === 1024 ? 'selected' : ''}>1024</option>
+                <option value="2048" ${window.nebulaSettings.maxTokens === 2048 ? 'selected' : ''}>2048</option>
+                <option value="4096" ${window.nebulaSettings.maxTokens === 4096 ? 'selected' : ''}>4096</option>
+                <option value="8192" ${window.nebulaSettings.maxTokens === 8192 ? 'selected' : ''}>8192</option>
             </select>
-            <div class="settings-note">Maximum length of AI responses</div>
+            <div class="form-info">Maximum length of AI responses</div>
         </div>
         
         <div class="btn-group">
-            <button class="btn btn-primary" onclick="saveMainMenuSettings()">Save Settings</button>
-            <button class="btn btn-secondary" onclick="resetSettings()">Reset to Default</button>
+            <button class="btn btn-primary" onclick="saveMenuSettings()">Save Settings</button>
+            <button class="btn btn-secondary" onclick="resetMenuSettings()">Reset to Default</button>
         </div>
     `;
     
     // Add event listener for temperature slider
-    const tempSlider = document.getElementById('mainmenu-settings-temp');
+    const tempSlider = document.getElementById('menu-settings-temp');
     const tempValue = document.getElementById('temp-value');
     if (tempSlider && tempValue) {
         tempSlider.addEventListener('input', function() {
@@ -323,21 +312,19 @@ function renderSettingsSection(container) {
 
 // Goals Section
 function renderGoalsSection(container) {
-    const tasks = JSON.parse(localStorage.getItem('ventora_tasks')) || [];
-    const notes = localStorage.getItem('ventora_study_notes') || '';
-    
+    // Get tasks HTML
     let tasksHTML = '';
-    if (tasks.length === 0) {
-        tasksHTML = '<div class="empty-state"><i class="fas fa-tasks"></i><h3>No goals yet</h3><p>Add your first study goal!</p></div>';
+    if (window.ventoraTasks.length === 0) {
+        tasksHTML = '<div class="empty-state"><i class="fas fa-tasks"></i><h4>No goals yet</h4><p>Add your first study goal!</p></div>';
     } else {
-        tasks.forEach((task, index) => {
+        window.ventoraTasks.forEach((task, index) => {
             const completedClass = task.completed ? 'completed' : '';
             tasksHTML += `
                 <div class="task-item">
                     <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} 
-                           onchange="toggleMainMenuTask(${index})">
+                           onchange="toggleMenuTask(${index})">
                     <span class="task-text ${completedClass}">${task.text}</span>
-                    <button class="task-delete" onclick="deleteMainMenuTask(${index})">
+                    <button class="task-delete" onclick="deleteMenuTask(${index})">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
@@ -346,33 +333,34 @@ function renderGoalsSection(container) {
     }
     
     container.innerHTML = `
-        <div class="add-task-container">
-            <input type="text" class="add-task-input" id="mainmenu-new-task" 
+        <div class="task-container">
+            <input type="text" class="task-input" id="menu-new-task" 
                    placeholder="Add a new study goal...">
-            <button class="add-task-btn" onclick="addMainMenuTask()">ADD</button>
+            <button class="task-add-btn" onclick="addMenuTask()">Add</button>
         </div>
         
         <div class="task-list">
             ${tasksHTML}
         </div>
         
-        <div class="notes-section">
+        <div class="form-group" style="margin-top: 30px;">
             <label class="form-label">Study Notes (Auto-saves)</label>
-            <textarea class="notes-textarea" id="mainmenu-study-notes" 
-                      placeholder="Write down important things to remember...">${notes}</textarea>
-            <div class="settings-note">Notes are automatically saved as you type</div>
+            <textarea class="form-textarea" id="menu-study-notes" 
+                      placeholder="Write down important things to remember...">${window.ventoraNotes}</textarea>
+            <div class="form-info">Notes are automatically saved as you type</div>
         </div>
     `;
     
     // Set up auto-save for notes
-    const notesArea = document.getElementById('mainmenu-study-notes');
+    const notesArea = document.getElementById('menu-study-notes');
     if (notesArea) {
         let notesTimer;
         notesArea.addEventListener('input', function() {
             clearTimeout(notesTimer);
             notesTimer = setTimeout(() => {
                 localStorage.setItem('ventora_study_notes', this.value);
-                showMainMenuToast('Notes saved!', 'success');
+                window.ventoraNotes = this.value;
+                showMenuToast('Notes saved!');
             }, 1000);
         });
     }
@@ -392,33 +380,21 @@ function renderAboutSection(container) {
         
         <div class="form-group">
             <label class="form-label">Version</label>
-            <div class="form-input" style="background: rgba(0,122,255,0.1); border-color: rgba(0,122,255,0.3);">
+            <div class="form-input" style="background: rgba(0,122,255,0.1); border-color: rgba(0,122,255,0.3); font-weight: 500;">
                 <strong>V5.4 MIA</strong> (Medical Information Assistant)
             </div>
         </div>
         
         <div class="form-group">
             <label class="form-label">Developer</label>
-            <div class="form-input">
+            <div class="form-input" style="font-weight: 500;">
                 Created by <strong>Maulik Makwana</strong>
             </div>
         </div>
         
-        <div class="about-socials">
-            <a href="#" target="_blank" aria-label="Ventora on LinkedIn">
-                <i class="fab fa-linkedin-in"></i>
-            </a>
-            <a href="#" target="_blank" aria-label="Ventora on Facebook">
-                <i class="fab fa-facebook-f"></i>
-            </a>
-            <a href="#" target="_blank" aria-label="Ventora on X">
-                <i class="fab fa-x-twitter"></i>
-            </a>
-        </div>
-        
         <div class="form-group">
             <label class="form-label">Privacy & Security</label>
-            <div class="form-input" style="font-size: 0.9rem; line-height: 1.5;">
+            <div class="form-textarea" style="font-size: 0.9rem; line-height: 1.6; background: rgba(255,255,255,0.03);">
                 • Conversations stay in your browser<br>
                 • No external data storage<br>
                 • Secure API connections only<br>
@@ -426,9 +402,16 @@ function renderAboutSection(container) {
             </div>
         </div>
         
-        <div class="btn-group">
-            <button class="btn btn-secondary" onclick="openPrivacyPolicy()">Privacy Policy</button>
-            <button class="btn" onclick="openTerms()">Terms of Use</button>
+        <div class="social-links">
+            <a href="#" class="social-link" target="_blank" aria-label="LinkedIn">
+                <i class="fab fa-linkedin-in"></i>
+            </a>
+            <a href="#" class="social-link" target="_blank" aria-label="Facebook">
+                <i class="fab fa-facebook-f"></i>
+            </a>
+            <a href="#" class="social-link" target="_blank" aria-label="X">
+                <i class="fab fa-x-twitter"></i>
+            </a>
         </div>
     `;
 }
@@ -437,21 +420,20 @@ function renderAboutSection(container) {
 function renderExportSection(container) {
     const conversation = getCurrentConversation();
     const hasConversation = conversation && conversation.messages.length > 0;
+    const messageCount = hasConversation ? conversation.messages.length : 0;
+    const userMessages = hasConversation ? conversation.messages.filter(m => m.role === 'user').length : 0;
+    const aiMessages = hasConversation ? conversation.messages.filter(m => m.role === 'assistant').length : 0;
     
     if (!hasConversation) {
         container.innerHTML = `
             <div class="empty-state">
                 <i class="fas fa-comment-slash"></i>
-                <h3>No Conversation</h3>
+                <h4>No Conversation</h4>
                 <p>Start a chat to export it.</p>
             </div>
         `;
         return;
     }
-    
-    const messageCount = conversation.messages.length;
-    const userMessages = conversation.messages.filter(m => m.role === 'user').length;
-    const aiMessages = conversation.messages.filter(m => m.role === 'assistant').length;
     
     container.innerHTML = `
         <div class="form-group">
@@ -462,27 +444,24 @@ function renderExportSection(container) {
             </div>
         </div>
         
-        <div class="form-group">
-            <label class="form-label">Statistics</label>
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
-                <div style="text-align: center; padding: 16px; background: rgba(0,122,255,0.1); border-radius: 10px;">
-                    <div style="font-size: 1.5rem; font-weight: bold;">${messageCount}</div>
-                    <div style="font-size: 0.8rem;">Total Messages</div>
-                </div>
-                <div style="text-align: center; padding: 16px; background: rgba(52,199,89,0.1); border-radius: 10px;">
-                    <div style="font-size: 1.5rem; font-weight: bold;">${userMessages}</div>
-                    <div style="font-size: 0.8rem;">Your Messages</div>
-                </div>
-                <div style="text-align: center; padding: 16px; background: rgba(88,86,214,0.1); border-radius: 10px;">
-                    <div style="font-size: 1.5rem; font-weight: bold;">${aiMessages}</div>
-                    <div style="font-size: 0.8rem;">AI Responses</div>
-                </div>
+        <div class="export-stats">
+            <div class="stat-box">
+                <div class="stat-value">${messageCount}</div>
+                <div class="stat-label">Total Messages</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value">${userMessages}</div>
+                <div class="stat-label">Your Messages</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value">${aiMessages}</div>
+                <div class="stat-label">AI Responses</div>
             </div>
         </div>
         
         <div class="form-group">
             <label class="form-label">Export Format</label>
-            <select class="form-select" id="export-format">
+            <select class="form-select" id="menu-export-format">
                 <option value="txt">Text File (.txt)</option>
                 <option value="json">JSON (.json)</option>
                 <option value="html">HTML (.html)</option>
@@ -492,143 +471,130 @@ function renderExportSection(container) {
         
         <div class="form-group">
             <label class="form-label">Include</label>
-            <div style="display: flex; flex-direction: column; gap: 8px;">
-                <label style="display: flex; align-items: center; gap: 8px;">
-                    <input type="checkbox" id="include-timestamps" checked>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <label style="display: flex; align-items: center; gap: 10px;">
+                    <input type="checkbox" id="menu-include-timestamps" checked>
                     <span>Timestamps</span>
                 </label>
-                <label style="display: flex; align-items: center; gap: 8px;">
-                    <input type="checkbox" id="include-metadata" checked>
+                <label style="display: flex; align-items: center; gap: 10px;">
+                    <input type="checkbox" id="menu-include-metadata" checked>
                     <span>Metadata (title, date)</span>
-                </label>
-                <label style="display: flex; align-items: center; gap: 8px;">
-                    <input type="checkbox" id="include-formatting" checked>
-                    <span>Basic formatting</span>
                 </label>
             </div>
         </div>
         
         <div class="btn-group">
-            <button class="btn btn-primary" onclick="exportMainMenuChat()">Export Now</button>
-            <button class="btn" onclick="previewExport()">Preview</button>
+            <button class="btn btn-primary" onclick="exportMenuChat()">Export Now</button>
+            <button class="btn btn-secondary" onclick="previewMenuExport()">Preview</button>
         </div>
         
-        <div class="settings-note" style="margin-top: 20px;">
+        <div class="form-info" style="margin-top: 20px;">
             <i class="fas fa-info-circle"></i> Exported files contain only your conversation data.
-            No personal information is included.
         </div>
     `;
 }
 
 // ===== DATA MANAGEMENT FUNCTIONS =====
 
-// Load all data
-function loadPersonalizationData() {
-    if (!window.personalization) {
-        window.personalization = JSON.parse(localStorage.getItem('nebula_pers')) || {
+// Save personalization
+function saveMenuPersonalization() {
+    window.personalization = {
+        userName: document.getElementById('menu-pers-name')?.value.trim() || '',
+        studyLevel: document.getElementById('menu-pers-level')?.value || 'college',
+        major: document.getElementById('menu-pers-major')?.value.trim() || '',
+        responseStyle: document.getElementById('menu-pers-style')?.value || 'balanced',
+        customInstructions: document.getElementById('menu-pers-custom')?.value.trim() || ''
+    };
+    
+    localStorage.setItem('nebula_pers', JSON.stringify(window.personalization));
+    showMenuToast('Personalization saved!');
+}
+
+// Reset personalization
+function resetMenuPersonalization() {
+    if (confirm('Reset personalization to default values?')) {
+        window.personalization = {
             userName: '',
             studyLevel: 'college',
             major: '',
             responseStyle: 'balanced',
             customInstructions: ''
         };
+        
+        localStorage.setItem('nebula_pers', JSON.stringify(window.personalization));
+        renderPersonalizationSection(document.querySelector('.content-body'));
+        showMenuToast('Personalization reset');
     }
 }
 
-function loadGoalsData() {
-    if (!window.ventoraTasks) {
-        window.ventoraTasks = JSON.parse(localStorage.getItem('ventora_tasks')) || [];
-    }
-    if (!window.ventoraNotes) {
-        window.ventoraNotes = localStorage.getItem('ventora_study_notes') || '';
-    }
+// Save settings
+function saveMenuSettings() {
+    window.nebulaSettings = {
+        model: document.getElementById('menu-settings-model')?.value || 'groq:general',
+        temperature: parseFloat(document.getElementById('menu-settings-temp')?.value || 0.7),
+        maxTokens: parseInt(document.getElementById('menu-settings-tokens')?.value || 1024)
+    };
+    
+    localStorage.setItem('nebula_settings', JSON.stringify(window.nebulaSettings));
+    showMenuToast('Settings saved!');
 }
 
-function loadSettingsData() {
-    if (!window.nebulaSettings) {
-        window.nebulaSettings = JSON.parse(localStorage.getItem('nebula_settings')) || {
-            model: 'groq:llama-3.1-8b-instant',
+// Reset settings
+function resetMenuSettings() {
+    if (confirm('Reset settings to default values?')) {
+        window.nebulaSettings = {
+            model: 'groq:general',
             temperature: 0.7,
             maxTokens: 1024
         };
+        
+        localStorage.setItem('nebula_settings', JSON.stringify(window.nebulaSettings));
+        renderSettingsSection(document.querySelector('.content-body'));
+        showMenuToast('Settings reset');
     }
 }
 
-// Save personalization from main menu
-function saveMainMenuPersonalization() {
-    const persData = {
-        userName: document.getElementById('mainmenu-pers-name')?.value.trim() || '',
-        studyLevel: document.getElementById('mainmenu-pers-level')?.value || 'college',
-        major: document.getElementById('mainmenu-pers-major')?.value.trim() || '',
-        responseStyle: document.getElementById('mainmenu-pers-style')?.value || 'balanced',
-        customInstructions: document.getElementById('mainmenu-pers-custom')?.value.trim() || ''
-    };
-    
-    window.personalization = persData;
-    localStorage.setItem('nebula_pers', JSON.stringify(persData));
-    
-    showMainMenuToast('Personalization saved!', 'success');
-}
-
-// Save settings from main menu
-function saveMainMenuSettings() {
-    const settings = {
-        model: document.getElementById('mainmenu-settings-model')?.value || 'groq:llama-3.1-8b-instant',
-        temperature: parseFloat(document.getElementById('mainmenu-settings-temp')?.value || 0.7),
-        maxTokens: parseInt(document.getElementById('mainmenu-settings-tokens')?.value || 1024)
-    };
-    
-    window.nebulaSettings = settings;
-    localStorage.setItem('nebula_settings', JSON.stringify(settings));
-    
-    showMainMenuToast('Settings saved!', 'success');
-}
-
-// Goals management
-function addMainMenuTask() {
-    const input = document.getElementById('mainmenu-new-task');
+// Tasks management
+function addMenuTask() {
+    const input = document.getElementById('menu-new-task');
     if (!input || !input.value.trim()) return;
     
-    const tasks = JSON.parse(localStorage.getItem('ventora_tasks')) || [];
-    tasks.push({ text: input.value, completed: false });
-    localStorage.setItem('ventora_tasks', JSON.stringify(tasks));
+    window.ventoraTasks.push({ text: input.value, completed: false });
+    localStorage.setItem('ventora_tasks', JSON.stringify(window.ventoraTasks));
     
     input.value = '';
-    renderGoalsSection(document.querySelector('.panel-content'));
-    showMainMenuToast('Task added!', 'success');
+    renderGoalsSection(document.querySelector('.content-body'));
+    showMenuToast('Task added!');
 }
 
-function toggleMainMenuTask(index) {
-    const tasks = JSON.parse(localStorage.getItem('ventora_tasks')) || [];
-    if (index >= 0 && index < tasks.length) {
-        tasks[index].completed = !tasks[index].completed;
-        localStorage.setItem('ventora_tasks', JSON.stringify(tasks));
-        renderGoalsSection(document.querySelector('.panel-content'));
+function toggleMenuTask(index) {
+    if (index >= 0 && index < window.ventoraTasks.length) {
+        window.ventoraTasks[index].completed = !window.ventoraTasks[index].completed;
+        localStorage.setItem('ventora_tasks', JSON.stringify(window.ventoraTasks));
+        renderGoalsSection(document.querySelector('.content-body'));
     }
 }
 
-function deleteMainMenuTask(index) {
-    const tasks = JSON.parse(localStorage.getItem('ventora_tasks')) || [];
-    if (index >= 0 && index < tasks.length) {
-        tasks.splice(index, 1);
-        localStorage.setItem('ventora_tasks', JSON.stringify(tasks));
-        renderGoalsSection(document.querySelector('.panel-content'));
-        showMainMenuToast('Task deleted', 'info');
+function deleteMenuTask(index) {
+    if (index >= 0 && index < window.ventoraTasks.length) {
+        window.ventoraTasks.splice(index, 1);
+        localStorage.setItem('ventora_tasks', JSON.stringify(window.ventoraTasks));
+        renderGoalsSection(document.querySelector('.content-body'));
+        showMenuToast('Task deleted');
     }
 }
 
 // Export chat
-function exportMainMenuChat() {
+function exportMenuChat() {
     const conversation = getCurrentConversation();
     if (!conversation || conversation.messages.length === 0) {
-        showMainMenuToast('No conversation to export', 'error');
+        showMenuToast('No conversation to export');
         return;
     }
     
-    const format = document.getElementById('export-format')?.value || 'txt';
-    const includeTimestamps = document.getElementById('include-timestamps')?.checked !== false;
-    const includeMetadata = document.getElementById('include-metadata')?.checked !== false;
-    const includeFormatting = document.getElementById('include-formatting')?.checked !== false;
+    const format = document.getElementById('menu-export-format')?.value || 'txt';
+    const includeTimestamps = document.getElementById('menu-include-timestamps')?.checked !== false;
+    const includeMetadata = document.getElementById('menu-include-metadata')?.checked !== false;
     
     let content = '';
     let filename = `ventora-chat-${conversation.id}`;
@@ -636,21 +602,21 @@ function exportMainMenuChat() {
     
     switch(format) {
         case 'txt':
-            content = exportAsText(conversation, includeTimestamps, includeMetadata, includeFormatting);
+            content = exportConversationAsText(conversation, includeTimestamps, includeMetadata);
             filename += '.txt';
             break;
         case 'json':
-            content = exportAsJSON(conversation);
+            content = exportConversationAsJSON(conversation);
             filename += '.json';
             mimeType = 'application/json';
             break;
         case 'html':
-            content = exportAsHTML(conversation, includeTimestamps, includeMetadata);
+            content = exportConversationAsHTML(conversation, includeTimestamps, includeMetadata);
             filename += '.html';
             mimeType = 'text/html';
             break;
         case 'markdown':
-            content = exportAsMarkdown(conversation, includeTimestamps, includeMetadata);
+            content = exportConversationAsMarkdown(conversation, includeTimestamps, includeMetadata);
             filename += '.md';
             break;
     }
@@ -666,53 +632,40 @@ function exportMainMenuChat() {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
     
-    showMainMenuToast('Chat exported!', 'success');
+    showMenuToast('Chat exported!');
 }
 
 // Export helper functions
-function exportAsText(conversation, includeTimestamps, includeMetadata, includeFormatting) {
+function exportConversationAsText(conversation, includeTimestamps, includeMetadata) {
     let text = '';
     
     if (includeMetadata) {
         text += `=== Ventora AI Conversation ===\n\n`;
         text += `Title: ${conversation.title}\n`;
-        text += `Date: ${new Date(conversation.updatedAt).toLocaleString()}\n`;
-        text += `Model: ${window.nebulaSettings?.model || 'Unknown'}\n`;
-        text += `\n`;
+        text += `Date: ${new Date(conversation.updatedAt).toLocaleString()}\n\n`;
     }
     
     conversation.messages.forEach(msg => {
         const role = msg.role === 'user' ? 'You' : 'Ventora AI';
         const time = includeTimestamps ? `[${new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}] ` : '';
-        
-        text += `${time}${role}:\n`;
-        
-        if (includeFormatting && msg.role === 'assistant') {
-            // Remove HTML tags for text export
-            const plainText = msg.content.replace(/<[^>]*>/g, '');
-            text += `${plainText}\n\n`;
-        } else {
-            text += `${msg.content}\n\n`;
-        }
+        text += `${time}${role}:\n${msg.content}\n\n`;
     });
     
     if (includeMetadata) {
         text += '\n=== End of Conversation ===\n';
-        text += 'Exported from Ventora AI\n';
     }
     
     return text;
 }
 
-function exportAsJSON(conversation) {
+function exportConversationAsJSON(conversation) {
     const exportData = {
         metadata: {
             title: conversation.title,
             createdAt: conversation.createdAt,
             updatedAt: conversation.updatedAt,
             exportDate: new Date().toISOString(),
-            model: window.nebulaSettings?.model,
-            version: 'V5.4 MIA'
+            model: window.nebulaSettings?.model
         },
         messages: conversation.messages
     };
@@ -720,34 +673,14 @@ function exportAsJSON(conversation) {
     return JSON.stringify(exportData, null, 2);
 }
 
-function exportAsHTML(conversation, includeTimestamps, includeMetadata) {
-    let html = `<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>${conversation.title} - Ventora AI</title>
-    <style>
-        body { font-family: -apple-system, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; line-height: 1.6; }
-        .header { border-bottom: 2px solid #007aff; padding-bottom: 20px; margin-bottom: 30px; }
-        .message { margin-bottom: 25px; padding: 15px; border-radius: 10px; }
-        .user { background: #f0f7ff; border-left: 4px solid #007aff; }
-        .ai { background: #f8f9fa; border-left: 4px solid #34c759; }
-        .timestamp { font-size: 0.8rem; color: #666; margin-top: 5px; }
-        .role { font-weight: bold; margin-bottom: 5px; }
-        pre { background: #1a1a1a; color: #fff; padding: 15px; border-radius: 8px; overflow-x: auto; }
-        code { background: #f0f0f0; padding: 2px 4px; border-radius: 3px; }
-    </style>
-</head>
-<body>`;
+function exportConversationAsHTML(conversation, includeTimestamps, includeMetadata) {
+    let html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${conversation.title}</title>
+    <style>body{font-family:sans-serif;max-width:800px;margin:0 auto;padding:20px;line-height:1.6}
+    .message{margin-bottom:20px;padding:15px;border-radius:8px}.user{background:#f0f7ff}
+    .ai{background:#f8f9fa}.timestamp{font-size:0.8rem;color:#666}</style></head><body>`;
     
     if (includeMetadata) {
-        html += `
-    <div class="header">
-        <h1>${conversation.title}</h1>
-        <p><strong>Date:</strong> ${new Date(conversation.updatedAt).toLocaleString()}</p>
-        <p><strong>Model:</strong> ${window.nebulaSettings?.model || 'Unknown'}</p>
-        <p><strong>Exported:</strong> ${new Date().toLocaleString()}</p>
-    </div>`;
+        html += `<h1>${conversation.title}</h1><p><small>${new Date(conversation.updatedAt).toLocaleString()}</small></p><hr>`;
     }
     
     conversation.messages.forEach(msg => {
@@ -755,62 +688,41 @@ function exportAsHTML(conversation, includeTimestamps, includeMetadata) {
         const roleName = msg.role === 'user' ? 'You' : 'Ventora AI';
         const time = includeTimestamps ? new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
         
-        html += `
-    <div class="message ${roleClass}">
-        <div class="role">${roleName}</div>
-        <div class="content">${msg.content.replace(/\n/g, '<br>')}</div>`;
-        
-        if (time) {
-            html += `<div class="timestamp">${time}</div>`;
-        }
-        
+        html += `<div class="message ${roleClass}"><strong>${roleName}</strong><br>${msg.content.replace(/\n/g, '<br>')}`;
+        if (time) html += `<div class="timestamp">${time}</div>`;
         html += `</div>`;
     });
     
-    html += `
-    <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; color: #666; font-size: 0.9rem;">
-        Exported from Ventora AI • Created by Maulik Makwana
-    </div>
-</body>
-</html>`;
-    
+    html += `</body></html>`;
     return html;
 }
 
-function exportAsMarkdown(conversation, includeTimestamps, includeMetadata) {
+function exportConversationAsMarkdown(conversation, includeTimestamps, includeMetadata) {
     let md = '';
     
     if (includeMetadata) {
         md += `# ${conversation.title}\n\n`;
-        md += `**Date:** ${new Date(conversation.updatedAt).toLocaleString()}\n`;
-        md += `**Model:** ${window.nebulaSettings?.model || 'Unknown'}\n`;
-        md += `**Export Date:** ${new Date().toLocaleString()}\n\n`;
+        md += `**Date:** ${new Date(conversation.updatedAt).toLocaleString()}\n\n`;
         md += `---\n\n`;
     }
     
     conversation.messages.forEach(msg => {
         const role = msg.role === 'user' ? '**You**' : '**Ventora AI**';
         const time = includeTimestamps ? `*${new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}* ` : '';
-        
-        md += `${time}${role}\n\n`;
-        md += `${msg.content}\n\n`;
-        md += `---\n\n`;
+        md += `${time}${role}\n\n${msg.content}\n\n---\n\n`;
     });
-    
-    md += `*Exported from Ventora AI*`;
     
     return md;
 }
 
-// Clear all data confirmation
+// Clear all data
 function showClearDataConfirm() {
-    if (confirm('Are you sure? This will delete ALL chat history, settings, goals, and personalization. This action cannot be undone.')) {
-        clearAllData();
+    if (confirm('Are you sure? This will delete ALL chat history, settings, goals, and personalization.')) {
+        clearAllMenuData();
     }
 }
 
-function clearAllData() {
-    // Clear all localStorage items
+function clearAllMenuData() {
     localStorage.removeItem('nebula_conversations');
     localStorage.removeItem('nebula_settings');
     localStorage.removeItem('nebula_pers');
@@ -827,7 +739,7 @@ function clearAllData() {
     };
     
     window.nebulaSettings = {
-        model: 'groq:llama-3.1-8b-instant',
+        model: 'groq:general',
         temperature: 0.7,
         maxTokens: 1024
     };
@@ -835,57 +747,25 @@ function clearAllData() {
     window.ventoraTasks = [];
     window.ventoraNotes = '';
     
-    // Refresh the current view if we're in the popup
+    showMenuToast('All data cleared');
+    
+    // If on a section, refresh it
     if (currentSection) {
         renderSection(currentSection);
     }
     
-    showMainMenuToast('All data cleared', 'success');
-    
-    // If we have a chat interface, refresh it too
+    // Refresh chat if function exists
     if (typeof createNewConversation === 'function') {
         createNewConversation();
     }
 }
 
-// Reset functions
-function resetPersonalization() {
-    if (confirm('Reset personalization to default values?')) {
-        window.personalization = {
-            userName: '',
-            studyLevel: 'college',
-            major: '',
-            responseStyle: 'balanced',
-            customInstructions: ''
-        };
-        
-        localStorage.setItem('nebula_pers', JSON.stringify(window.personalization));
-        renderPersonalizationSection(document.querySelector('.panel-content'));
-        showMainMenuToast('Personalization reset', 'info');
-    }
-}
-
-function resetSettings() {
-    if (confirm('Reset settings to default values?')) {
-        window.nebulaSettings = {
-            model: 'groq:llama-3.1-8b-instant',
-            temperature: 0.7,
-            maxTokens: 1024
-        };
-        
-        localStorage.setItem('nebula_settings', JSON.stringify(window.nebulaSettings));
-        renderSettingsSection(document.querySelector('.panel-content'));
-        showMainMenuToast('Settings reset', 'info');
-    }
-}
-
-// Helper function to get current conversation
+// Helper to get current conversation
 function getCurrentConversation() {
     if (typeof window.getCurrentConversation === 'function') {
         return window.getCurrentConversation();
     }
     
-    // Fallback: try to get from localStorage
     const conversations = JSON.parse(localStorage.getItem('nebula_conversations')) || [];
     const currentId = localStorage.getItem('current_conversation_id');
     
@@ -897,14 +777,12 @@ function getCurrentConversation() {
 }
 
 // Toast notification
-function showMainMenuToast(message, type = 'info') {
-    // Use existing toast if available
+function showMenuToast(message) {
     if (typeof showToast === 'function') {
-        showToast(message, type);
+        showToast(message);
         return;
     }
     
-    // Create a temporary toast
     const toast = document.createElement('div');
     toast.textContent = message;
     toast.style.cssText = `
@@ -912,7 +790,7 @@ function showMainMenuToast(message, type = 'info') {
         bottom: 100px;
         left: 50%;
         transform: translateX(-50%);
-        background: ${type === 'error' ? '#ff3b30' : type === 'success' ? '#34c759' : '#007aff'};
+        background: rgba(0, 122, 255, 0.9);
         color: white;
         padding: 12px 24px;
         border-radius: 10px;
@@ -928,29 +806,21 @@ function showMainMenuToast(message, type = 'info') {
     }, 3000);
 }
 
-// Privacy and Terms (placeholder functions)
-function openPrivacyPolicy() {
-    alert('Privacy Policy:\n\nVentora AI does not store conversations on external servers. Your data stays in your browser and is processed securely. No personal information is sold or shared.');
+// Preview export (placeholder)
+function previewMenuExport() {
+    showMenuToast('Preview feature coming soon!');
 }
 
-function openTerms() {
-    alert('Terms of Use:\n\nVentora AI is for educational purposes only. It does not provide medical advice. Always consult healthcare professionals for medical decisions.');
-}
-
-function previewExport() {
-    showMainMenuToast('Preview feature coming soon!', 'info');
-}
-
-// Set up event listeners
+// Setup event listeners
 function setupEventListeners() {
     // Close button
-    const closeBtn = document.querySelector('.panel-close');
+    const closeBtn = document.querySelector('.content-close');
     if (closeBtn) {
         closeBtn.addEventListener('click', closeMainMenuPopup);
     }
     
     // Back button for mobile
-    const backBtn = document.querySelector('.panel-back');
+    const backBtn = document.querySelector('.content-back');
     if (backBtn) {
         backBtn.addEventListener('click', goBackToMenu);
     }
@@ -974,23 +844,17 @@ function setupEventListeners() {
     
     // Handle window resize
     window.addEventListener('resize', function() {
-        if (window.innerWidth > 768 && currentView === 'content') {
-            // On desktop, we're always in two-panel view
-            const content = document.querySelector('.mainmenu-content');
-            content?.classList.remove('menu-view', 'content-view');
+        if (window.innerWidth > 768 && currentSection) {
+            // On desktop, just update the menu highlights
+            renderMenu();
         }
     });
 }
 
 // Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
-    // Check if the popup HTML exists
-    if (document.getElementById('mainmenu-modal')) {
-        initMainMenuPopup();
-    }
-});
+document.addEventListener('DOMContentLoaded', initMainMenuPopup);
 
-// Export functions for use in other files
+// Export functions
 window.openMainMenuPopup = openMainMenuPopup;
 window.closeMainMenuPopup = closeMainMenuPopup;
 window.openSection = openSection;
