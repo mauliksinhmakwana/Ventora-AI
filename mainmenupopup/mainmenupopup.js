@@ -1010,8 +1010,218 @@ function showMenuToast(message) {
 }
 
 // Preview export
+// Replace this function:
+// WITH THIS:
 function previewMenuExport() {
-    showMenuToast('Preview feature coming soon!');
+    const conversations = JSON.parse(localStorage.getItem('nebula_conversations')) || [];
+    
+    if (selectedExportOption === 'all') {
+        if (conversations.length === 0) {
+            showMenuToast('No conversations to preview');
+            return;
+        }
+        // Show preview for all conversations
+        showPreviewForAll(conversations);
+    } else {
+        const conversation = conversations.find(c => c.id === selectedExportOption);
+        if (!conversation || !conversation.messages) {
+            showMenuToast('No conversation to preview');
+            return;
+        }
+        // Show preview for single conversation
+        showPreviewForConversation(conversation);
+    }
+}
+
+function showPreviewForConversation(conversation) {
+    const includeTimestamps = document.getElementById('menu-include-timestamps')?.checked !== false;
+    const includeMetadata = document.getElementById('menu-include-metadata')?.checked !== false;
+    
+    let previewHTML = `
+        <div style="background: var(--menu-surface); padding: 20px; border-radius: 12px; border: 1px solid var(--menu-border);">
+            <h4 style="margin-top: 0; color: var(--menu-accent);">Preview: ${conversation.title}</h4>
+            <div style="max-height: 300px; overflow-y: auto; font-size: 0.9rem; line-height: 1.4;">
+    `;
+    
+    if (includeMetadata) {
+        previewHTML += `<p><small>Exported: ${new Date().toLocaleString()}</small></p>`;
+    }
+    
+    // Show first 3 messages as preview
+    const previewMessages = conversation.messages.slice(0, 3);
+    previewMessages.forEach(msg => {
+        const role = msg.role === 'user' ? 'You' : 'Ventora AI';
+        const time = includeTimestamps ? `[${new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}] ` : '';
+        const contentPreview = msg.content.length > 100 ? msg.content.substring(0, 100) + '...' : msg.content;
+        
+        previewHTML += `
+            <div style="margin-bottom: 15px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                <strong>${time}${role}:</strong><br>
+                ${contentPreview.replace(/\n/g, '<br>')}
+            </div>
+        `;
+    });
+    
+    if (conversation.messages.length > 3) {
+        previewHTML += `<p style="color: var(--menu-text-secondary); text-align: center;">... and ${conversation.messages.length - 3} more messages</p>`;
+    }
+    
+    previewHTML += `
+            </div>
+            <p style="font-size: 0.8rem; color: var(--menu-text-secondary); margin-top: 15px;">
+                <i class="fas fa-info-circle"></i> This is a preview. The exported file will contain all ${conversation.messages.length} messages.
+            </p>
+        </div>
+    `;
+    
+    // Create and show preview modal
+    const previewModal = document.createElement('div');
+    previewModal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        padding: 20px;
+        box-sizing: border-box;
+    `;
+    
+    previewModal.innerHTML = `
+        <div style="background: var(--menu-surface-secondary); border: 1px solid var(--menu-border); border-radius: 16px; padding: 24px; max-width: 500px; width: 100%; max-height: 80vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="margin: 0; color: var(--menu-text);">Export Preview</h3>
+                <button onclick="this.parentElement.parentElement.parentElement.remove()" style="background: none; border: none; color: var(--menu-text-secondary); font-size: 1.5rem; cursor: pointer; padding: 5px; border-radius: 6px;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            ${previewHTML}
+            <div style="display: flex; gap: 12px; margin-top: 20px;">
+                <button onclick="exportMenuChat(); this.parentElement.parentElement.parentElement.remove()" style="flex: 1; padding: 12px; background: var(--menu-accent); color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: 500;">
+                    Export Now
+                </button>
+                <button onclick="this.parentElement.parentElement.parentElement.remove()" style="flex: 1; padding: 12px; background: rgba(255,255,255,0.1); color: var(--menu-text); border: none; border-radius: 10px; cursor: pointer;">
+                    Close Preview
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(previewModal);
+    
+    // Close on background click
+    previewModal.addEventListener('click', function(e) {
+        if (e.target === this) {
+            this.remove();
+        }
+    });
+    
+    // Close on Escape key
+    const closeOnEscape = function(e) {
+        if (e.key === 'Escape') {
+            previewModal.remove();
+            document.removeEventListener('keydown', closeOnEscape);
+        }
+    };
+    document.addEventListener('keydown', closeOnEscape);
+}
+
+function showPreviewForAll(conversations) {
+    let previewHTML = `
+        <div style="background: var(--menu-surface); padding: 20px; border-radius: 12px; border: 1px solid var(--menu-border);">
+            <h4 style="margin-top: 0; color: var(--menu-accent);">Preview: All Conversations</h4>
+            <div style="max-height: 300px; overflow-y: auto; font-size: 0.9rem;">
+                <p><strong>Total Conversations:</strong> ${conversations.length}</p>
+                <p><strong>Total Messages:</strong> ${conversations.reduce((total, conv) => total + (conv.messages?.length || 0), 0)}</p>
+                
+                <div style="margin-top: 15px;">
+                    <strong>Conversation List:</strong>
+                    <ul style="padding-left: 20px; margin-top: 10px;">
+    `;
+    
+    // Show first 5 conversations
+    const previewConversations = conversations.slice(0, 5);
+    previewConversations.forEach((conv, index) => {
+        previewHTML += `
+            <li style="margin-bottom: 8px;">
+                <strong>${index + 1}. ${conv.title}</strong><br>
+                <small>${new Date(conv.updatedAt).toLocaleDateString()} • ${conv.messages?.length || 0} messages</small>
+            </li>
+        `;
+    });
+    
+    if (conversations.length > 5) {
+        previewHTML += `<li style="color: var(--menu-text-secondary);">... and ${conversations.length - 5} more conversations</li>`;
+    }
+    
+    previewHTML += `
+                    </ul>
+                </div>
+            </div>
+            <p style="font-size: 0.8rem; color: var(--menu-text-secondary); margin-top: 15px;">
+                <i class="fas fa-info-circle"></i> Exporting all conversations as a single file.
+            </p>
+        </div>
+    `;
+    
+    // Create and show preview modal (same as above function)
+    const previewModal = document.createElement('div');
+    previewModal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        padding: 20px;
+        box-sizing: border-box;
+    `;
+    
+    previewModal.innerHTML = `
+        <div style="background: var(--menu-surface-secondary); border: 1px solid var(--menu-border); border-radius: 16px; padding: 24px; max-width: 500px; width: 100%; max-height: 80vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="margin: 0; color: var(--menu-text);">Export Preview</h3>
+                <button onclick="this.parentElement.parentElement.parentElement.remove()" style="background: none; border: none; color: var(--menu-text-secondary); font-size: 1.5rem; cursor: pointer; padding: 5px; border-radius: 6px;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            ${previewHTML}
+            <div style="display: flex; gap: 12px; margin-top: 20px;">
+                <button onclick="exportMenuChat(); this.parentElement.parentElement.parentElement.remove()" style="flex: 1; padding: 12px; background: var(--menu-accent); color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: 500;">
+                    Export Now
+                </button>
+                <button onclick="this.parentElement.parentElement.parentElement.remove()" style="flex: 1; padding: 12px; background: rgba(255,255,255,0.1); color: var(--menu-text); border: none; border-radius: 10px; cursor: pointer;">
+                    Close Preview
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(previewModal);
+    
+    // Close on background click
+    previewModal.addEventListener('click', function(e) {
+        if (e.target === this) {
+            this.remove();
+        }
+    });
+    
+    // Close on Escape key
+    const closeOnEscape = function(e) {
+        if (e.key === 'Escape') {
+            previewModal.remove();
+            document.removeEventListener('keydown', closeOnEscape);
+        }
+    };
+    document.addEventListener('keydown', closeOnEscape);
 }
 
 // Setup event listeners
