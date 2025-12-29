@@ -5,30 +5,79 @@ let isAddingNew = false;
 
 // Initialize dose modal
 function initDoseModal() {
-
-   
-
-
+    // Find the menu items container (this should be the conversationsList)
+    const menuItems = document.getElementById('conversationsList');
+    if (!menuItems) {
+        console.error('Menu items container not found!');
+        return;
+    }
     
-    // Insert before the last divider
-    const dividers = menuItems.querySelectorAll('.menu-divider');
-    if (dividers.length > 0) {
-        menuItems.insertBefore(doseMenuItem, dividers[dividers.length - 1]);
+    // Create the menu item for prescriptions
+    const doseMenuItem = document.createElement('div');
+    doseMenuItem.className = 'profile-menu-item';
+    doseMenuItem.innerHTML = `
+        <i class="fas fa-pills"></i>
+        <span>My Prescriptions</span>
+    `;
+    doseMenuItem.onclick = toggleDoseModal;
+    
+    // Insert before the last divider in the profile menu
+    const profileMenu = document.getElementById('profileMenu');
+    if (profileMenu) {
+        // Insert at the beginning of profile menu
+        profileMenu.insertBefore(doseMenuItem, profileMenu.firstChild);
+    } else {
+        // Fallback: insert in conversations list
+        const dividers = menuItems.querySelectorAll('.menu-divider');
+        if (dividers.length > 0) {
+            menuItems.insertBefore(doseMenuItem, dividers[dividers.length - 1]);
+        } else {
+            menuItems.appendChild(doseMenuItem);
+        }
+    }
+    
+    // Initialize the modal if it doesn't exist
+    if (!document.getElementById('doseModal')) {
+        console.warn('Dose modal HTML not found in page. Make sure the modal HTML is in your index.html');
     }
     
     // Load prescriptions
     loadPrescriptions();
-    renderPrescriptions();
+    
+    // Add event listener for the close button
+    const closeBtn = document.querySelector('.close-dose');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', toggleDoseModal);
+    }
+    
+    // Initialize the AI context for prescriptions
+    window.doseContext = {
+        getPrescriptions: () => prescriptions,
+        hasPrescriptions: () => prescriptions.length > 0
+    };
 }
 
 // Toggle dose modal
 function toggleDoseModal() {
     const modal = document.getElementById('doseModal');
-    modal.classList.toggle('active');
-    closeMenu();
+    if (!modal) {
+        console.error('Dose modal not found!');
+        return;
+    }
     
+    modal.classList.toggle('active');
+    
+    // Prevent body scroll when modal is open
     if (modal.classList.contains('active')) {
+        document.body.classList.add('dose-modal-open');
         renderPrescriptions();
+    } else {
+        document.body.classList.remove('dose-modal-open');
+    }
+    
+    // Close menu if open
+    if (typeof closeMenu === 'function') {
+        closeMenu();
     }
 }
 
@@ -53,6 +102,7 @@ function savePrescriptions() {
 // Render prescriptions list
 function renderPrescriptions() {
     const container = document.getElementById('prescriptionsContainer');
+    if (!container) return;
     
     if (prescriptions.length === 0) {
         container.innerHTML = `
@@ -115,6 +165,8 @@ function renderPrescriptions() {
 function showAddForm() {
     isAddingNew = true;
     const form = document.getElementById('doseForm');
+    if (!form) return;
+    
     form.classList.add('active');
     form.innerHTML = `
         <div class="form-group">
@@ -213,6 +265,8 @@ function editPrescription(index) {
     isAddingNew = false;
     
     const form = document.getElementById('doseForm');
+    if (!form) return;
+    
     form.classList.add('active');
     form.innerHTML = `
         <div class="form-group">
@@ -309,7 +363,9 @@ function deletePrescription(index) {
 // Cancel form
 function cancelForm() {
     const form = document.getElementById('doseForm');
-    form.classList.remove('active');
+    if (form) {
+        form.classList.remove('active');
+    }
     isAddingNew = false;
 }
 
