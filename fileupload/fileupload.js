@@ -38,86 +38,8 @@ function initFileUpload() {
         const file = fileInput.files[0];
         if (!file) return;
         
-        fileStatus.textContent = "Reading file...";
-        fileStatus.className = "file-status";
-        if (fileClearSection) fileClearSection.style.display = "none";
-        
-        const ext = file.name.split(".").pop().toLowerCase();
-        
-        try {
-            let text = "";
-            
-            // Check file size (10MB limit)
-            if (file.size > 10 * 1024 * 1024) {
-                throw "File too large (max 10MB)";
-            }
-            
-            // Extract text based on file type
-            if (["txt", "md", "html", "htm", "csv", "rtf"].includes(ext)) {
-                text = await file.text();
-            } 
-            else if (ext === "pdf") {
-                text = await extractPdfText(file);
-            } 
-            else if (ext === "docx" || ext === "doc") {
-                text = await extractDocxText(file);
-            }
-            else {
-                throw "Unsupported file format";
-            }
-            
-            // Validate extracted text
-            if (!text || text.trim().length < 10) {
-                throw "No readable text found";
-            }
-            
-            // Clean and limit text
-            const cleanedText = text
-                .replace(/\s+/g, ' ')
-                .replace(/[^\x20-\x7E\n\r\t]/g, ' ')
-                .trim();
-            
-            if (cleanedText.length < 20) {
-                throw "No readable text found";
-            }
-            
-            // Save file context
-            window.fileContext = {
-                text: cleanedText.slice(0, 15000), // limit to 15k chars
-                name: file.name,
-                size: formatFileSize(file.size)
-            };
-            
-            // Update UI
-            fileStatus.textContent = "File uploaded successfully ✓";
-            fileStatus.className = "file-status success";
-            if (fileClearSection) fileClearSection.style.display = "block";
-            
-            // Show attached indicator
-            showFileAttachedIndicator();
-            
-            // Auto-close popup after 2 seconds
-            setTimeout(() => {
-                filePopup.classList.remove("active");
-            }, 2000);
-            
-        } catch (err) {
-            console.error("File error:", err);
-            
-            // Reset file context
-            window.fileContext = { text: "", name: "", size: "" };
-            
-            // Show error message
-            fileStatus.textContent = typeof err === "string" ? err : "Failed to read file";
-            fileStatus.className = "file-status error";
-            if (fileClearSection) fileClearSection.style.display = "none";
-            
-            // Hide attached indicator
-            hideFileAttachedIndicator();
-            
-            // Clear file input
-            fileInput.value = "";
-        }
+        // Call the new processing function
+        await processSelectedFile(file);
     });
     
     // Close popup with Escape key
@@ -128,13 +50,188 @@ function initFileUpload() {
     });
 }
 
-// Trigger file picker
-function pickFile() {
-    document.getElementById("file-input").click();
+// Process file with OCR support
+async function processSelectedFile(file) {
+    const fileStatus = document.getElementById('file-status');
+    
+    // Show processing status
+    fileStatus.innerHTML = `
+        <div style="color: var(--accent-blue);">
+            <i class="fas fa-spinner fa-spin"></i>
+            Processing ${file.name}...
+        </div>
+    `;
+    
+    // Clear previous file context
+    if (window.fileContext && window.fileContext.text) {
+        clearAttachedFile();
+    }
+    
+    try {
+        // Check if it's an image or PDF for OCR
+        if (file.type.startsWith('image/') || file.type === 'application/pdf') {
+            
+            // Load OCR module if not loaded
+            if (typeof processFileWithOCR === 'undefined') {
+                console.error('OCR module not loaded');
+                // Fallback to basic file processing
+                return await processFileBasic(file);
+            }
+            
+            // Process with OCR
+            const ocrResult = await processFileWithOCR(file);
+            
+            if (ocrResult.success) {
+                // Store in file context
+                window.fileContext = {
+                    name: file.name,
+                    text: ocrResult.text,
+                    type: file.type.startsWith('image/') ? 'image' : 'pdf',
+                    ocrExtracted: true,
+                    size: formatFileSize(file.size)
+                };
+                
+                // Show success with OCR option
+                fileStatus.innerHTML = `
+                    <div style="color: #2ed573;">
+                        <i class="fas fa-check-circle"></i>
+                        ${file.name} processed
+                    </div>
+                    <div style="margin-top: 8px;">
+                        <button onclick="sendOCRTextToAI()" style="
+                            background: var(--accent-blue);
+                            color: white;
+                            border: none;
+                            border-radius: 8px;
+                            padding: 8px 12px;
+                            font-size: 0.75rem;
+                            cursor: pointer;
+                            width: 100%;
+                        ">
+                            <i class="fas fa-robot"></i> Send to AI for analysis
+                        </button>
+                    </div>
+                `;
+                
+            } else {
+                throw new Error(ocrResult.error || 'OCR failed');
+            }
+            
+        } else {
+            // For text files, use basic processing
+            return await processFileBasic(file);
+        }
+        
+        // Show clear button
+        const fileClearSection = document.getElementById('file-clear-section');
+        if (fileClearSection) fileClearSection.style.display = 'block';
+        
+        // Show attached indicator
+        showFileAttachedIndicator();
+        
+        // Auto-close popup after 2 seconds
+        setTimeout(() => {
+            const filePopup = document.getElementById('file-popup');
+            if (filePopup) filePopup.classList.remove('active');
+        }, 2000);
+        
+    } catch (error) {
+        console.error('File processing error:', error);
+        const fileStatus = document.getElementById('file-status');
+        fileStatus.innerHTML = `
+            <div style="color: #ff4757;">
+                <i class="fas fa-exclamation-circle"></i>
+                Error: ${error.message}
+            </div>
+        `;
+        
+        // Clear file input
+        const fileInput = document.getElementById('file-input');
+        if (fileInput) fileInput.value = '';
+    }
 }
 
-// Extract text from PDF
-async function extractPdfText(file) {
+// Basic file processing (for non-image/PDF files)
+async function processFileBasic(file) {
+    const fileStatus = document.getElementById('file-status');
+    const fileClearSection = document.getElementById('file-clear-section');
+    const ext = file.name.split('.').pop().toLowerCase();
+    
+    try {
+        let text = '';
+        
+        // Check file size (10MB limit)
+        if (file.size > 10 * 1024 * 1024) {
+            throw "File too large (max 10MB)";
+        }
+        
+        // Extract text based on file type
+        if (["txt", "md", "html", "htm", "csv", "rtf"].includes(ext)) {
+            text = await file.text();
+        } 
+        else if (ext === "pdf") {
+            // Use basic PDF extraction
+            text = await extractPdfTextBasic(file);
+        } 
+        else if (ext === "docx" || ext === "doc") {
+            text = await extractDocxText(file);
+        }
+        else {
+            throw "Unsupported file format";
+        }
+        
+        // Validate extracted text
+        if (!text || text.trim().length < 10) {
+            throw "No readable text found";
+        }
+        
+        // Clean and limit text
+        const cleanedText = text
+            .replace(/\s+/g, ' ')
+            .replace(/[^\x20-\x7E\n\r\t]/g, ' ')
+            .trim();
+        
+        if (cleanedText.length < 20) {
+            throw "No readable text found";
+        }
+        
+        // Save file context
+        window.fileContext = {
+            text: cleanedText.slice(0, 15000), // limit to 15k chars
+            name: file.name,
+            size: formatFileSize(file.size),
+            type: 'text'
+        };
+        
+        // Update UI
+        fileStatus.innerHTML = `
+            <div style="color: #2ed573;">
+                <i class="fas fa-check-circle"></i>
+                ${file.name} attached
+            </div>
+        `;
+        
+        if (fileClearSection) fileClearSection.style.display = 'block';
+        
+        // Show attached indicator
+        showFileAttachedIndicator();
+        
+        // Auto-close popup after 2 seconds
+        setTimeout(() => {
+            const filePopup = document.getElementById('file-popup');
+            if (filePopup) filePopup.classList.remove('active');
+        }, 2000);
+        
+        return { success: true };
+        
+    } catch (err) {
+        console.error("File error:", err);
+        throw err;
+    }
+}
+
+// Basic PDF extraction
+async function extractPdfTextBasic(file) {
     try {
         const arrayBuffer = await file.arrayBuffer();
         const decoder = new TextDecoder('utf-8');
@@ -268,6 +365,11 @@ function clearAttachedFile() {
     }
 }
 
+// Trigger file picker
+function pickFile() {
+    document.getElementById("file-input").click();
+}
+
 // Initialize when DOM is loaded
 document.addEventListener("DOMContentLoaded", function() {
     setTimeout(initFileUpload, 500);
@@ -277,3 +379,4 @@ document.addEventListener("DOMContentLoaded", function() {
 window.initFileUpload = initFileUpload;
 window.pickFile = pickFile;
 window.clearAttachedFile = clearAttachedFile;
+window.processSelectedFile = processSelectedFile;
