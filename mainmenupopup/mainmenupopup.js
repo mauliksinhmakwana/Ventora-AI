@@ -1180,10 +1180,7 @@ function clearAllMenuData() {
     }
 }
 
-// At the end of clearAllMenuData() function, add:
-setTimeout(() => {
-    window.location.reload();
-}, 1500);
+
 
 
 
