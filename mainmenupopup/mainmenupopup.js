@@ -1403,7 +1403,7 @@ function downloadFile(content, filename, mimeType) {
 
 // Clear all data - FIXED
 function clearAllMenuData() {
-    if (confirm('Are you sure? This will delete ALL chat history, settings, personalization, goals, notes, and prescriptions. This cannot be undone.')) {
+    if (confirm('Are you sure? This will delete your settings, personalization, goals, notes, and prescriptions. This cannot be undone.')) {
         // Clear all Ventora data
         localStorage.removeItem('ventora_conversations');
         localStorage.removeItem('ventora_settings');
