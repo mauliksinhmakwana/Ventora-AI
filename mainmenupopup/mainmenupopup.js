@@ -123,11 +123,10 @@ function openSection(sectionId) {
 function renderMenu() {
     const menuContainer = document.querySelector('.sidebar-menu');
     if (!menuContainer) return;
-    
+     //${renderMenuItem('goals', 'Your Goals', 'fas fa-check-circle')}
     menuContainer.innerHTML = `
         <div class="menu-section">
             <h4 class="section-title">Preferences</h4>
-            ${renderMenuItem('goals', 'Your Goals', 'fas fa-check-circle')}
             ${renderMenuItem('personalization', 'Personalization', 'fas fa-user-circle')}
             ${renderMenuItem('settings', 'Settings', 'fas fa-cog')}
         </div>
@@ -135,6 +134,11 @@ function renderMenu() {
         <div class="menu-section">
             <h4 class="section-title">Data</h4>
             ${renderMenuItem('export', 'Export Chat', 'fas fa-download')}
+            <div class="menu-item" onclick="clearAllData()">
+                <i class="fas fa-trash-alt"></i>
+                <span>Clear Settings</span>
+            </div>
+            
             <div class="menu-item" onclick="clearAllMenuData()">
                 <i class="fas fa-trash-alt"></i>
                 <span>Clear All Data</span>
