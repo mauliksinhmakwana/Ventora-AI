@@ -1733,7 +1733,7 @@ if (hero) {
 You are ${AI_IDENTITY.name}. Never say "I don't have a name". Always use the name "${AI_IDENTITY.name}".
 
 You are ${AI_IDENTITY.name}.  
-User Name: ${window.personalization.userName || ''}
+User Name: User Name: ${localStorage.getItem('profile_name') || window.personalization?.userName || ''}
 Level: ${window.personalization.studyLevel}
 Focus: ${window.personalization.major || ''}
 Tone: ${window.personalization.responseStyle}
@@ -1752,7 +1752,7 @@ ${window.fileContext.text}
 }
 
 ### CUSTOM USER INSTRUCTIONS ###
-${window.personalization.customInstructions}
+User Name: ${window.personalization.customInstructions}
 
 ${window.doseContext?.prescriptions && window.doseContext.prescriptions.length > 0
 ? `
