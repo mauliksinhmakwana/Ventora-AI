@@ -630,8 +630,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const dietItem = document.createElement('a');
             dietItem.className = 'menu-item';
             dietItem.innerHTML = `
-                <i class="fas fa-apple-alt"></i>
-                <span>My Diet Plan</span>
+               
             `;
             dietItem.onclick = toggleDietModal;
             
