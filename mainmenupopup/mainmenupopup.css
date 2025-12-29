@@ -44,7 +44,7 @@
 
 
 .mainmenu-modal.active {
-    display: flex !important;
+    display: flex;
     opacity: 1;
 }
 
@@ -1013,4 +1013,12 @@
         word-wrap: break-word;
         min-width: 200px;
     }
+}
+
+/* Force the modal to show when active */
+#mainmenu-modal.active {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    z-index: 99999 !important;
 }
