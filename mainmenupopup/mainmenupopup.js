@@ -1573,41 +1573,38 @@ function setupEventListeners() {
 document.addEventListener('DOMContentLoaded', initMainMenuPopup);
 
 // Export functions
-// REPLACE the existing window.openMainMenuPopup lines at the bottom of settings 2.js with this:
-window.openMainMenuPopup = function() {
-    console.log("Attempting to open Settings Popup..."); // Debug line
-    const modal = document.getElementById('mainmenu-modal');
-    const container = document.querySelector('.mainmenu-container');
-    
-    if (!modal) {
-        console.error("Modal element #mainmenu-modal not found!");
-        return;
-    }
-    
-    // Close the sidebar menu if it's open
-    if (typeof closeMenu === 'function') closeMenu();
-    
-    // Reset views
-    if (window.innerWidth <= 768) {
-        container.classList.add('menu-view');
-        container.classList.remove('content-view');
-    }
-    
-    // Show modal
-    modal.style.display = 'flex'; // Force display
-    setTimeout(() => {
-        modal.classList.add('active');
-    }, 10);
-    
-    document.body.style.overflow = 'hidden';
-    
-    // Force render the first section
-    currentSection = 'personalization';
-    renderMenu();
-    renderSection('personalization');
-};
-
+window.openMainMenuPopup = openMainMenuPopup;
 window.closeMainMenuPopup = closeMainMenuPopup;
 window.openSection = openSection;
 window.selectExportOption = selectExportOption;
 window.clearAllMenuData = clearAllMenuData;
+// FORCE GLOBAL SCOPE - ADD TO TOP OF settings 2.js
+window.openMainMenuPopup = function() {
+    console.log("Settings Button Clicked!"); // This helps you debug
+    
+    const modal = document.getElementById('mainmenu-modal');
+    const container = document.querySelector('.mainmenu-container');
+    
+    if (modal) {
+        // 1. Close the sidebar first
+        if (typeof closeMenu === 'function') closeMenu();
+        
+        // 2. Prepare the view for mobile/desktop
+        if (window.innerWidth <= 768 && container) {
+            container.classList.add('menu-view');
+            container.classList.remove('content-view');
+        }
+        
+        // 3. Show the modal
+        modal.style.display = 'flex'; // Force visibility
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        
+        // 4. Force render the first page (Personalization)
+        if (typeof openSection === 'function') {
+            openSection('personalization');
+        }
+    } else {
+        console.error("Critical Error: #mainmenu-modal not found in HTML!");
+    }
+};
