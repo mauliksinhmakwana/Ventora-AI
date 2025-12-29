@@ -1496,8 +1496,36 @@ function clearAllMenuData() {
     }
 }
 
+
+
 // Toast notification - IMPROVED
 function showMenuToast(message, type = "success") {
+    // Call the global function in index.html instead of creating a new one
+    if (typeof window.showToast === 'function') {
+        window.showToast(message, type);
+    }
+}
+    // Create new toast element
+    const toast = document.createElement('div');
+    toast.className = `menu-toast ${type}`;
+    toast.textContent = message;
+    toast.style.animation = 'toastSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards';
+    
+    // Add to document
+    document.body.appendChild(toast);
+    
+    // Remove after delay
+    setTimeout(() => {
+        toast.style.animation = 'toastSlideOut 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards';
+        setTimeout(() => {
+            if (toast.parentNode) {
+                document.body.removeChild(toast);
+            }
+        }, 300);
+    }, 3000);
+}
+
+    
 // Setup event listeners
 function setupEventListeners() {
     // Close button
