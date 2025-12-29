@@ -43,7 +43,7 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(0px);
+            backdrop-filter: blur(4px);
             z-index: 1001;
             display: none;
             opacity: 0;
@@ -140,33 +140,6 @@
             font-size: 0.95rem;
             font-weight: 500;
         }
-
-
-/* Custom scrollbar for the conversation list */
-#conversationsList {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.2) transparent; /* For Firefox */
-}
-
-/* For Chrome, Edge, and Safari */
-#conversationsList::-webkit-scrollbar {
-    width: 6px; /* Makes it thin and sleek */
-}
-
-#conversationsList::-webkit-scrollbar-track {
-    background: transparent; /* Makes the track invisible */
-}
-
-#conversationsList::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.15); /* Subtle white tint */
-    border-radius: 10px;
-    transition: background 0.3s;
-}
-
-#conversationsList::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.3); /* Brightens slightly on hover */
-}
-
         
         /* Conversation History Items */
         .conversation-item {
@@ -357,16 +330,13 @@
         }
         
         .settings-btn.primary {
-    background: #ffffff; /* Sets background to white */
-    border-color: #ffffff; /* Matches border to white */
-    color: #000000; /* Sets text color to black for readability on white */
-}
+            background: var(--accent-blue);
+            border-color: var(--accent-blue);
+        }
         
         .settings-btn.primary:hover {
-    background: rgba(255, 255, 255, 0.85); /* Slightly dims on hover for feedback */
-    border-color: rgba(255, 255, 255, 0.85);
-    color: #000000;
-}
+            background: rgba(0, 122, 255, 0.8);
+        }
         
         /* --- HEADER --- */
         header {
@@ -415,30 +385,12 @@
         }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .msg {
-            max-width: 90%; 
-            line-height: 1.5; 
-            font-size: 0.95rem;
-            white-space: pre-wrap; 
-            position: relative;
-            display: flex;
-            flex-direction: column; 
-            gap: 4px;
-            
+            max-width: 90%; line-height: 1.6; font-size: 0.95rem; white-space: pre-wrap; position: relative;
         }
-
-
-        
         .user { align-self: flex-end; border-right: 2px solid white; padding-right: 15px; text-align: right; }
-        .ai { align-self: flex-start; 
-             border-left: 1px solid var(--border); 
-             padding: 8px 0 8px 15px; 
-             color: var(--text-secondary); 
-            }
-
-
-        
+        .ai { align-self: flex-start; border-left: 1px solid var(--border); padding-left: 15px; color: var(--text-secondary); }
         .timestamp {
-            font-size: 0.65rem; color: #666; margin-top: 2px; opacity: 0.8;
+            font-size: 0.65rem; color: #666; margin-top: 6px; opacity: 0.8;
         }
         .regenerate-btn {
             cursor: pointer; font-size: 0.8rem; color: var(--accent-blue); margin-top: 8px; opacity: 0.7;
@@ -547,6 +499,126 @@
             opacity: 1;
         }
         
+        /* PERSONALIZATION MODAL */
+        .personalization-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            z-index: 1005;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .personalization-modal.active {
+            display: flex;
+            opacity: 1;
+        }
+        
+        .personalization-content {
+            background: rgba(20, 20, 20, 0.95);
+            backdrop-filter: blur(30px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 25px;
+            width: 90%;
+            max-width: 450px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            animation: modalSlide 0.3s ease;
+        }
+        
+        .pers-header {
+            margin-bottom: 20px;
+        }
+        
+        .pers-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+        
+        .pers-subtitle {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        
+        .pers-group {
+            margin-bottom: 18px;
+        }
+        
+        .pers-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        .pers-input, .pers-select, .pers-textarea {
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            font-family: inherit;
+        }
+        
+        .pers-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        .pers-btns {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+        
+        .pers-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+        
+        .pers-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .pers-btn.save {
+            background: var(--accent-blue);
+            border-color: var(--accent-blue);
+            color: white;
+        }
+        
+        .pers-btn.save:hover {
+            background: rgba(0, 122, 255, 0.8);
+        }
+        
+        .pers-btn.cancel {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+        }
+        
+        .pers-btn.cancel:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
         /* MOBILE FIXES */
         @media (max-width: 480px) {
             .bottom-section {
@@ -564,255 +636,6 @@
             .footer-info { font-size: 0.6rem; }
             main { padding: 15px; }
             header { padding: 0 15px; }
-
-    .file-btn {
-        width: 32px;
-        height: 32px;
-        padding: 6px;
-    }
-    
-    .file-btn svg {
-        width: 18px;
-        height: 18px;
-    }
-
-
-
-
-
-
-/* About Modal Styles */
-.about-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(10px);
-    z-index: 1005;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.about-modal.active {
-    display: flex;
-    opacity: 1;
-}
-
-.about-content {
-    background: rgba(20, 20, 20, 0.95);
-    backdrop-filter: blur(30px);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 25px;
-    width: 90%;
-    max-width: 450px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-    animation: modalSlide 0.3s ease;
-}
-
-.about-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.about-title {
-    font-size: 1.2rem;
-    font-weight: 600;
-}
-
-.close-about {
-    background: none;
-    border: none;
-    color: var(--text-secondary);
-    font-size: 1.4rem;
-    cursor: pointer;
-    padding: 5px;
-    border-radius: 6px;
-    line-height: 1;
-}
-
-.close-about:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--text-primary);
-}
-
-.about-body {
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-    line-height: 1.6;
-}
-
-.about-logo {
-    text-align: center;
-    margin-bottom: 25px;
-}
-
-.about-logo .logo {
-    font-size: 1.4rem;
-    letter-spacing: 4px;
-    color: var(--text-primary);
-    margin-bottom: 8px;
-}
-
-.about-logo .version-badge {
-    font-size: 0.8rem;
-    background: rgba(0, 122, 255, 0.1);
-    padding: 4px 12px;
-    border-radius: 20px;
-    display: inline-block;
-    border: 1px solid rgba(0, 122, 255, 0.3);
-    color: var(--accent-blue);
-}
-
-.about-section {
-    margin-bottom: 20px;
-}
-
-.about-section h4 {
-    color: var(--text-primary);
-    margin-bottom: 10px;
-    font-size: 0.95rem;
-    display: flex;
-    align-items: center;
-}
-
-.features-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-}
-
-.feature-item {
-    background: rgba(255, 255, 255, 0.05);
-    padding: 8px 12px;
-    border-radius: 8px;
-    border-left: 3px solid var(--accent-blue);
-    font-size: 0.85rem;
-    color: var(--text-primary);
-}
-
-.creator-info {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background: rgba(255, 255, 255, 0.05);
-    padding: 12px;
-    border-radius: 10px;
-}
-
-.creator-icon {
-    width: 40px;
-    height: 40px;
-    background: rgba(0, 122, 255, 0.2);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--accent-blue);
-    font-size: 1.2rem;
-}
-
-.creator-name {
-    color: var(--text-primary);
-    font-weight: 500;
-}
-
-.creator-title {
-    font-size: 0.8rem;
-    opacity: 0.8;
-}
-
-.about-tech {
-    border-top: 1px solid var(--border);
-    padding-top: 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.8rem;
-}
-
-.tech-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.about-actions {
-    display: flex;
-    gap: 10px;
-    margin-top: 25px;
-}
-
-.about-btn {
-    flex: 1;
-    padding: 10px;
-    border-radius: 10px;
-    border: 1px solid var(--border);
-    background: rgba(255, 255, 255, 0.05);
-    color: var(--text-primary);
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-size: 0.9rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-}
-
-.about-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
-}
-
-.about-btn.primary {
-    background: var(--accent-blue);
-    border-color: var(--accent-blue);
-    color: white;
-}
-
-.about-btn.primary:hover {
-    background: rgba(0, 122, 255, 0.8);
-}
-
-/* Mobile fixes */
-@media (max-width: 480px) {
-    .about-content {
-        padding: 20px;
-        width: 95%;
-    }
-    
-    .features-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .about-tech {
-        flex-direction: column;
-        gap: 10px;
-        align-items: flex-start;
-    }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
             
             /* Mobile menu */
             .menu-container {
@@ -836,6 +659,17 @@
             .settings-content {
                 padding: 20px;
                 width: 95%;
+            }
+            
+            .personalization-content {
+                padding: 20px;
+                width: 95%;
+                max-height: 85vh;
+                overflow-y: auto;
+            }
+            
+            .pers-btns {
+                flex-direction: column;
             }
             
             /* For Firefox fix */
@@ -863,30 +697,15 @@
     </style>
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="stylesheet" href="personalization/personalization.css">
-
-    <link rel="stylesheet" href="voice/voice.css">
-<script src="voice/voice.js"></script>
-<link rel="stylesheet" href="goal/goal.css">
-<script src="goal/goal.js"></script>
-    <link rel="stylesheet" href="menu/menu.css">
-<script src="menu/menu.js" defer></script>
-<script src="./typing-illusion/typing.js"></script>
-<link rel="stylesheet" href="fileupload/fileupload.css">
-<script src="fileupload/fileupload.js" defer></script>
-    <link rel="stylesheet" href="mainmenupopup/mainmenupopup.css">
-    <!-- For PDF export (optional) -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <link rel="stylesheet" href="dose/dose.css">
 </head>
 <body onload="initApp()">
     <!-- Menu Overlay (click to close) -->
     <div class="menu-overlay" id="menuOverlay" onclick="closeMenu()"></div>
     
-    <!-- Menu Container -----------------------------------------------------------------------------------------------------------------  MANU ------------------------------------------->
+    <!-- Menu Container -->
     <div class="menu-container" id="menuContainer">
         <div class="menu-header">
-            <div class="menu-title">Ventora Ai</div>
+            <div class="menu-title">Ventora AI</div>
             <button class="close-menu" onclick="closeMenu()">
                 <i class="fas fa-times"></i>
             </button>
@@ -905,68 +724,30 @@
             
             <div class="menu-divider"></div>
 
-        </div>
+            <!-- Personalization -->
+            <div class="menu-item" onclick="openPersonalization()">
+                <i class="fas fa-user-circle"></i>
+                <span>Personalization</span>
+            </div>
+            
+            <!-- Settings and Export -->
+            <div class="menu-item" onclick="openSettings()">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </div>
 
-<!-- ===== SIDEBAR PROFILE (COMPLETE) ===== -->
-<div class="sidebar-profile-wrapper">
-
-    <div class="sidebar-profile-row">
-        <div class="profile-avatar" id="profileAvatar">U</div>
-
-        <div class="profile-text" onclick="toggleProfileMenu()">
-            <div class="profile-name" id="profileName">Username</div>
-            <div class="profile-role" id="profileRole">Role</div>
-        </div>
-
-        <div class="profile-edit-btn"
-             onclick="event.stopPropagation(); openEditProfile();">
-            <i class="fas fa-pen"></i>
-        </div>
-
-        <div class="profile-arrow" onclick="toggleProfileMenu()">
-            <i class="fas fa-chevron-up"></i>
+            <!-- About -->
+            <div class="menu-item" onclick="openAbout()">
+                <i class="fas fa-info-circle"></i>
+                <span>About</span>
+            </div>
+            
+            <div class="menu-item" onclick="exportChat()">
+                <i class="fas fa-download"></i>
+                <span>Export Chat</span>
+            </div>
         </div>
     </div>
-
-
-
-
-
-
-  <div class="profile-menu" id="profileMenu">
-
-      
-
-      <div class="profile-menu-item" onclick="toggleGoalModal()">
-            <i class="fas fa-check-circle"></i>
-            <span>Your Diet</span>
-        </div>
-      
- <!-- Add Prescriptions Menu Item -->
-    <div class="profile-menu-item" onclick="toggleDoseModal()">
-        <i class="fas fa-pills"></i>
-        <span>My Prescriptions</span>
-    </div>
-
-      
-    <!-- Remove all other items, keep only Settings -->
-    <div class="profile-menu-item" onclick="openMainMenuPopup()">
-        <i class="fas fa-cog"></i>
-        <span>Settings</span>
-    </div>
-
-</div>
-
-
-
-
-    
-</div>
-
-    </div>
-
-
-
     
     <!-- Settings Modal -->
     <div class="settings-modal" id="settingsModal">
@@ -981,16 +762,12 @@
             <div class="settings-group">
                 <label class="settings-label">Model</label>
                 <select class="settings-select" id="modelSelect">
-
-                    
-              <option value="groq:general">MIA – General</option>
-<option value="groq:research">MIA – Research & Analysis</option>
-<option value="groq:study">MIA – Clinical Reasoning</option>
-
-
-
-
-                    
+                    <option value="llama-3.1-8b-instant">VEA - General (Recommended)</option>
+                    <option value="llama-3.1-70b-versatile">VEA - Research Pro</option>
+                    <option value="mixtral-8x7b-32768">VEA - Thesis Expert</option>
+                    <option value="gemma-7b-it">VEA - Study Partner</option>
+                    <option value="llama-3.2-1b-preview">VEA - Quick Q&A</option>
+                    <option value="llama-3.2-3b-preview">VEA - Student Helper</option>
                 </select>
             </div>
             
@@ -1023,6 +800,56 @@
         </div>
     </div>
     
+    <!-- Personalization Modal -->
+    <div class="personalization-modal" id="personalizationModal">
+        <div class="personalization-content">
+            <div class="pers-header">
+                <h2 class="pers-title">Personalization</h2>
+                <p class="pers-subtitle">Customize how Ventora AI responds to you</p>
+            </div>
+            
+            <div class="pers-group">
+                <label class="pers-label">Your Name</label>
+                <input type="text" id="persName" class="pers-input" placeholder="What should I call you?">
+            </div>
+            
+            <div class="pers-group">
+                <label class="pers-label">Academic Level</label>
+                <select id="persLevel" class="pers-select">
+                    <option value="school">School Student</option>
+                    <option value="highschool">High School</option>
+                    <option value="college" selected>College/University</option>
+                    <option value="researcher">Researcher/Professional</option>
+                </select>
+            </div>
+            
+            <div class="pers-group">
+                <label class="pers-label">Major/Field of Study</label>
+                <input type="text" id="persMajor" class="pers-input" placeholder="e.g., Computer Science, Physics, Biology">
+            </div>
+            
+            <div class="pers-group">
+                <label class="pers-label">Response Style</label>
+                <select id="persStyle" class="pers-select">
+                    <option value="balanced" selected>Balanced</option>
+                    <option value="technical">Technical</option>
+                    <option value="friendly">Friendly</option>
+                    <option value="concise">Concise</option>
+                </select>
+            </div>
+            
+            <div class="pers-group">
+                <label class="pers-label">Custom Instructions</label>
+                <textarea id="persCustom" class="pers-textarea" placeholder="Any specific preferences or instructions for Ventora AI?"></textarea>
+            </div>
+            
+            <div class="pers-btns">
+                <button class="pers-btn save" onclick="savePersonalization()">Save Changes</button>
+                <button class="pers-btn cancel" onclick="closePersonalization()">Cancel</button>
+            </div>
+        </div>
+    </div>
+    
     <!-- Toast Notification -->
     <div class="toast" id="toast"></div>
     
@@ -1044,118 +871,19 @@
                 VENTORA<b style="color: var(--accent-blue);">AI</b>
             </div>
             <div class="version-badge" style="opacity: 0.7; font-weight: 600;">
-                V5.4 MIA
+                V3.1 VEA
             </div>
         </div>
         <button class="icon-btn" onclick="shareApp()" title="Share" style="background: rgba(255,255,255,0.05); border: 1px solid var(--border); width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); color: white; cursor: pointer; transition: background 0.2s;">
-    <i class="fas fa-arrow-up-from-bracket" style="font-size: 0.9rem;"></i>
-</button>
-       <!-- <button class="icon-btn" onclick="shareApp()" style="background: rgba(255,255,255,0.05); border: 1px solid var(--border); padding: 6px 16px; border-radius: 12px; font-weight: 700; font-size: 0.6rem; letter-spacing: 1px; backdrop-filter: blur(10px); color: white; cursor: pointer;">
-            SHARE
-        </button> -->
+            <i class="fas fa-arrow-up-from-bracket" style="font-size: 0.9rem;"></i>
+        </button>
     </header>
     
     <main id="chat-container"></main>
-
-
-<div id="hero-welcome" style="
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    pointer-events: none;
-    position: relative;
-    overflow: hidden;
-">
-   
-    <div style="position: relative; z-index: 1;">
-
-        <!-- MAIN TEXT -->
-        <div style="
-            font-size: clamp(2.8rem, 6vw, 3.6rem);
-            font-weight: 700;
-            background: linear-gradient(120deg, #6a8cff, #9b6cff, #4facfe);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-size: 200% 200%;
-            animation: textGradientMove 6s ease infinite;
-            margin-bottom: 16px;
-            letter-spacing: -0.6px;
-        ">
-            Welcome
-        </div>
-
-        <!-- SUB TEXT -->
-        <div style="
-            font-size: 1.15rem;
-            color: var(--text-secondary);
-            max-width: 520px;
-            line-height: 1.6;
-            margin: 0 auto;
-        ">
-            What would you like to explore right now?
-        </div>
-
-    </div>
-</div>
-
-<style>
-@keyframes heroGlow {
-    0%   { transform: translate(-80px, -60px) scale(1); opacity: 0.6; }
-    100% { transform: translate(80px, 60px) scale(1.15); opacity: 0.9; }
-}
-
-@keyframes textGradientMove {
-    0%   { background-position: 0% 50%; }
-    50%  { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
-</style>
-
-
-
+    
     <div class="bottom-section">
         <div class="input-section">
-          <!--  <div class="clear-bar">
-           <!--     // <div class="tiny-new-chat" onclick="createNewConversation()">New Chat</div> -->
-           <!-- </div> -->
             <div class="input-bar">
-                <!-- File Upload Button -->
-<div class="file-upload-wrapper">
-    <button class="file-btn" id="file-btn" title="Attach file">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
-        </svg>
-    </button>
-    
-    <!-- File Popup -->
-    <div class="file-popup" id="file-popup">
-        <input type="file" id="file-input" hidden accept=".txt,.pdf,.doc,.docx,.rtf,.md,.html,.csv" />
-        
-        <div class="file-popup-content">
-            <div class="file-title">Upload file</div>
-            <button class="file-action" onclick="pickFile()">
-                Choose file
-            </button>
-            <div id="file-status" class="file-status"></div>
-            <div id="file-clear-section" style="display: none; margin-top: 8px;">
-    <button class="file-clear-btn" onclick="clearAttachedFile()" style="
-        background: rgba(255, 59, 48, 0.1);
-        color: #ff3b30;
-        border: 1px solid rgba(255, 59, 48, 0.3);
-        padding: 6px 12px;
-        border-radius: 6px;
-        font-size: 0.75rem;
-        cursor: pointer;
-        width: 100%;
-    ">
-        Remove File
-    </button>
-</div>
-        </div>
-    </div>
-</div>
                 <textarea id="user-input" rows="1" placeholder="Type a message..." oninput="autoExpand(this)"></textarea>
                 <button id="send-btn">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
@@ -1169,91 +897,38 @@
             </div>
         </div>
     </div>
-
-
-
-
-
-    
-
     
     <script>
-
-        function pause(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-function hideHeroWelcome() {
-    const hero = document.getElementById('hero-welcome');
-    if (hero) hero.style.display = 'none';
-}
-
-
-      //<!-------------------------------------------------------------------------------------------------------------------------------------------KEY-------------------------->
-        // === YOUR GROQ API KEY ADDED HERE ===
-       // const GROQ_API_KEY = "#"; // ← Your key pasted here
+        // ========== AI IDENTITY CONFIG ==========
+        const AI_IDENTITY = {
+            name: "Ventora",
+            fullName: "Ventora AI",
+            version: "V3.1 VEA",
+            description: "Academic Research Model",
+            creator: "Maulik Makwana"
+        };
+        
+        // Personalization settings
+        window.personalization = {
+            userName: '',
+            studyLevel: 'college',
+            major: '',
+            responseStyle: 'balanced',
+            customInstructions: ''
+        };
         
         // State management
         let conversations = [];
         let currentConversationId = null;
         let settings = {
-            model: 'groq:llama-3.1-8b-instant',
+            model: 'llama-3.1-8b-instant',
             temperature: 0.7,
             maxTokens: 1024
         };
-
-        // Dose Context for AI integration
-        window.doseContext = {
-            getPrescriptions: () => {
-                const saved = localStorage.getItem('ventora_prescriptions');
-                return saved ? JSON.parse(saved) : [];
-            }
-        };
-
-        // Update the AI context when loading
-        function updateDoseContext() {
-            const prescriptions = window.doseContext.getPrescriptions();
-            if (prescriptions.length > 0) {
-                window.doseContext.prescriptions = prescriptions;
-            }
-        }
-        
-        // Initialize dose context
-        updateDoseContext();
-
-
-
-// ========== AI IDENTITY CONFIG ==========
-const AI_IDENTITY = {
-    name: "Ventora",
-    fullName: "Ventora AI", 
-    version: "V4.1 VEA",
-    description: "Virtual Educational Assistant",
-    creator: "Maulik Makwana"
-};
-// ========================================
-
-
-
-
-
-
         
         // Mobile protection variables
         let isSending = false;
         let lastSendTime = 0;
-
-
-
-
-
-
-
-
-
-
-
-
         
         // DOM Elements
         const chatContainer = document.getElementById('chat-container');
@@ -1264,15 +939,24 @@ const AI_IDENTITY = {
         const menuContainer = document.getElementById('menuContainer');
         const conversationsList = document.getElementById('conversationsList');
         const settingsModal = document.getElementById('settingsModal');
+        const personalizationModal = document.getElementById('personalizationModal');
         const modelSelect = document.getElementById('modelSelect');
         const tempRange = document.getElementById('tempRange');
         const tempValue = document.getElementById('tempValue');
         const maxTokensSelect = document.getElementById('maxTokens');
         const toast = document.getElementById('toast');
+        
+        // Personalization elements
+        const persName = document.getElementById('persName');
+        const persLevel = document.getElementById('persLevel');
+        const persMajor = document.getElementById('persMajor');
+        const persStyle = document.getElementById('persStyle');
+        const persCustom = document.getElementById('persCustom');
 
         // ==================== INITIALIZATION ====================
         function initApp() {
             loadSettings();
+            loadPersonalization();
             loadConversations();
             
             if (conversations.length === 0) {
@@ -1284,43 +968,52 @@ const AI_IDENTITY = {
             userInput.focus();
         }
 
-        // ==================== CONVERSATION MANAGEMENT ====================
-        
-        function createNewConversation() {
-    const id = Date.now().toString();
-    const conversation = {
-        id,
-        title: "New Chat",
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        messages: []
-    };
-    
-    conversations.unshift(conversation);
-    currentConversationId = id;
-    saveConversations();
-    renderConversationsList();
-    switchConversation(id);
-    
-    // Clear chat container
-    chatContainer.innerHTML = '';
-    
-    // Clear file when starting new chat
-    if (window.fileContext && window.fileContext.text) {
-        if (typeof clearAttachedFile === 'function') {
-            clearAttachedFile();
+        // ==================== PERSONALIZATION FUNCTIONS ====================
+        function loadPersonalization() {
+            const saved = localStorage.getItem('ventora_personalization');
+            if (saved) {
+                try {
+                    window.personalization = JSON.parse(saved);
+                } catch (e) {
+                    console.error('Error loading personalization:', e);
+                }
+            }
         }
-    }
-    
-    // Close menu on mobile
-    if (window.innerWidth <= 768) {
-        closeMenu();
-    }
-    
-    saveConversations();
-}
         
-        /*
+        function savePersonalization() {
+            const newPersonalization = {
+                userName: persName.value.trim(),
+                studyLevel: persLevel.value,
+                major: persMajor.value.trim(),
+                responseStyle: persStyle.value,
+                customInstructions: persCustom.value.trim()
+            };
+            
+            window.personalization = newPersonalization;
+            localStorage.setItem('ventora_personalization', JSON.stringify(newPersonalization));
+            
+            closePersonalization();
+            showToast('Personalization saved!');
+        }
+        
+        function openPersonalization() {
+            closeMenu();
+            
+            // Load current personalization values
+            persName.value = window.personalization.userName || '';
+            persLevel.value = window.personalization.studyLevel || 'college';
+            persMajor.value = window.personalization.major || '';
+            persStyle.value = window.personalization.responseStyle || 'balanced';
+            persCustom.value = window.personalization.customInstructions || '';
+            
+            personalizationModal.classList.add('active');
+        }
+        
+        function closePersonalization() {
+            personalizationModal.classList.remove('active');
+        }
+
+        // ==================== CONVERSATION MANAGEMENT ====================
         function createNewConversation() {
             const id = Date.now().toString();
             const conversation = {
@@ -1339,8 +1032,8 @@ const AI_IDENTITY = {
             
             // Clear chat container and add welcome message
             chatContainer.innerHTML = '';
-           //appendMessage(`Hello! I'm ${AI_IDENTITY.name}, your smart study buddy! What's on your academic agenda today? ✨`, 'ai');
-           // Hey! I'm Nebula, your smart study buddy! What's on your academic agenda today?
+            appendMessage(`Hello${window.personalization.userName ? ' ' + window.personalization.userName : ''}! I'm ${AI_IDENTITY.name}, your smart study buddy! What's on your academic agenda today? ✨`, 'ai');
+            
             // Close menu on mobile
             if (window.innerWidth <= 768) {
                 closeMenu();
@@ -1349,41 +1042,28 @@ const AI_IDENTITY = {
             saveConversations();
         }
 
-*/
-
-        
-        
-       function switchConversation(id) {
-    // Clear file when switching to different conversation
-    if (currentConversationId !== id && window.fileContext && window.fileContext.text) {
-        if (typeof clearAttachedFile === 'function') {
-            clearAttachedFile();
+        function switchConversation(id) {
+            currentConversationId = id;
+            const conversation = getConversationById(id);
+            
+            if (!conversation) return;
+            
+            // Render messages
+            renderMessages(conversation.messages);
+            
+            // Update conversation title if needed
+            if (conversation.messages.length > 0 && conversation.title === "New Chat") {
+                updateConversationTitle(id, conversation.messages[0].content);
+            }
+            
+            // Update UI
+            renderConversationsList();
+            
+            // Close menu on mobile
+            if (window.innerWidth <= 768) {
+                closeMenu();
+            }
         }
-    }
-    
-    currentConversationId = id;
-    const conversation = getConversationById(id);
-    
-    if (!conversation) return;
-    
-    // Render messages
-    renderMessages(conversation.messages);
-    
-    // Update conversation title if needed
-    if (conversation.messages.length > 0 && conversation.title === "New Chat") {
-        updateConversationTitle(id, conversation.messages[0].content);
-    }
-    
-    // Update UI
-    renderConversationsList();
-    
-    // Close menu on mobile
-    if (window.innerWidth <= 768) {
-        closeMenu();
-    }
-}
-
-        
 
         function getCurrentConversation() {
             return getConversationById(currentConversationId);
@@ -1439,14 +1119,14 @@ const AI_IDENTITY = {
             settings.maxTokens = parseInt(maxTokensSelect.value);
             
             // Save to localStorage
-            localStorage.setItem('nebula_settings', JSON.stringify(settings));
+            localStorage.setItem('ventora_settings', JSON.stringify(settings));
             
             closeSettings();
             showToast('Settings saved!');
         }
 
         function loadSettings() {
-            const saved = localStorage.getItem('nebula_settings');
+            const saved = localStorage.getItem('ventora_settings');
             if (saved) {
                 try {
                     settings = JSON.parse(saved);
@@ -1458,7 +1138,7 @@ const AI_IDENTITY = {
 
         // ==================== CHAT FUNCTIONS ====================
         function loadConversations() {
-            const saved = localStorage.getItem('nebula_conversations');
+            const saved = localStorage.getItem('ventora_conversations');
             if (saved) {
                 try {
                     conversations = JSON.parse(saved);
@@ -1470,10 +1150,9 @@ const AI_IDENTITY = {
         }
 
         function saveConversations() {
-            localStorage.setItem('nebula_conversations', JSON.stringify(conversations));
+            localStorage.setItem('ventora_conversations', JSON.stringify(conversations));
         }
 
-        // FIX 2: Updated renderConversationsList with rename and delete options
         function renderConversationsList() {
             // Clear existing conversation items
             const conversationItems = conversationsList.querySelectorAll('.conversation-item');
@@ -1598,17 +1277,11 @@ const AI_IDENTITY = {
 
         function renderMessages(messages) {
             chatContainer.innerHTML = '';
-
-const hero = document.getElementById('hero-welcome');
-if (hero) {
-    hero.style.display = messages.length ? 'none' : 'flex';
-}
-
             
-          //  if (messages.length === 0) {
-          //      appendMessage('Hello! I am Ventora AI. How can I assist you today?', 'ai');
-            //    return;
-           // }
+            if (messages.length === 0) {
+                appendMessage('Hello! I am Ventora AI. How can I assist you today?', 'ai');
+                return;
+            }
             
             messages.forEach(msg => {
                 if (msg.role === 'user') {
@@ -1621,17 +1294,10 @@ if (hero) {
                     msgDiv.className = 'msg ai';
                     msgDiv.innerHTML = formatted +
                         `<div class="timestamp">${formatTime(msg.timestamp)}</div>` +
-
-                        
-                        //   ----------------------------------------------------------------------------------------------READ 1------------------------------------------------------
-`<div style="display: flex; gap: 16px; align-items: center; margin-top: 8px;">
-    <div class="regenerate-btn" onclick="copyFullResponse(this)">Copy</div>
-    <div class="voice-btn" onclick="toggleSpeech(this)">Read</div>
-    <div class="regenerate-btn" onclick="regenerate(this)">↻ Regenerate</div>
-</div>`
-                        ;
-
-                    
+                        `<div style="display: flex; gap: 16px; margin-top: 8px;">
+                            <div class="regenerate-btn" onclick="copyFullResponse(this)">Copy</div>
+                            <div class="regenerate-btn" onclick="regenerate(this)">↻ Regenerate</div>
+                        </div>`;
                     wrapper.appendChild(msgDiv);
                     chatContainer.appendChild(wrapper);
                 }
@@ -1684,7 +1350,6 @@ if (hero) {
             
             // Display user message
             appendMessage(query, 'user');
-            hideHeroWelcome();
 
             // Update conversation title if needed
             if (conversation.messages.length === 1 && conversation.title === "New Chat") {
@@ -1713,191 +1378,53 @@ if (hero) {
                     throw new Error('No messages to send. Please try again.');
                 }
 
-
-
-
-              
-               // <!--------------------------------------------------------------------------------------------------------------------------------PROMPT--------------------------->
-//const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
                 const response = await fetch('https://ventora-ai.vercel.app/api/chat', {
-    method: 'POST',
-    headers: {
-       // 'Authorization': `Bearer ${GROQ_API_KEY}`,
-        'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-        model: settings.model,
-        messages: [
-            {
-                role: "system",
-                content: `
-You are ${AI_IDENTITY.name}. Never say "I don't have a name". Always use the name "${AI_IDENTITY.name}".
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: settings.model,
+                        messages: [
+                            {
+                                role: "system",
+                                content: 
+                                `You are ${AI_IDENTITY.name}. Never say "I don't have a name". Always use the name "${AI_IDENTITY.name}".
 
-You are ${AI_IDENTITY.name}.  
-User Name: User Name: ${localStorage.getItem('profile_name') || window.personalization?.userName || ''}
-Level: ${window.personalization.studyLevel}
-Focus: ${window.personalization.major || ''}
+User Name: ${window.personalization.userName || 'Student'}
+Academic Level: ${window.personalization.studyLevel}
+Major/Focus: ${window.personalization.major || 'General'}
 Tone: ${window.personalization.responseStyle}
 
-${window.fileContext?.text
-? `
-### ATTACHED FILE CONTEXT ###
-File: ${window.fileContext.name}
-
-Extracted content:
-"""
-${window.fileContext.text}
-"""
-`
-: ''
-}
-
 ### CUSTOM USER INSTRUCTIONS ###
-User Name: ${window.personalization.customInstructions}
+${window.personalization.customInstructions}
 
-${window.doseContext?.prescriptions && window.doseContext.prescriptions.length > 0
-? `
-### CURRENT MEDICATIONS (FOR REFERENCE ONLY) ###
-Patient's Active Prescriptions:
-${window.doseContext.prescriptions.filter(p => p.status === 'active').map(p => `
-- ${p.medication}: ${p.dosage} (${p.frequency}) for ${p.duration}
-  ${p.notes ? `Notes: ${p.notes}` : ''}
-`).join('')}
-
-Note: This is reference information only. DO NOT provide dosage advice or modify prescriptions.
-`
-: ''
-}
-
---------------------------------------------------
+RULES:
+1. Always address the user by their name (${window.personalization.userName || 'Student'}).
+2. Match explanation complexity to a ${window.personalization.studyLevel} level.
+3. Use examples from ${window.personalization.major || 'various fields'}.
 
 CORE IDENTITY:
-- Name: Ventora
-- Version: VentoraAI V5.4 MIA
-- Type: Medical Information Assistant
+- Your name is Ventora
+- Version: Ventora AI V3.1 VEA
+- Type: Academic Research Model
 - Creator/Developer: Maulik Makwana
-- Background Strength: Pharmaceutical Science
-- Purpose: Help people understand medicines, diseases, and health concepts clearly and safely.
+- Purpose: Help students with academic work
 
---------------------------------------------------
+ANSWER RULES:
+1. Simple questions = Short answers (1 sentence)
+   Example: "What is science?" → "Science studies how things work."
+2. Be helpful for students...
+3. Use emojis sometimes 🎓✨
 
-CORE PHILOSOPHY:
-Ventora combines the **usefulness of a health companion (like August)** with the **depth of pharmaceutical science**.
-
-Ventora:
-- Helps users understand what a medicine or health concept is
-- Explains how it works inside the human body
-- Connects diseases, pathways, and drugs
-- Educates, but never prescribes
-
-Ventora is NOT a doctor.
-Ventora is NOT a treatment recommender.
-Ventora is a **pharma-understanding assistant**.
-
---------------------------------------------------
-
-Ventora provides short, educational information about medicines, diseases, and health concepts.
-
-Rules:
-- Simple questions → very short, structured answers
-- Use labels, not paragraphs
-- No prescriptions, no dosage, no treatment advice
-- Expand only if the user asks “explain”, “how”, or “why”
-- Focus on understanding, not instructions
-
---------------------------------------------------
-
-🚫 Never include:
-- Dosage
-- Treatment advice
-- “Take / should take / best medicine”
-
---------------------------------------------------
-
-DIET, NUTRITION & GYM QUESTIONS (AUGUST-LIKE, BUT SAFER):
-
-- Give general, high-level information
-- Explain *why* something helps biologically
-- Avoid strict plans, numbers, or prescriptions
-- Encourage understanding, not instructions
-
---------------------------------------------------
-
-CRITICAL SAFETY RULES:
-- NEVER prescribe
-- NEVER give dosage
-- NEVER replace doctors
-- Use neutral educational wording:
-  “commonly used”, “helps regulate”, “is associated with”
-- Always add an educational disclaimer when relevant
-
---------------------------------------------------
-
-ANSWER STYLE:
-- Clear, structured, calm
-- Explain WHY before WHAT
-- Short by default, detailed only if asked
-- Minimal emojis 🎓🧠
-- Friendly but professional
-
---------------------------------------------------
-
-FORMATTING RULES:
-- Use **bold headings**
-- Use bullet points when helpful
-- Keep answers readable and clean
-
---------------------------------------------------
-
-FINAL IDENTITY STATEMENT:
-Ventora helps people understand how medicines, diseases, diet, and health concepts work inside the human body — from a pharmaceutical science perspective — for education and awareness, not medical instruction.
-`
-
-                
-            },
-            ...apiMessages
-        ],
-        temperature: settings.temperature,
-        max_tokens: settings.maxTokens
-    })
-});
-
-
-
-
-
-
-
-
-
-                
-
-      //          const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-                //  method: 'POST',
-        //      headers: {
-          //              'Authorization': `Bearer ${GROQ_API_KEY}`,
-            //            'Content-Type': 'application/json'
-              //      },
-                //    body: JSON.stringify({
-                  //      model: settings.model,
-                    //    messages: apiMessages,
-                      //  temperature: settings.temperature,
-                        //max_tokens: settings.maxTokens
-                    //})
-                //});
-
-
-
-
-
-
-
-
-
-
-
-
-                
+You are ${AI_IDENTITY.name}, a student helper.`
+                            },
+                            ...apiMessages
+                        ],
+                        temperature: settings.temperature,
+                        max_tokens: settings.maxTokens
+                    })
+                });
 
                 if (!response.ok) {
                     const error = await response.json();
@@ -1905,70 +1432,35 @@ Ventora helps people understand how medicines, diseases, diet, and health concep
                 }
 
                 const data = await response.json();
-              //  <!--------------------------------------------------------------------------------------------------------------------------------rawtext------------------------
-               // const rawText = data.choices[0]?.message?.content || "No response.";
-
-
-
-// Add validation
-if (!data.choices || data.choices.length === 0) {
-    throw new Error('AI returned empty response. Please try again.');
-}
-
-if (!data.choices[0].message || !data.choices[0].message.content) {
-    console.error('Invalid response structure:', data);
-    throw new Error('Invalid response from AI server.');
-}
-
-const rawText = data.choices[0].message.content;
-
-
-
-
-
-
-
-
-
-
                 
-                               // Add assistant message
+                // Add validation
+                if (!data.choices || data.choices.length === 0) {
+                    throw new Error('AI returned empty response. Please try again.');
+                }
+
+                if (!data.choices[0].message || !data.choices[0].message.content) {
+                    console.error('Invalid response structure:', data);
+                    throw new Error('Invalid response from AI server.');
+                }
+
+                const rawText = data.choices[0].message.content;
+                
+                // Add assistant message
                 conversation.messages.push({
                     role: 'assistant',
                     content: rawText,
                     timestamp: new Date().toISOString()
                 });
 
-             
-
                 // Update the loading message with actual response
-                // ... rest of your code continues ...
+                const formatted = formatAIResponse(rawText);
+                loadingMsg.innerHTML = formatted +
+                    `<div class="timestamp">${getTime()}</div>` +
+                    `<div style="display: flex; gap: 16px; margin-top: 8px;">
+                        <div class="regenerate-btn" onclick="copyFullResponse(this)">Copy</div>
+                        <div class="regenerate-btn" onclick="regenerate(this)">↻ Regenerate</div>
+                    </div>`;
 
-                
-
-                // Update the loading message with actual response         //------------------------------------------------------READ 2--------------------------------------------------//
-               // Inside handleSend, when the AI finishes:
-       
-
-// Inside handleSend, when the AI finishes:
-await pause(1200);
-
-const formatted = formatAIResponse(rawText);
-
-// Render UI with minimal gaps
-loadingMsg.innerHTML = `
-  <div class="ai-text" style="margin-bottom: 4px;"></div>
-  <div class="timestamp" style="margin-bottom: 4px;">${getTime()}</div>
-  <div style="display: flex; gap: 16px; align-items: center;">
-      <div class="regenerate-btn" onclick="copyFullResponse(this)">Copy</div>
-      <div class="voice-btn" onclick="toggleSpeech(this)">Read</div>
-      <div class="regenerate-btn" onclick="regenerate(this)">↻ Regenerate</div>
-  </div>`;
-
-// Type ONLY the text into the container
-const aiTextEl = loadingMsg.querySelector(".ai-text");
-await typeText(aiTextEl, formatted, 25);
-                
                 // Save updated conversation
                 conversation.updatedAt = new Date().toISOString();
                 saveConversations();
@@ -1977,8 +1469,6 @@ await typeText(aiTextEl, formatted, 25);
                 
             } catch (err) {
                 console.error('API Error:', err);
-               
-                
                 
                 // Remove the user message if the API call failed
                 const userIndex = conversation.messages.findIndex(msg => 
@@ -1999,11 +1489,6 @@ await typeText(aiTextEl, formatted, 25);
             }
         }
 
-
-
-
-
-        
         // ==================== UTILITY FUNCTIONS ====================
         function autoExpand(el) {
             el.style.height = 'auto';
@@ -2018,52 +1503,33 @@ await typeText(aiTextEl, formatted, 25);
             const date = new Date(isoString);
             return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         }
-
        
         function formatAIResponse(text) {
-    // Convert **bold** to <strong>bold</strong>
-    let formattedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    
-    // Convert *italic* to <em>italic</em>
-    formattedText = formattedText.replace(/\*(.*?)\*/g, '<em>$1</em>');
-    
-    // Convert `code` to <code>code</code>
-    formattedText = formattedText.replace(/`(.*?)`/g, '<code>$1</code>');
-    
-    // Then handle code blocks
-    const codeRegex = /```(\w*)\n([\s\S]*?)```/g;
-    formattedText = formattedText.replace(codeRegex, (match, lang, code) => {
-        const id = 'code-' + Math.random().toString(36).substr(2, 9);
-        return `
-        <div class="code-container">
-            <div class="code-header">
-                <span>${lang.toUpperCase() || 'CODE'}</span>
-                <span class="copy-btn" onclick="copyCode('${id}')">COPY</span>
-            </div>
-            <pre id="${id}">${code.trim()}</pre>
-        </div>`;
-    });
-    
-    return formattedText;
-}
-       // function formatAIResponse(text) {
-       //     const codeRegex = /```(\w*)\n([\s\S]*?)```/g;
-         //   return text.replace(codeRegex, (match, lang, code) => {
-          //      const id = 'code-' + Math.random().toString(36).substr(2, 9);
-           //     return `
-            //    <div class="code-container">
-             //       <div class="code-header">
-              //          <span>${lang.toUpperCase() || 'CODE'}</span>
-               //         <span class="copy-btn" onclick="copyCode('${id}')">COPY</span>
-                //    </div>
-                 //   <pre id="${id}">${code.trim()}</pre>
-               // </div>`;
-         //   });
-       // }
-
-
-
-        
+            // Convert **bold** to <strong>bold</strong>
+            let formattedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            
+            // Convert *italic* to <em>italic</em>
+            formattedText = formattedText.replace(/\*(.*?)\*/g, '<em>$1</em>');
+            
+            // Convert `code` to <code>code</code>
+            formattedText = formattedText.replace(/`(.*?)`/g, '<code>$1</code>');
+            
+            // Then handle code blocks
+            const codeRegex = /```(\w*)\n([\s\S]*?)```/g;
+            formattedText = formattedText.replace(codeRegex, (match, lang, code) => {
+                const id = 'code-' + Math.random().toString(36).substr(2, 9);
+                return `
+                <div class="code-container">
+                    <div class="code-header">
+                        <span>${lang.toUpperCase() || 'CODE'}</span>
+                        <span class="copy-btn" onclick="copyCode('${id}')">COPY</span>
+                    </div>
+                    <pre id="${id}">${code.trim()}</pre>
+                </div>`;
+            });
+            
+            return formattedText;
+        }
 
         function copyCode(id) {
             const code = document.getElementById(id).innerText;
@@ -2156,25 +1622,25 @@ await typeText(aiTextEl, formatted, 25);
                 return;
             }
 
-            let text = `=== Nebula AI Conversation ===\n\n`;
+            let text = `=== Ventora AI Conversation ===\n\n`;
             text += `Title: ${conversation.title}\n`;
             text += `Date: ${new Date(conversation.updatedAt).toLocaleString()}\n\n`;
             
             conversation.messages.forEach(msg => {
-                const role = msg.role === 'user' ? 'You' : 'Nebula AI';
+                const role = msg.role === 'user' ? 'You' : 'Ventora AI';
                 const time = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                 text += `[${time}] ${role}:\n`;
                 text += `${msg.content}\n\n`;
             });
             
             text += '\n=== End of Conversation ===\n';
-            text += 'Exported from Nebula AI\n';
+            text += 'Exported from Ventora AI\n';
             
             const blob = new Blob([text], { type: 'text/plain' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `nebula-chat-${conversation.id}.txt`;
+            a.download = `ventora-chat-${conversation.id}.txt`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -2186,14 +1652,24 @@ await typeText(aiTextEl, formatted, 25);
 
         function clearAllData() {
             if (confirm('Are you sure? This will delete ALL chat history and settings.')) {
-                localStorage.removeItem('nebula_conversations');
-                localStorage.removeItem('nebula_settings');
+                localStorage.removeItem('ventora_conversations');
+                localStorage.removeItem('ventora_settings');
+                localStorage.removeItem('ventora_personalization');
                 conversations = [];
                 currentConversationId = null;
                 settings = {
-                    model: 'groq:llama-3.1-8b-instant',
+                    model: 'llama-3.1-8b-instant',
                     temperature: 0.7,
                     maxTokens: 1024
+                };
+                
+                // Reset personalization
+                window.personalization = {
+                    userName: '',
+                    studyLevel: 'college',
+                    major: '',
+                    responseStyle: 'balanced',
+                    customInstructions: ''
                 };
                 
                 chatContainer.innerHTML = '';
@@ -2214,23 +1690,30 @@ await typeText(aiTextEl, formatted, 25);
 
         function shareApp() {
             if (navigator.share) {
-                navigator.share({ title: 'Nebula AI', url: window.location.href });
+                navigator.share({ title: 'Ventora AI', url: window.location.href });
             } else {
                 navigator.clipboard.writeText(window.location.href);
                 showToast('Link copied to clipboard!');
             }
         }
+        
+        function openAbout() {
+            closeMenu();
+            alert('Ventora AI V3.1 VEA\nCreated by Maulik Makwana\n\nAn advanced AI assistant for academic research and study.');
+        }
 
-                // ==================== EVENT LISTENERS ====================
+        // ==================== EVENT LISTENERS ====================
         userInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
-                handleSend();
+                // Small delay for mobile
+                setTimeout(() => handleSend(), 50);
             }
         });
         
         sendBtn.addEventListener('click', (e) => {
             e.preventDefault();
+            // Prevent double-tap on mobile
             if (sendBtn.classList.contains('sending')) return;
             handleSend();
         });
@@ -2246,1001 +1729,24 @@ await typeText(aiTextEl, formatted, 25);
                 if (settingsModal.classList.contains('active')) {
                     closeSettings();
                 }
+                if (personalizationModal.classList.contains('active')) {
+                    closePersonalization();
+                }
                 if (menuContainer.classList.contains('active')) {
                     closeMenu();
                 }
             }
         });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// ==================== ABOUT FUNCTIONS ====================
-function showAbout() {
-    closeMenu(); // Close menu first
-    const aboutModal = document.getElementById('aboutModal');
-    aboutModal.classList.add('active');
-}
-
-function closeAbout() {
-    const aboutModal = document.getElementById('aboutModal');
-    aboutModal.classList.remove('active');
-}
-
-// Add to existing Escape key handler
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-        if (settingsModal.classList.contains('active')) {
-            closeSettings();
-        }
-        if (menuContainer.classList.contains('active')) {
-            closeMenu();
-        }
-        if (document.getElementById('aboutModal').classList.contains('active')) {
-            closeAbout();
-        }
-    }
-});
-
-// Close about when clicking outside
-document.getElementById('aboutModal').addEventListener('click', function(e) {
-    if (e.target === this) {
-        closeAbout();
-    }
-});
- 
-    </script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<!-- About Modal - Fixed Layout -->
-<div id="about-modal" class="about-modal" role="dialog" aria-modal="true" aria-labelledby="about-title" aria-hidden="true">
-    <div class="about-content">
-        <div class="about-header">
-            <button class="close-about" id="close-about-btn" aria-label="Close about modal">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M18 6L6 18M6 6l12 12"/>
-                </svg>
-            </button>
-            <h2 id="about-title" class="about-title">About</h2>
-            <div class="header-spacer"></div>
-        </div>
         
-        <div class="about-body">
-            <!-- Version Info -->
-            <div class="version-section">
-                <div class="app-name">Ventora AI</div>
-                <div class="version-info">
-                    <span class="version">Version 4.1</span>
-                    <span class="model-type">Virtual Educational Assistant</span>
-                </div>
-            </div>
-            
-            <!-- Description -->
-            <div class="description-section">
-                <p class="description">
-                 <p>Ventora AI is an advanced artificial intelligence assistant designed specifically for academic excellence and research support. Built with cutting-edge language models, it serves as your intelligent companion for learning, studying, and academic work.</p>
-                 <p>Specializing in comprehensive academic assistance, Ventora AI provides expert support for research methodology, study planning, essay writing, and assignment completion. Whether you need help with literature reviews, concept explanations, or homework solutions, it adapts to your specific academic requirements.</p>
-                 <p>Powered by sophisticated AI technology, Ventora AI offers personalized guidance while maintaining the highest standards of academic integrity. It emphasizes critical thinking, proper citation practices, and ethical research methods to ensure quality learning outcomes.
-
-Developed with a focus on educational impact, this tool supports students, researchers, and educators in achieving their academic goals. Its intuitive interface and responsive design make advanced academic assistance accessible to everyone.</p>
-                 <p><b>Privacy & Data:</b> Your conversations remain private and secure. All data is processed locally in your browser with no storage on external servers. We use industry-standard encryption to protect your information while maintaining full transparency about our data practices.</p>
-                 <p>Ventora AI continues to evolve with regular updates and improvements, ensuring it remains at the forefront of educational technology. Your reliable partner for smarter learning and more efficient research.</p>
-
-
-
-
-
-
-                </p>
-            </div>
-            
-            <!-- Features Grid -->
-            <div class="features-section">
-                <h3 class="section-heading">Key Features</h3>
-                <div class="features-list">
-                   
-                    
-                    
-                    <div class="feature-item">
-                        <div class="feature-icon">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-                            </svg>
-                        </div>
-                        <div class="feature-content">
-                            <div class="feature-title">Research Assistance</div>
-                            <div class="feature-desc">Academic research support</div>
-                        </div>
-                    </div>
-                    
-                    <div class="feature-item">
-                        <div class="feature-icon">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M12 19l7-7 3 3-7 7-3-3z"/>
-                                <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/>
-                                <path d="M2 2l7.586 7.586"/>
-                            </svg>
-                        </div>
-                        <div class="feature-content">
-                            <div class="feature-title">Study Help</div>
-                            <div class="feature-desc">Learning support</div>
-                        </div>
-                    </div>
-                    
-                    <div class="feature-item">
-                        <div class="feature-icon">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
-                            </svg>
-                        </div>
-                        <div class="feature-content">
-                            <div class="feature-title">Essay Writing</div>
-                            <div class="feature-desc">Writing assistance</div>
-                        </div>
-                    </div>
-                    
-                    <div class="feature-item">
-                        <div class="feature-icon">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
-                                <path d="M22 4L12 14.01l-3-3"/>
-                            </svg>
-                        </div>
-                        <div class="feature-content">
-                            <div class="feature-title">Homework Support</div>
-                            <div class="feature-desc">Assignment help</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-
-
-
-
-            
-            <!-- Creator Info -->
-            <div class="creator-section">
-                <h3 class="section-heading">Creator</h3>
-                <div class="creator-info">
-                    <div class="creator-avatar">
-                        <div class="avatar-initial">M</div>
-                    </div>
-                    <div class="creator-details">
-                        <div class="creator-name">Maulik Makwana</div>
-                        <div class="creator-role">Developer</div>
-                    </div>
-                    
-                     <!-- External Link -->
-            <div class="external-link">
-                <a href="https://mauliksinhmakwana.github.io/Mauliksinh-Makwana/" target="_blank" class="link-button" onclick="window.open('https://mauliksinhmakwana.github.io/Mauliksinh-Makwana/', '_blank')">
-                    <span>Portfolio</span>
-                </a>
-            </div>
-
-                </div>
-            </div>
-
-
-
-
-            
-            
-            <!-- Tech Stack -->
-            <div class="tech-section">
-                <div class="tech-item">
-                    <div class="tech-label">Powered by</div>
-                    <div class="tech-value">Ventora AI</div>
-                </div>
-                <div class="tech-item">
-                    <div class="tech-label">Secured by</div>
-                    <div class="tech-value">Ventora AI</div>
-                </div>
-            </div>
-            
-           
-            
-        </div>
-    </div>
-</div>
-
-<script>
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-async function typeText(element, html, speed = 25) {
-    element.innerHTML = ""; 
-    
-    const temp = document.createElement('div');
-    temp.innerHTML = html;
-    const nodes = Array.from(temp.childNodes);
-    
-    for (const node of nodes) {
-        if (node.nodeType === Node.TEXT_NODE) {
-            const text = node.textContent;
-            for (let i = 0; i < text.length; i++) {
-                element.innerHTML += text[i];
-                // This is where the error was happening
-                await sleep(speed); 
+        // Close modals when clicking outside
+        window.addEventListener('click', (e) => {
+            if (settingsModal.classList.contains('active') && e.target === settingsModal) {
+                closeSettings();
             }
-        } else {
-            element.appendChild(node.cloneNode(true));
-            await sleep(speed); 
-        }
-        if (typeof scrollToBottom === "function") scrollToBottom();
-    }
-}
-// Function to open the About modal
-function openAboutModal() {
-    const modal = document.getElementById('about-modal');
-    modal.classList.add('active');
-    modal.setAttribute('aria-hidden', 'false');
-    document.body.style.overflow = 'hidden';
-    
-    // Set focus to the close button
-    setTimeout(() => {
-        const closeBtn = document.getElementById('close-about-btn');
-        if (closeBtn) closeBtn.focus();
-    }, 100);
-}
-
-// Function to close the About modal
-function closeAboutModal() {
-    const modal = document.getElementById('about-modal');
-    modal.classList.remove('active');
-    modal.setAttribute('aria-hidden', 'true');
-    document.body.style.overflow = 'auto';
-    
-    // Return focus to the button that opened the modal
-    if (window.lastFocusedElement) {
-        window.lastFocusedElement.focus();
-    }
-}
-
-// Event listeners for About modal
-document.addEventListener('DOMContentLoaded', function() {
-    // Store reference to last focused element
-    document.addEventListener('focusin', function(e) {
-        if (!document.getElementById('about-modal').classList.contains('active')) {
-            window.lastFocusedElement = e.target;
-        }
-    });
-    
-    // Find About button in menu
-    const menuItems = document.querySelectorAll('.menu-item');
-    menuItems.forEach(item => {
-        const span = item.querySelector('span');
-        if (span && span.textContent.trim() === 'About') {
-            item.addEventListener('click', function(e) {
-                e.preventDefault();
-                openAboutModal();
-            });
-        }
-    });
-    
-    // Close button
-    const closeAboutBtn = document.getElementById('close-about-btn');
-    if (closeAboutBtn) {
-        closeAboutBtn.addEventListener('click', closeAboutModal);
-    }
-    
-    // Close modal when clicking outside
-    const aboutModal = document.getElementById('about-modal');
-    if (aboutModal) {
-        aboutModal.addEventListener('click', function(e) {
-            if (e.target === aboutModal) {
-                closeAboutModal();
+            if (personalizationModal.classList.contains('active') && e.target === personalizationModal) {
+                closePersonalization();
             }
         });
-    }
-    
-    // Close with Escape key
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && aboutModal.classList.contains('active')) {
-            closeAboutModal();
-        }
-    });
-});
-
-// Make function available globally
-window.openAboutModal = openAboutModal;
-window.closeAboutModal = closeAboutModal;
-</script>
-
-<style>
-/* About Modal - Fixed CSS */
-.about-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.85);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    z-index: 1005;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: opacity 0.2s ease;
-    padding: 16px;
-    pointer-events: none;
-}
-
-.about-modal.active {
-    display: flex;
-    opacity: 1;
-    pointer-events: auto;
-}
-
-.about-content {
-    background: rgba(30, 30, 30, 0.98);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 16px;
-    padding: 0;
-    width: 100%;
-    max-width: 400px;
-    max-height: 85vh;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-    animation: modalSlideUp 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    position: relative;
-}
-
-@keyframes modalSlideUp {
-    from {
-        opacity: 0;
-        transform: translateY(16px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Header - Fixed for mobile */
-.about-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 20px 24px 16px 24px; /* Increased top padding */
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    background: rgba(30, 30, 30, 0.98);
-    backdrop-filter: blur(20px);
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    flex-shrink: 0;
-}
-
-.about-title {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin: 0;
-    text-align: center;
-    flex: 1;
-    line-height: 1.2; /* Better line height */
-}
-
-.close-about {
-    background: none;
-    border: none;
-    color: var(--text-secondary);
-    cursor: pointer;
-    padding: 10px; /* Larger padding */
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.15s ease;
-    flex-shrink: 0;
-    min-width: 44px; /* Minimum touch target */
-    min-height: 44px;
-    margin-top: -4px; /* Adjust vertical alignment */
-}
-
-.close-about:hover,
-.close-about:focus {
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--text-primary);
-    outline: none;
-}
-
-.close-about svg {
-    display: block;
-}
-
-.header-spacer {
-    width: 44px;
-    visibility: hidden;
-}
-
-/* Body */
-.about-body {
-    flex: 1;
-    overflow-y: auto;
-    padding: 24px;
-    color: var(--text-secondary);
-    font-size: 0.9375rem;
-    line-height: 1.5;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
-}
-
-.about-body::-webkit-scrollbar {
-    width: 6px;
-}
-
-.about-body::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.about-body::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.15);
-    border-radius: 3px;
-}
-
-/* Version Section */
-.version-section {
-    text-align: center;
-    margin-bottom: 24px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.app-name {
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: 8px;
-    letter-spacing: -0.3px;
-}
-
-.version-info {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.version {
-    font-size: 0.9375rem;
-    color: var(--accent-blue);
-    font-weight: 500;
-}
-
-.model-type {
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-    opacity: 0.9;
-}
-
-/* Description */
-.description-section {
-    margin-bottom: 24px;
-}
-
-.description {
-    margin: 0;
-    line-height: 1.6;
-    font-size: 0.9375rem;
-    color: var(--text-secondary);
-    text-align: center;
-}
-
-/* Features - Fixed bullet points */
-.features-section {
-    margin-bottom: 24px;
-}
-
-.section-heading {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin: 0 0 18px 0;
-    padding-bottom: 12px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.features-list {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.feature-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-}
-
-.feature-bullet {
-    color: var(--accent-blue);
-    font-size: 1.5rem;
-    line-height: 1;
-    margin-top: -2px;
-    flex-shrink: 0;
-    width: 20px;
-    text-align: center;
-}
-
-.feature-content {
-    flex: 1;
-}
-
-.feature-title {
-    font-size: 1rem;
-    font-weight: 500;
-    color: var(--text-primary);
-    margin-bottom: 4px;
-    line-height: 1.3;
-}
-
-.feature-desc {
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-    opacity: 0.8;
-    line-height: 1.4;
-}
-
-/* Creator Section */
-.creator-section {
-    margin-bottom: 24px;
-    padding-bottom: 24px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.creator-info {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 16px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 12px;
-}
-
-.creator-avatar {
-    width: 56px;
-    height: 56px;
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: 700;
-    font-size: 1.5rem;
-    flex-shrink: 0;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-}
-
-.avatar-initial {
-    display: block;
-}
-
-.creator-details {
-    flex: 1;
-}
-
-.creator-name {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 4px;
-    line-height: 1.3;
-}
-
-.creator-role {
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-    line-height: 1.4;
-}
-
-/* Tech Section */
-.tech-section {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
-    margin-bottom: 24px;
-}
-
-.tech-item {
-    padding: 16px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 12px;
-    text-align: center;
-}
-
-.tech-label {
-    font-size: 0.8125rem;
-    color: var(--text-secondary);
-    margin-bottom: 6px;
-    opacity: 0.8;
-}
-
-.tech-value {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--text-primary);
-}
-
-/* External Link */
-.external-link {
-    text-align: center;
-}
-
-.link-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    color: var(--accent-blue);
-    text-decoration: none;
-    font-size: 0.9375rem;
-    font-weight: 500;
-    padding: 12px 24px;
-    border-radius: 10px;
-    transition: all 0.15s ease;
-    background: rgba(0, 122, 255, 0.1);
-    border: 1px solid rgba(0, 122, 255, 0.2);
-    min-height: 44px;
-}
-
-.link-button:hover,
-.link-button:focus {
-    background: rgba(0, 122, 255, 0.15);
-    color: var(--accent-blue);
-    outline: none;
-    text-decoration: none;
-}
-
-/* ===== MOBILE FIXES ===== */
-@media (max-width: 768px) {
-    .about-modal {
-        padding: 0;
-        align-items: flex-end;
-    }
-    
-    .about-content {
-        max-width: 100%;
-        max-height: 90vh;
-        border-radius: 20px 20px 0 0;
-        animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    
-    @keyframes slideUp {
-        from {
-            opacity: 0;
-            transform: translateY(100%);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-    
-    /* FIX FOR HEADER BEING CUT OFF */
-    .about-header {
-        padding-top: max(24px, env(safe-area-inset-top, 24px)) !important;
-        padding-left: max(20px, env(safe-area-inset-left, 20px)) !important;
-        padding-right: max(20px, env(safe-area-inset-right, 20px)) !important;
-        padding-bottom: 16px;
-    }
-    
-    .about-body {
-        padding: 20px;
-        padding-left: max(20px, env(safe-area-inset-left, 20px)) !important;
-        padding-right: max(20px, env(safe-area-inset-right, 20px)) !important;
-        padding-bottom: max(20px, env(safe-area-inset-bottom, 20px)) !important;
-    }
-    
-    .close-about {
-        min-width: 44px;
-        min-height: 44px;
-        margin-top: 0; /* Reset margin */
-    }
-    
-    .tech-section {
-        grid-template-columns: 1fr;
-        gap: 12px;
-    }
-    
-    .app-name {
-        font-size: 1.6rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .about-content {
-        max-height: 95vh;
-    }
-    
-    .about-body {
-        padding: 18px;
-        font-size: 0.9375rem;
-    }
-    
-    .app-name {
-        font-size: 1.5rem;
-    }
-    
-    .section-heading {
-        font-size: 1rem;
-        margin-bottom: 16px;
-    }
-    
-    .feature-title {
-        font-size: 0.9375rem;
-    }
-    
-    .feature-desc {
-        font-size: 0.8125rem;
-    }
-    
-    .creator-name {
-        font-size: 1rem;
-    }
-    
-    .creator-avatar {
-        width: 52px;
-        height: 52px;
-        font-size: 1.3rem;
-    }
-}
-
-/* Touch device optimizations */
-@media (hover: none) and (pointer: coarse) {
-    .close-about {
-        min-height: 48px;
-        min-width: 48px;
-    }
-    
-    .link-button {
-        min-height: 48px;
-        padding: 14px 20px;
-    }
-}
-
-/* Reduced motion */
-@media (prefers-reduced-motion: reduce) {
-    .about-modal,
-    .about-content {
-        transition: none;
-        animation: none;
-    }
-    
-    .about-content {
-        animation: fadeIn 0.15s ease;
-    }
-    
-    @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-    }
-}
-</style>
-
-
-
-
-
-
-
-
-
-
-
-
-    <div class="personalization-modal" id="personalizationModal" style="display: none;">
-    <div class="personalization-content">
-        <div class="pers-header">
-            <h2 class="pers-title">Instructions</h2>
-            <p class="pers-subtitle">Personalize how Ventora responds to you.</p>
-        </div>
-
-        <div class="pers-group">
-            <label class="pers-label">Preferred Name</label>
-            <input type="text" id="persName" class="pers-input" placeholder="What should I call you?">
-        </div>
-
-        <div class="pers-group">
-            <label class="pers-label">Proficiency Level</label>
-            <select id="persLevel" class="pers-select">
-               <option value="school">Foundation</option>
-        <option value="highschool">Intermediate</option>
-        <option value="college">Advanced Academic</option>
-        <option value="researcher">Expert / Scholar</option>
-            </select>
-        </div>
-
-        <div class="pers-group">
-            <label class="pers-label">Interest</label>
-            <input type="text" id="persMajor" class="pers-input" placeholder="e.g. Computer Science, Physics">
-        </div>
-
-        <div class="pers-group">
-            <label class="pers-label">Ventora Style</label>
-            <select id="persStyle" class="pers-select">
-                <option value="balanced">Standard (Optimal)</option>
-        <option value="technical">Technical & Analytical</option>
-        <option value="encouraging">Socratic Tutor</option>
-        <option value="concise">Direct & Precise</option>
-            </select>
-        </div>
-
-        <div class="pers-group">
-            <label class="pers-label">Your Instructions</label>
-            <textarea id="persCustom" class="pers-input" rows="4" 
-                placeholder="What would you like Ventora to know?" 
-                style="resize: none; font-family: inherit;"></textarea>
-        </div>
-
-        <div class="pers-btns">
-            <button class="pers-btn save" onclick="savePersonalization()">Save Changes</button>
-            <button class="pers-btn cancel" onclick="closePersonalization()">Cancel</button>
-        </div>
-    </div>
-</div>
-
-<button class="icon-btn" onclick="shareApp()" title="Share" style="position: fixed; top: 10px; right: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); color: white; cursor: pointer; z-index: 1000;">
-    <i class="fas fa-arrow-up-from-bracket" style="font-size: 0.9rem;"></i>
-</button>
-
-<script src="personalization/personalization.js"></script>
-
-    <div class="goal-modal" id="goalModal">
-    <div class="goal-content">
-        <div class="goal-header">
-            <button onclick="toggleGoalModal()" class="close-menu" style="margin:0; font-size:1.2rem;">
-                <i class="fas fa-arrow-left"></i>
-            </button>
-            <h3>YOUR DIET</h3>
-            <div style="width: 32px;"></div>
-        </div>
-        <div class="goal-body">
-            <div class="add-task-bar">
-                <input type="text" id="newTaskInput" placeholder="Add your Diet plan...">
-                <button class="add-task-btn" onclick="addTask()">ADD</button>
-            </div>
-            <div id="taskList"></div>
-            
-            <div class="note-section">
-                <label>Notes (Auto-saves)</label>
-                <textarea id="study-notes-area" placeholder="Write your note..."></textarea>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-
-    
-    <!-- Main Menu Popup Structure -->
-<!-- Main Menu Popup Structure - FINAL -->
-<div class="mainmenu-modal" id="mainmenu-modal">
-    <div class="mainmenu-container menu-view">
-        <!-- Left Sidebar Menu -->
-        <div class="menu-sidebar">
-            <div class="sidebar-header">
-                <h3 class="sidebar-title">Settings</h3>
-                <p class="sidebar-subtitle">Ventora AI Preferences</p>
-                <!-- Mobile Close Button -->
-                <button class="sidebar-close" onclick="closeMainMenuPopup()" aria-label="Close settings">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            
-            <div class="sidebar-menu">
-                <!-- Menu items will be inserted by JavaScript -->
-            </div>
-            
-            <div class="sidebar-footer">
-                <div class="ventora-info">
-                    <div class="ventora-logo">VENTORA<span>AI</span></div>
-                    <div class="ventora-version">V5.4 MIA</div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Right Content Area -->
-        <div class="menu-content">
-            <div class="content-header">
-                <button class="content-back" aria-label="Back to menu">
-                    <i class="fas fa-arrow-left"></i>
-                </button>
-                <h3 class="content-title">Settings</h3>
-                <button class="content-close" aria-label="Close settings">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            
-            <div class="content-body">
-                <div class="empty-state">
-                    <i class="fas fa-cog"></i>
-                    <h4>Select a section</h4>
-                    <p>Choose an option from the menu to get started.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<script src="mainmenupopup/mainmenupopup.js"></script>
-
-    <!-- Prescription & Dosage Tracker Modal -->
-<div class="dose-modal" id="doseModal">
-    <div class="dose-content">
-        <div class="dose-header">
-            <h3>My Prescriptions</h3>
-            <button class="close-dose" onclick="toggleDoseModal()">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        
-        <div class="dose-body">
-            <button class="add-dose-btn" onclick="showAddForm()">
-                <i class="fas fa-plus"></i>
-                Add New Prescription
-            </button>
-            
-            <!-- Add Prescription Form (hidden by default) -->
-            <div class="dose-form" id="doseForm"></div>
-            
-            <!-- Prescriptions List -->
-            <div class="prescription-list" id="prescriptionsContainer">
-                <!-- Prescriptions will be loaded here -->
-            </div>
-            
-            <!-- Action Buttons -->
-            <div style="display: flex; gap: 10px; margin-top: 20px;">
-                <button class="action-btn" onclick="exportPrescriptions()" style="flex: 1;">
-                    <i class="fas fa-download"></i> Export List
-                </button>
-                <button class="action-btn delete" onclick="clearAllPrescriptions()" style="flex: 1;">
-                    <i class="fas fa-trash"></i> Clear All
-                </button>
-            </div>
-            
-            <!-- Safety Disclaimer -->
-            <div style="margin-top: 25px; padding: 15px; background: rgba(255, 71, 87, 0.05); border: 1px solid rgba(255, 71, 87, 0.2); border-radius: 10px;">
-                <p style="font-size: 0.75rem; color: #ff4757; margin: 0; line-height: 1.4;">
-                    <strong>⚠️ IMPORTANT SAFETY NOTICE:</strong><br>
-                    This is a personal reference tool only. Always follow your doctor's instructions. Do not modify doses without medical advice. In case of side effects, contact your healthcare provider immediately.
-                </p>
-            </div>
-        </div>
-    </div>
-</div>
-    <script src="dose/dose.js" defer></script>
+    </script>
 </body>
 </html>
