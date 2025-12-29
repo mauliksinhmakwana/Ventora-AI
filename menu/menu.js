@@ -1,17 +1,44 @@
 /* ===== PROFILE MENU TOGGLE ===== */
 function toggleProfileMenu() {
+    const profileMenu = document.getElementById('profileMenu');
+    const arrowIcon = document.querySelector('.profile-arrow i');
+    
+    // Toggle menu
+    profileMenu.classList.toggle('active');
+    
+    // Toggle arrow
+    if (profileMenu.classList.contains('active')) {
+        arrowIcon.className = 'fas fa-chevron-down';
+    } else {
+        arrowIcon.className = 'fas fa-chevron-up';
+    }
+}
+/*function toggleProfileMenu() {
     document.getElementById('profileMenu')
         .classList.toggle('active');
-}
+}*/
 
 /* Close menu when clicking outside */
+/* Close menu when clicking outside */
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('.sidebar-profile-wrapper')) {
+        const profileMenu = document.getElementById('profileMenu');
+        const arrowIcon = document.querySelector('.profile-arrow i');
+        
+        if (profileMenu) {
+            profileMenu.classList.remove('active');
+            arrowIcon.className = 'fas fa-chevron-up';
+        }
+    }
+});
+/*
 document.addEventListener('click', (e) => {
     if (!e.target.closest('.sidebar-profile-wrapper')) {
         document.getElementById('profileMenu')
             ?.classList.remove('active');
     }
 });
-
+*/
 /* ===== EDIT PROFILE POPUP ===== */
 
 function openEditProfile() {
