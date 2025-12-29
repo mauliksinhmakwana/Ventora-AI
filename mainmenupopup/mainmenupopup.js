@@ -1,4 +1,4 @@
-// Main Menu Popup - DeepSeek Style - FINAL
+// Main Menu Popup - Ventora AI Style - FINAL
 
 // Global state
 let currentSection = null;
@@ -6,11 +6,11 @@ let selectedExportOption = 'all';
 
 // Sections definition
 let sections = {
-    /*'goals': {
+    'goals': {
         title: 'Your Goals',
         icon: 'fas fa-check-circle',
         render: renderGoalsSection
-    },*/
+    },
     'personalization': {
         title: 'Personalization',
         icon: 'fas fa-user-circle',
@@ -135,7 +135,7 @@ function renderMenu() {
         <div class="menu-section">
             <h4 class="section-title">Data</h4>
             ${renderMenuItem('export', 'Export Chat', 'fas fa-download')}
-            <div class="menu-item" onclick="showClearDataConfirm()">
+            <div class="menu-item" onclick="clearAllMenuData()">
                 <i class="fas fa-trash-alt"></i>
                 <span>Clear All Data</span>
             </div>
@@ -176,7 +176,7 @@ function renderSection(sectionId) {
 function loadAllData() {
     // Personalization
     if (!window.personalization) {
-        window.personalization = JSON.parse(localStorage.getItem('nebula_pers')) || {
+        window.personalization = JSON.parse(localStorage.getItem('ventora_personalization')) || {
             userName: '',
             studyLevel: 'college',
             major: '',
@@ -186,8 +186,8 @@ function loadAllData() {
     }
     
     // App Settings
-    if (!window.nebulaSettings) {
-        window.nebulaSettings = JSON.parse(localStorage.getItem('nebula_settings')) || {
+    if (!window.ventoraSettings) {
+        window.ventoraSettings = JSON.parse(localStorage.getItem('ventora_settings')) || {
             model: 'groq:general',
             temperature: 0.7,
             maxTokens: 1024
@@ -264,17 +264,17 @@ function renderSettingsSection(container) {
         <div class="form-group">
             <label class="form-label">AI Model</label>
             <select class="form-select" id="menu-settings-model">
-                <option value="groq:general" ${window.nebulaSettings.model === 'groq:general' ? 'selected' : ''}>MIA – General</option>
-                <option value="groq:research" ${window.nebulaSettings.model === 'groq:research' ? 'selected' : ''}>MIA – Research & Analysis</option>
-                <option value="groq:study" ${window.nebulaSettings.model === 'groq:study' ? 'selected' : ''}>MIA – Clinical Reasoning</option>
+                <option value="groq:general" ${window.ventoraSettings.model === 'groq:general' ? 'selected' : ''}>MIA – General</option>
+                <option value="groq:research" ${window.ventoraSettings.model === 'groq:research' ? 'selected' : ''}>MIA – Research & Analysis</option>
+                <option value="groq:study" ${window.ventoraSettings.model === 'groq:study' ? 'selected' : ''}>MIA – Clinical Reasoning</option>
             </select>
             <div class="form-info">Choose the AI model for responses</div>
         </div>
         
         <div class="form-group">
-            <label class="form-label">Temperature: <span id="temp-value">${window.nebulaSettings.temperature}</span></label>
+            <label class="form-label">Temperature: <span id="temp-value">${window.ventoraSettings.temperature}</span></label>
             <input type="range" class="form-range" id="menu-settings-temp" 
-                   min="0" max="1" step="0.1" value="${window.nebulaSettings.temperature}">
+                   min="0" max="1" step="0.1" value="${window.ventoraSettings.temperature}">
             <div class="range-labels">
                 <span>Precise</span>
                 <span>Balanced</span>
@@ -286,11 +286,11 @@ function renderSettingsSection(container) {
         <div class="form-group">
             <label class="form-label">Max Tokens</label>
             <select class="form-select" id="menu-settings-tokens">
-                <option value="512" ${window.nebulaSettings.maxTokens === 512 ? 'selected' : ''}>512</option>
-                <option value="1024" ${window.nebulaSettings.maxTokens === 1024 ? 'selected' : ''}>1024</option>
-                <option value="2048" ${window.nebulaSettings.maxTokens === 2048 ? 'selected' : ''}>2048</option>
-                <option value="4096" ${window.nebulaSettings.maxTokens === 4096 ? 'selected' : ''}>4096</option>
-                <option value="8192" ${window.nebulaSettings.maxTokens === 8192 ? 'selected' : ''}>8192</option>
+                <option value="512" ${window.ventoraSettings.maxTokens === 512 ? 'selected' : ''}>512</option>
+                <option value="1024" ${window.ventoraSettings.maxTokens === 1024 ? 'selected' : ''}>1024</option>
+                <option value="2048" ${window.ventoraSettings.maxTokens === 2048 ? 'selected' : ''}>2048</option>
+                <option value="4096" ${window.ventoraSettings.maxTokens === 4096 ? 'selected' : ''}>4096</option>
+                <option value="8192" ${window.ventoraSettings.maxTokens === 8192 ? 'selected' : ''}>8192</option>
             </select>
             <div class="form-info">Maximum length of AI responses</div>
         </div>
@@ -461,7 +461,12 @@ function renderPrivacySection(container) {
 
 // Export Section
 function renderExportSection(container) {
-    const conversations = JSON.parse(localStorage.getItem('nebula_conversations')) || [];
+    // Get conversations - try ventora_ first, then nebula_ for compatibility
+    let conversations = JSON.parse(localStorage.getItem('ventora_conversations')) || [];
+    if (conversations.length === 0) {
+        conversations = JSON.parse(localStorage.getItem('nebula_conversations')) || [];
+    }
+    
     const currentConversationId = localStorage.getItem('current_conversation_id') || (conversations[0]?.id || '');
     
     let conversationOptions = '';
@@ -570,8 +575,20 @@ function saveMenuPersonalization() {
         customInstructions: document.getElementById('menu-pers-custom')?.value.trim() || ''
     };
     
-    localStorage.setItem('nebula_pers', JSON.stringify(window.personalization));
-    showMenuToast('Personalization saved!');
+    localStorage.setItem('ventora_personalization', JSON.stringify(window.personalization));
+    
+    // Also update profile name if set
+    const name = document.getElementById('menu-pers-name')?.value.trim();
+    if (name) {
+        localStorage.setItem('profile_name', name);
+    }
+    
+    // Sync with main app if exists
+    if (window.syncSettingsWithMainApp) {
+        window.syncSettingsWithMainApp();
+    }
+    
+    showMenuToast('Personalization saved!', 'success');
 }
 
 // Reset personalization
@@ -585,36 +602,50 @@ function resetMenuPersonalization() {
             customInstructions: ''
         };
         
-        localStorage.setItem('nebula_pers', JSON.stringify(window.personalization));
+        localStorage.setItem('ventora_personalization', JSON.stringify(window.personalization));
         renderPersonalizationSection(document.querySelector('.content-body'));
-        showMenuToast('Personalization reset');
+        showMenuToast('Personalization reset', 'info');
     }
 }
 
 // Save settings
 function saveMenuSettings() {
-    window.nebulaSettings = {
+    window.ventoraSettings = {
         model: document.getElementById('menu-settings-model')?.value || 'groq:general',
         temperature: parseFloat(document.getElementById('menu-settings-temp')?.value || 0.7),
         maxTokens: parseInt(document.getElementById('menu-settings-tokens')?.value || 1024)
     };
     
-    localStorage.setItem('nebula_settings', JSON.stringify(window.nebulaSettings));
-    showMenuToast('Settings saved!');
+    localStorage.setItem('ventora_settings', JSON.stringify(window.ventoraSettings));
+    
+    // Also update main app settings if exists
+    if (window.settings) {
+        window.settings.model = window.ventoraSettings.model;
+        window.settings.temperature = window.ventoraSettings.temperature;
+        window.settings.maxTokens = window.ventoraSettings.maxTokens;
+    }
+    
+    showMenuToast('Settings saved!', 'success');
 }
 
 // Reset settings
 function resetMenuSettings() {
     if (confirm('Reset settings to default values?')) {
-        window.nebulaSettings = {
+        window.ventoraSettings = {
             model: 'groq:general',
             temperature: 0.7,
             maxTokens: 1024
         };
         
-        localStorage.setItem('nebula_settings', JSON.stringify(window.nebulaSettings));
+        localStorage.setItem('ventora_settings', JSON.stringify(window.ventoraSettings));
+        
+        // Also update main app settings if exists
+        if (window.settings) {
+            Object.assign(window.settings, window.ventoraSettings);
+        }
+        
         renderSettingsSection(document.querySelector('.content-body'));
-        showMenuToast('Settings reset');
+        showMenuToast('Settings reset', 'info');
     }
 }
 
@@ -628,7 +659,7 @@ function addMenuTask() {
     
     input.value = '';
     renderGoalsSection(document.querySelector('.content-body'));
-    showMenuToast('Task added!');
+    showMenuToast('Task added!', 'success');
 }
 
 function toggleMenuTask(index) {
@@ -644,7 +675,7 @@ function deleteMenuTask(index) {
         window.ventoraTasks.splice(index, 1);
         localStorage.setItem('ventora_tasks', JSON.stringify(window.ventoraTasks));
         renderGoalsSection(document.querySelector('.content-body'));
-        showMenuToast('Task deleted');
+        showMenuToast('Task deleted', 'info');
     }
 }
 
@@ -662,10 +693,14 @@ function exportMenuChat() {
 }
 
 function exportAllConversations(format, includeTimestamps, includeMetadata) {
-    const conversations = JSON.parse(localStorage.getItem('nebula_conversations')) || [];
+    // Get conversations - try ventora_ first
+    let conversations = JSON.parse(localStorage.getItem('ventora_conversations')) || [];
+    if (conversations.length === 0) {
+        conversations = JSON.parse(localStorage.getItem('nebula_conversations')) || [];
+    }
     
     if (conversations.length === 0) {
-        showMenuToast('No conversations to export');
+        showMenuToast('No conversations to export', 'error');
         return;
     }
     
@@ -719,15 +754,20 @@ function exportAllConversations(format, includeTimestamps, includeMetadata) {
     }
     
     downloadFile(content, filename, mimeType);
-    showMenuToast(`Exported ${conversations.length} conversations!`);
+    showMenuToast(`Exported ${conversations.length} conversations!`, 'success');
 }
 
 function exportSingleConversation(conversationId, format, includeTimestamps, includeMetadata) {
-    const conversations = JSON.parse(localStorage.getItem('nebula_conversations')) || [];
+    // Get conversations - try ventora_ first
+    let conversations = JSON.parse(localStorage.getItem('ventora_conversations')) || [];
+    if (conversations.length === 0) {
+        conversations = JSON.parse(localStorage.getItem('nebula_conversations')) || [];
+    }
+    
     const conversation = conversations.find(c => c.id === conversationId);
     
     if (!conversation || !conversation.messages || conversation.messages.length === 0) {
-        showMenuToast('No conversation to export');
+        showMenuToast('No conversation to export', 'error');
         return;
     }
     
@@ -757,7 +797,7 @@ function exportSingleConversation(conversationId, format, includeTimestamps, inc
     }
     
     downloadFile(content, filename, mimeType);
-    showMenuToast('Chat exported!');
+    showMenuToast('Chat exported!', 'success');
 }
 
 // Export helper functions
@@ -790,7 +830,7 @@ function exportConversationAsJSON(conversation) {
             createdAt: conversation.createdAt,
             updatedAt: conversation.updatedAt,
             exportDate: new Date().toISOString(),
-            model: window.nebulaSettings?.model
+            model: window.ventoraSettings?.model
         },
         messages: conversation.messages
     };
@@ -869,20 +909,24 @@ function generateAllConversationsHTML(conversations, includeTimestamps, includeM
     return html;
 }
 
-// Preview function - FIXED
+// Preview function
 function previewMenuExport() {
-    const conversations = JSON.parse(localStorage.getItem('nebula_conversations')) || [];
+    // Get conversations - try ventora_ first
+    let conversations = JSON.parse(localStorage.getItem('ventora_conversations')) || [];
+    if (conversations.length === 0) {
+        conversations = JSON.parse(localStorage.getItem('nebula_conversations')) || [];
+    }
     
     if (selectedExportOption === 'all') {
         if (conversations.length === 0) {
-            showMenuToast('No conversations to preview');
+            showMenuToast('No conversations to preview', 'error');
             return;
         }
         showPreviewForAll(conversations);
     } else {
         const conversation = conversations.find(c => c.id === selectedExportOption);
         if (!conversation || !conversation.messages) {
-            showMenuToast('No conversation to preview');
+            showMenuToast('No conversation to preview', 'error');
             return;
         }
         showPreviewForConversation(conversation);
@@ -1068,77 +1112,134 @@ function downloadFile(content, filename, mimeType) {
 }
 
 // Clear all data
-function showClearDataConfirm() {
-    if (confirm('Are you sure? This will delete ALL chat history, settings, goals, and personalization.')) {
-        clearAllMenuData();
-    }
-}
-
 function clearAllMenuData() {
-    localStorage.removeItem('nebula_conversations');
-    localStorage.removeItem('nebula_settings');
-    localStorage.removeItem('nebula_pers');
-    localStorage.removeItem('ventora_tasks');
-    localStorage.removeItem('ventora_study_notes');
-    
-    // Reset global variables
-    window.personalization = {
-        userName: '',
-        studyLevel: 'college',
-        major: '',
-        responseStyle: 'balanced',
-        customInstructions: ''
-    };
-    
-    window.nebulaSettings = {
-        model: 'groq:general',
-        temperature: 0.7,
-        maxTokens: 1024
-    };
-    
-    window.ventoraTasks = [];
-    window.ventoraNotes = '';
-    
-    showMenuToast('All data cleared');
-    
-    // If on a section, refresh it
-    if (currentSection) {
-        renderSection(currentSection);
-    }
-    
-    // Refresh chat if function exists
-    if (typeof createNewConversation === 'function') {
-        createNewConversation();
+    if (confirm('Are you sure? This will delete ALL chat history, settings, personalization, goals, notes, and prescriptions. This cannot be undone.')) {
+        // Clear all Ventora data
+        localStorage.removeItem('ventora_conversations');
+        localStorage.removeItem('ventora_settings');
+        localStorage.removeItem('ventora_personalization');
+        localStorage.removeItem('ventora_tasks');
+        localStorage.removeItem('ventora_study_notes');
+        localStorage.removeItem('ventora_prescriptions');
+        
+        // Also clear old nebula_ data
+        localStorage.removeItem('nebula_conversations');
+        localStorage.removeItem('nebula_settings');
+        localStorage.removeItem('nebula_pers');
+        
+        // Clear profile data
+        localStorage.removeItem('profile_name');
+        localStorage.removeItem('profile_role');
+        localStorage.removeItem('ai_user_name');
+        
+        // Reset global variables
+        window.personalization = {
+            userName: '',
+            studyLevel: 'college',
+            major: '',
+            responseStyle: 'balanced',
+            customInstructions: ''
+        };
+        
+        window.ventoraSettings = {
+            model: 'groq:general',
+            temperature: 0.7,
+            maxTokens: 1024
+        };
+        
+        window.ventoraTasks = [];
+        window.ventoraNotes = '';
+        
+        // Also reset main app variables if they exist
+        if (window.settings) {
+            window.settings.model = 'groq:general';
+            window.settings.temperature = 0.7;
+            window.settings.maxTokens = 1024;
+        }
+        
+        if (window.conversations) {
+            window.conversations = [];
+        }
+        
+        showMenuToast('All data cleared successfully!', 'success');
+        
+        // If on a section, refresh it
+        if (currentSection) {
+            renderSection(currentSection);
+        }
+        
+        // Refresh chat if function exists
+        if (typeof createNewConversation === 'function') {
+            createNewConversation();
+        }
+        
+        // Close menu popup
+        setTimeout(() => {
+            closeMainMenuPopup();
+        }, 1000);
     }
 }
 
 // Toast notification
-function showMenuToast(message) {
-    if (typeof showToast === 'function') {
-        showToast(message);
+function showMenuToast(message, type = "success") {
+    // Try to use main app's showToast first
+    if (typeof window.showToast === 'function') {
+        window.showToast(message, type);
         return;
     }
     
+    // Fallback toast
     const toast = document.createElement('div');
     toast.textContent = message;
+    toast.className = 'menu-toast';
+    
     toast.style.cssText = `
         position: fixed;
         bottom: 100px;
         left: 50%;
-        transform: translateX(-50%);
-        background: rgba(0, 122, 255, 0.9);
-        color: white;
-        padding: 12px 24px;
+        transform: translateX(-50%) translateY(20px);
+        background: rgba(20, 20, 20, 0.95);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--border);
         border-radius: 10px;
+        padding: 12px 20px;
+        color: var(--text-primary);
         font-size: 0.9rem;
         z-index: 10000;
-        animation: toastFade 3s ease;
+        opacity: 0;
+        transition: all 0.3s ease;
+        pointer-events: none;
     `;
+    
+    // Add color based on type
+    if (type === 'success') {
+        toast.style.borderColor = 'rgba(46, 213, 115, 0.3)';
+        toast.style.background = 'rgba(20, 20, 20, 0.95)';
+    } else if (type === 'error') {
+        toast.style.borderColor = 'rgba(255, 71, 87, 0.3)';
+        toast.style.background = 'rgba(40, 20, 20, 0.95)';
+    } else if (type === 'info') {
+        toast.style.borderColor = 'rgba(0, 122, 255, 0.3)';
+        toast.style.background = 'rgba(20, 20, 40, 0.95)';
+    }
     
     document.body.appendChild(toast);
     
+    // Show with animation
     setTimeout(() => {
-        document.body.removeChild(toast);
+        toast.style.transform = 'translateX(-50%) translateY(0)';
+        toast.style.opacity = '1';
+    }, 10);
+    
+    // Remove after delay
+    setTimeout(() => {
+        toast.style.transform = 'translateX(-50%) translateY(20px)';
+        toast.style.opacity = '0';
+        setTimeout(() => {
+            if (toast.parentNode) {
+                document.body.removeChild(toast);
+            }
+        }, 300);
     }, 3000);
 }
 
@@ -1195,3 +1296,4 @@ window.openMainMenuPopup = openMainMenuPopup;
 window.closeMainMenuPopup = closeMainMenuPopup;
 window.openSection = openSection;
 window.selectExportOption = selectExportOption;
+window.clearAllMenuData = clearAllMenuData;
