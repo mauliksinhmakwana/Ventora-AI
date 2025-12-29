@@ -268,12 +268,9 @@ function renderSettingsSection(container) {
         <div class="form-group">
             <label class="form-label">AI Model</label>
             <select class="form-select" id="menu-settings-model">
-               
-  <option value="mia:general">MIA – General</option>
-  <option value="mia:reasoning">MIA – Clinical Reasoning</option>
-  <option value="mia:research">MIA – Research & Thinking</option>
-
-
+               <option value="mia:general" ${window.ventoraSettings.model === 'mia:general' ? 'selected' : ''}>MIA – General (Smart Auto)</option>
+                <option value="mia:reasoning" ${window.ventoraSettings.model === 'mia:reasoning' ? 'selected' : ''}>MIA – Clinical Reasoning</option>
+                <option value="mia:research" ${window.ventoraSettings.model === 'mia:research' ? 'selected' : ''}>MIA – Research & Thinking</option>
             </select>
             <div class="form-info">Choose the AI model for responses</div>
         </div>
@@ -578,7 +575,7 @@ function selectExportOption(optionId) {
 function saveMenuPersonalization() {
     window.personalization = {
         userName: document.getElementById('menu-pers-name')?.value.trim() || '',
-        studyLevel: document.getElementById('menu-pers-level')?.value || 'college',
+        studyLevel: document.getElementById('menu-pers-level')?.value || '',
         major: document.getElementById('menu-pers-major')?.value.trim() || '',
         responseStyle: document.getElementById('menu-pers-style')?.value || 'balanced',
         customInstructions: document.getElementById('menu-pers-custom')?.value.trim() || ''
