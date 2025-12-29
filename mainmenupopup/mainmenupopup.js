@@ -1498,11 +1498,6 @@ function clearAllMenuData() {
 
 // Toast notification - IMPROVED
 function showMenuToast(message, type = "success") {
-    if (typeof window.showToast === 'function') {
-        window.showToast(message, type);
-    }
-}
-
 // Setup event listeners
 function setupEventListeners() {
     // Close button
