@@ -3274,5 +3274,67 @@ window.closeAboutModal = closeAboutModal;
     </div>
 </div>
     <script src="dose/dose.js" defer></script>
+
+
+<!-- Diet Plan Modal -->
+<div class="diet-modal" id="dietModal">
+    <div class="diet-content">
+        <div class="diet-header">
+            <div>
+                <h3>My Diet Plan</h3>
+                <p>Track your nutrition and meals</p>
+            </div>
+            <button class="close-diet" onclick="toggleDietModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="diet-body">
+            <!-- Nutrition Stats -->
+            <div id="nutritionStats"></div>
+            
+            <!-- Add Food Button -->
+            <button class="add-food-btn" id="addFoodBtn" onclick="showFoodForm()">
+                <i class="fas fa-plus"></i>
+                Add Food Item
+            </button>
+            
+            <!-- Food Form (hidden by default) -->
+            <div class="food-form-container" id="foodForm" style="display: none;"></div>
+            
+            <!-- Food Items List -->
+            <div id="dietContainer">
+                <!-- Food items will be loaded here -->
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button class="action-btn export" onclick="exportDietPlan()">
+                    <i class="fas fa-download"></i>
+                    Export
+                </button>
+                <button class="action-btn clear" onclick="clearAllFoods()">
+                    <i class="fas fa-trash"></i>
+                    Clear All
+                </button>
+            </div>
+            
+            <!-- AI Integration Notice -->
+            <div style="margin-top: 25px; padding: 15px; background: rgba(0, 122, 255, 0.05); border: 1px solid rgba(0, 122, 255, 0.2); border-radius: 10px;">
+                <p style="font-size: 0.75rem; color: var(--accent-blue); margin: 0; line-height: 1.4;">
+                    <strong>AI INTEGRATION:</strong><br>
+                    Your diet plan is automatically shared with Ventora AI to provide personalized nutrition advice. All data is stored locally on your device.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add CSS link in head -->
+<link rel="stylesheet" href="diet/diet.css">
+<!-- Add JS script before closing body -->
+<script src="diet/diet.js" defer></script>
+
+    
 </body>
 </html>
