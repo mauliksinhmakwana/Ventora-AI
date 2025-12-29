@@ -87,8 +87,8 @@
 
 /* Add Prescription Button */
 .add-dose-btn {
-    background: linear-gradient(135deg, var(--accent-blue), #4facfe);
-    color: white;
+    background: white;  /*linear-gradient(135deg, var(--accent-blue), #4facfe);*/
+    color: black; /*White*/
     border: none;
     border-radius: 12px;
     padding: 14px;
