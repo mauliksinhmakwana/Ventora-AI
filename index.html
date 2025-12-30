@@ -447,15 +447,7 @@
 
 
         
-        .user { align-self: 
-            flex-end; border-right: 
-            2px solid white; 
-               padding-right: 15px; 
-               text-align: right; 
-                margin-bottom: 8px;
-              }
-
-        
+        .user { align-self: flex-end; border-right: 2px solid white; padding-right: 15px; text-align: right; }
         .ai { align-self: flex-start; 
              border-left: 1px solid var(--border); 
              padding: 8px 0 8px 15px; 
@@ -2225,26 +2217,6 @@ await typeText(aiTextEl, formatted, 25);
         }
 
 
-function copyUserMessage(btn) {
-    const msgElement = btn.closest('.msg');
-    
-    // Get the first child (which should be the message text)
-    const messageText = msgElement.childNodes[0]?.textContent || '';
-    
-    // Clean up: remove any trailing whitespace/newlines
-    const cleanText = messageText.trim();
-    
-    navigator.clipboard.writeText(cleanText).then(() => {
-        btn.textContent = 'Copied ✓';
-        btn.style.opacity = '1';
-        setTimeout(() => {
-            btn.textContent = 'Copy';
-            btn.style.opacity = '0.7';
-        }, 2000);
-    });
-}
-
-        
         
         function scrollToBottom() {
             chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
@@ -2273,26 +2245,9 @@ function copyUserMessage(btn) {
                             <div class="regenerate-btn" onclick="regenerate(this)">↻ Regenerate</div>
                         </div>`;
                 }
-            } 
-            
-            else {
-                
- msg.innerHTML = `
-        <div style="margin-bottom: 4px;">${text}</div>
-        <div class="timestamp" style="font-size: 0.65rem;">${getTime()}</div>
-        <div class="user-copy-btn" onclick="copyUserMessage(this)" style="
-            font-size: 0.7rem;
-            color: var(--accent-blue);
-            cursor: pointer;
-            opacity: 0.7;
-            transition: opacity 0.2s;
-            margin-top: 2px;
-        ">Copy</div>`;
-                
-  }
-                
+            } else {
                 msg.innerText = text;
-                msg.innerHTML += `<div class="timestamp">${getTime()}</div>`; */
+                msg.innerHTML += `<div class="timestamp">${getTime()}</div>`;
             }
 
             wrapper.appendChild(msg);
