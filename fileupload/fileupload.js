@@ -19,7 +19,7 @@ function initFileUpload() {
         console.error("File upload elements not found!");
         return;
         
-setTimeout(() => {
+ setTimeout(() => {
         if (typeof initOCR === 'function') {
             initOCR();
         }
