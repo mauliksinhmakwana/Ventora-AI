@@ -1151,6 +1151,27 @@
         
         <div class="file-popup-content">
             <div class="file-title">Upload file</div>
+    
+    <div id="ocr-status" class="ocr-status" style="margin-top: 10px;"></div>
+</div>
+            <button class="file-action" onclick="pickFile()">
+                Choose file
+            </button>
+            <div id="file-status" class="file-status"></div>
+            <div id="file-clear-section" style="display: none; margin-top: 8px;">
+    <button class="file-clear-btn" onclick="clearAttachedFile()" style="
+        background: rgba(255, 59, 48, 0.1);
+        color: #ff3b30;
+        border: 1px solid rgba(255, 59, 48, 0.3);
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        cursor: pointer;
+        width: 100%;
+    ">
+        Remove File
+    </button>
+
 
             <!-- Add this inside your file-popup-content after the current content -->
 <div class="file-ocr-section">
@@ -1175,28 +1196,6 @@
             <div class="ocr-option-subtitle">Use camera (mobile only)</div>
         </div>
     </div>
-    
-    <div id="ocr-status" class="ocr-status" style="margin-top: 10px;"></div>
-</div>
-            <button class="file-action" onclick="pickFile()">
-                Choose file
-            </button>
-            <div id="file-status" class="file-status"></div>
-            <div id="file-clear-section" style="display: none; margin-top: 8px;">
-    <button class="file-clear-btn" onclick="clearAttachedFile()" style="
-        background: rgba(255, 59, 48, 0.1);
-        color: #ff3b30;
-        border: 1px solid rgba(255, 59, 48, 0.3);
-        padding: 6px 12px;
-        border-radius: 6px;
-        font-size: 0.75rem;
-        cursor: pointer;
-        width: 100%;
-    ">
-        Remove File
-    </button>
-
-
                 
 </div>
         </div>
