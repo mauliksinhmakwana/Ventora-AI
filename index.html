@@ -1153,7 +1153,6 @@
 
 
 
-<!-- In your index.html, update the file upload section -->
 <div class="file-upload-wrapper">
     <button class="file-btn" id="file-btn" title="Attach file" onclick="toggleFilePopup(event)">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1163,55 +1162,61 @@
     
     <!-- File Popup -->
     <div class="file-popup" id="file-popup">
+        <input type="file" id="file-input" hidden multiple accept=".txt,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.rtf,.md,.html,.csv,.jpg,.jpeg,.png,.gif,.bmp,.tiff" />
+        <input type="file" id="ocr-input" hidden accept="image/*" capture="camera" />
+        
         <div class="file-popup-content">
+            <!-- Header -->
             <div class="popup-header">
-                <h4 class="popup-title">Attach files</h4>
-                <button class="close-popup" onclick="closeFilePopup()">
+                <h3 class="popup-title">Attach files</h3>
+                <button class="popup-close" onclick="closeFilePopup()">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
             
+            <!-- Subtitle -->
             <p class="popup-subtitle">Extract only text from images and files.</p>
             
-            <!-- Mobile Camera Button (visible only on mobile) -->
-            <div class="mobile-only" id="mobile-camera-btn" style="display: none;">
-                <button class="camera-btn" onclick="takePhoto()">
+            <!-- Action Buttons Row -->
+            <div class="action-buttons-row">
+                <button class="action-btn upload-btn" onclick="openFilePicker()">
+                    <i class="fas fa-upload"></i>
+                    Upload from device
+                </button>
+                <button class="action-btn drive-btn" onclick="openGoogleDrive()">
+                    <i class="fab fa-google-drive"></i>
+                    Add from Drive
+                </button>
+            </div>
+            
+            <!-- Camera Button (Mobile only) -->
+            <div class="mobile-only">
+                <button class="action-btn camera-btn" onclick="takePhoto()">
                     <i class="fas fa-camera"></i>
                     Take Photo
                 </button>
             </div>
             
-            <!-- Upload Button -->
-            <button class="upload-btn" onclick="openFilePicker()">
-                <i class="fas fa-upload"></i>
-                Upload from device
-            </button>
-            
-            <!-- Drive Button (optional) -->
-            <button class="drive-btn" onclick="openGoogleDrive()">
-                <i class="fab fa-google-drive"></i>
-                Add from Drive
-            </button>
-            
-            <!-- Hidden file input -->
-            <input type="file" id="file-input" multiple accept=".txt,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.rtf,.md,.html,.csv,.jpg,.jpeg,.png,.gif,.bmp,.tiff" hidden />
-            
-            <!-- Hidden camera input for mobile -->
-            <input type="file" id="camera-input" accept="image/*" capture="environment" hidden />
-            
             <!-- Files List -->
-            <div class="files-list" id="files-list">
-                <!-- Files will appear here -->
+            <div class="files-section">
+                <h4 class="files-title">Files</h4>
+                <div class="files-list" id="files-list">
+                    <div class="empty-state">
+                        <i class="fas fa-file"></i>
+                        <span>No files attached</span>
+                    </div>
+                </div>
             </div>
             
-            <!-- Status and Actions -->
+            <!-- Status -->
             <div class="popup-status" id="popup-status"></div>
             
-            <div class="popup-actions" id="popup-actions" style="display: none;">
-                <button class="action-btn clear-all" onclick="clearAllFiles()">
+            <!-- Action Buttons -->
+            <div class="popup-actions" id="popup-actions">
+                <button class="btn-secondary" onclick="clearAllFiles()">
                     Clear all
                 </button>
-                <button class="action-btn attach" onclick="attachFiles()">
+                <button class="btn-primary" onclick="attachFiles()">
                     Attach to chat
                 </button>
             </div>
