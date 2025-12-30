@@ -1808,6 +1808,7 @@ if (hero) {
             if (!conversation) {
                 isSending = false;
                 sendBtn.classList.remove('sending');
+                stopGenerating = false;
                 return;
             }
 
@@ -2031,34 +2032,10 @@ Ventora helps people understand how medicines, diseases, diet, and health concep
     })
 });
 
+if (stopGenerating) {
+    throw new Error('Generation stopped by user');
+}
 
-
-
-// Reset stop flag
-stopGenerating = false;
-
-try {
-    const response = await fetch('https://ventora-ai.vercel.app/api/chat', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            model: settings.model,
-            messages: [
-                // ... your messages
-            ],
-            temperature: settings.temperature,
-            max_tokens: settings.maxTokens
-        })
-    });
-
-    // 🔥 CHECK IF USER STOPPED
-    if (stopGenerating) {
-        throw new Error('Generation stopped by user');
-    }
-    
-    // ... rest of your code
 
 
 
