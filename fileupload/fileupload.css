@@ -1,15 +1,117 @@
-/* Mobile Camera Button */
-.mobile-only {
-    display: none;
+/* File Upload Popup - Gemini Style */
+.file-upload-wrapper {
+    position: relative;
+    margin-right: 10px;
 }
 
-.camera-btn {
-    width: 100%;
-    padding: 12px 16px;
-    background: rgba(0, 122, 255, 0.1);
-    border: 1px solid rgba(0, 122, 255, 0.2);
+.file-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+}
+
+.file-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: var(--text-primary);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Popup Container */
+.file-popup {
+    position: absolute;
+    bottom: 55px;
+    left: 0;
+    width: 400px;
+    max-width: 90vw;
+    background: rgba(25, 25, 25, 0.98);
+    backdrop-filter: blur(30px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    z-index: 10000;
+    display: none;
+    animation: slideUp 0.2s ease;
+    overflow: hidden;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.file-popup-content {
+    padding: 20px;
+}
+
+/* Header */
+.popup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.popup-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.popup-close {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.popup-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+}
+
+/* Subtitle */
+.popup-subtitle {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin: 0 0 20px 0;
+    opacity: 0.8;
+}
+
+/* Action Buttons Row */
+.action-buttons-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.action-btn {
+    flex: 1;
+    padding: 14px 16px;
     border-radius: 12px;
-    color: var(--accent-blue);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
     font-size: 0.9rem;
     font-weight: 500;
     cursor: pointer;
@@ -18,7 +120,35 @@
     align-items: center;
     justify-content: center;
     gap: 10px;
-    margin-bottom: 12px;
+}
+
+.action-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.action-btn i {
+    font-size: 1rem;
+}
+
+.upload-btn i {
+    color: var(--accent-blue);
+}
+
+.drive-btn i {
+    color: #34a853;
+}
+
+/* Camera Button (Mobile only) */
+.mobile-only {
+    display: none;
+    margin-bottom: 20px;
+}
+
+.camera-btn {
+    background: rgba(0, 122, 255, 0.1);
+    border-color: rgba(0, 122, 255, 0.2);
+    color: var(--accent-blue);
 }
 
 .camera-btn:hover {
@@ -26,88 +156,131 @@
     border-color: rgba(0, 122, 255, 0.3);
 }
 
-/* Preview for taken photos */
-.camera-preview {
-    width: 100%;
-    max-height: 150px;
-    object-fit: cover;
-    border-radius: 10px;
-    margin: 10px 0;
-    display: none;
+/* Files Section */
+.files-section {
+    margin-bottom: 20px;
 }
 
-/* Action Buttons in Popup */
-.popup-actions {
-    display: flex;
-    gap: 10px;
-    margin-top: 16px;
-    padding-top: 16px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.action-btn {
-    flex: 1;
-    padding: 10px 16px;
-    border-radius: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(255, 255, 255, 0.05);
-    color: var(--text-primary);
+.files-title {
     font-size: 0.9rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 12px 0;
 }
 
-.action-btn.clear-all {
-    background: rgba(255, 59, 48, 0.1);
-    color: #ff3b30;
-    border-color: rgba(255, 59, 48, 0.2);
+.files-list {
+    min-height: 60px;
+    max-height: 200px;
+    overflow-y: auto;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 12px;
 }
 
-.action-btn.clear-all:hover {
-    background: rgba(255, 59, 48, 0.15);
-}
-
-.action-btn.attach {
-    background: rgba(0, 122, 255, 0.15);
-    color: var(--accent-blue);
-    border-color: rgba(0, 122, 255, 0.3);
-}
-
-.action-btn.attach:hover {
-    background: rgba(0, 122, 255, 0.2);
-}
-
-/* Popup Status */
-.popup-status {
-    font-size: 0.8rem;
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
     color: var(--text-secondary);
-    margin: 12px 0;
-    min-height: 20px;
+    opacity: 0.6;
 }
 
-.popup-status.error {
-    color: #ff3b30;
+.empty-state i {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    opacity: 0.4;
 }
 
-.popup-status.success {
+.empty-state span {
+    font-size: 0.9rem;
+}
+
+/* File Item */
+.file-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.file-item.error {
+    background: rgba(255, 59, 48, 0.08);
+    border-left: 3px solid #ff3b30;
+}
+
+.file-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+}
+
+.file-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    flex-shrink: 0;
+}
+
+.file-icon i {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.file-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.file-name {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin: 0 0 4px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.file-status {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.file-status i {
+    font-size: 0.7rem;
+}
+
+.status-processing {
+    color: var(--accent-blue);
+}
+
+.status-success {
     color: #34c759;
 }
 
-/* Loading Animation */
-.loading-spinner {
-    display: inline-block;
-    width: 12px;
-    height: 12px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-radius: 50%;
-    border-top-color: var(--accent-blue);
-    animation: spin 1s linear infinite;
-    margin-right: 8px;
-}
-
-@keyframes spin {
-    to { transform: rotate(360deg); }
+.status-error {
+    color: #ff3b30;
 }
 
 /* Remove Button */
@@ -120,6 +293,7 @@
     border-radius: 6px;
     font-size: 0.9rem;
     transition: all 0.2s;
+    flex-shrink: 0;
 }
 
 .remove-file:hover {
@@ -127,94 +301,100 @@
     background: rgba(255, 59, 48, 0.1);
 }
 
+/* Status Message */
+.popup-status {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin: 12px 0;
+    min-height: 20px;
+    text-align: center;
+}
+
+.popup-status.error {
+    color: #ff3b30;
+}
+
+.popup-status.success {
+    color: #34c759;
+}
+
+/* Popup Actions */
+.popup-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-secondary, .btn-primary {
+    flex: 1;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.btn-primary {
+    background: white;
+    color: black;
+    border-color: white;
+}
+
+.btn-primary:hover {
+    background: rgba(255, 255, 255, 0.9);
+}
+
+/* Loading Spinner */
+.spinner {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: var(--accent-blue);
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
 /* Mobile Responsive */
 @media (max-width: 768px) {
-    .mobile-only {
-        display: block !important;
-    }
-    
     .file-popup {
         width: 320px;
-        max-width: 95vw;
-        bottom: 60px;
         left: -20px;
+        bottom: 60px;
+    }
+    
+    .action-buttons-row {
+        flex-direction: column;
+    }
+    
+    .mobile-only {
+        display: block;
     }
     
     .file-btn {
         width: 36px;
         height: 36px;
     }
-}
-
-
-/* Camera Modal Styles */
-.camera-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.95);
-    z-index: 10001;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-}
-
-.camera-modal video {
-    width: 100%;
-    max-width: 500px;
-    max-height: 70vh;
-    object-fit: contain;
-    border-radius: 12px;
-    background: #000;
-}
-
-.camera-controls {
-    margin-top: 20px;
-    display: flex;
-    gap: 20px;
-}
-
-.camera-capture-btn,
-.camera-cancel-btn {
-    padding: 12px 24px;
-    border-radius: 12px;
-    font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    border: none;
-    transition: all 0.2s;
-}
-
-.camera-capture-btn {
-    background: var(--accent-blue);
-    color: white;
-}
-
-.camera-cancel-btn {
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
-}
-
-.camera-capture-btn:hover {
-    background: rgba(0, 122, 255, 0.8);
-}
-
-.camera-cancel-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-}
-
-/* Empty list state */
-.empty-list {
-    text-align: center;
-    padding: 20px;
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-    opacity: 0.7;
+    
+    .files-list {
+        max-height: 150px;
+    }
 }
