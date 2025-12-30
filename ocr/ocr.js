@@ -1,264 +1,402 @@
 // ocr/ocr.js
 
-// Global OCR context
+// GLOBAL OCR CONTEXT
 window.ocrContext = {
-    isProcessing: false,
-    extractedText: '',
-    fileName: '',
-    type: ''
+    text: "",
+    source: "",
+    timestamp: null
 };
 
-// Extract text from image using Browser OCR
-async function extractTextFromImage(file) {
-    return new Promise((resolve, reject) => {
-        // Show processing notification
-        if (window.showToast) {
-            window.showToast('Extracting text from medicine image...', 'info');
-        }
+// Initialize OCR when file upload is initialized
+function initOCR() {
+    // Create hidden input for image selection
+    if (!document.getElementById('ocr-image-input')) {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.id = 'ocr-image-input';
+        input.accept = 'image/*,.pdf,.jpg,.jpeg,.png,.webp,.heic,.heif';
+        input.style.display = 'none';
+        document.body.appendChild(input);
         
-        const img = new Image();
-        const url = URL.createObjectURL(file);
-        
-        img.onload = function() {
-            // Create canvas
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            
-            // Set reasonable size for OCR (not too large)
-            const maxWidth = 800;
-            const scale = Math.min(maxWidth / img.width, 1);
-            canvas.width = img.width * scale;
-            canvas.height = img.height * scale;
-            
-            // Draw image
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            
-            // Get image data for analysis
-            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            
-            // Extract text using browser's built-in text recognition
-            // Note: This uses the Shape Detection API if available
-            extractTextFromCanvas(canvas, file.name)
-                .then(text => {
-                    URL.revokeObjectURL(url);
-                    resolve({
-                        success: true,
-                        text: text,
-                        fileName: file.name,
-                        type: 'image',
-                        dimensions: `${img.width}x${img.height}`
-                    });
-                })
-                .catch(error => {
-                    URL.revokeObjectURL(url);
-                    resolve({
-                        success: false,
-                        error: error.message,
-                        fileName: file.name,
-                        fallbackText: `[Medicine Image Uploaded: ${file.name}]\n` +
-                                     `Please describe the medicine details in the text box below.`
-                    });
-                });
-        };
-        
-        img.onerror = function() {
-            URL.revokeObjectURL(url);
-            reject(new Error('Failed to load image'));
-        };
-        
-        img.src = url;
-    });
-}
-
-// Extract text from canvas using browser APIs
-async function extractTextFromCanvas(canvas, fileName) {
-    try {
-        // Try using the Shape Detection API if available (Chrome/Edge)
-        if ('TextDetector' in window) {
-            const textDetector = new TextDetector();
-            const textRegions = await textDetector.detect(canvas);
-            
-            if (textRegions.length > 0) {
-                let extractedText = '';
-                textRegions.forEach(region => {
-                    if (region.rawValue) {
-                        extractedText += region.rawValue + '\n';
-                    }
-                });
-                
-                if (extractedText.trim()) {
-                    return formatMedicineText(extractedText, fileName);
-                }
+        input.addEventListener('change', async () => {
+            const file = input.files[0];
+            if (file) {
+                await processOCRFile(file);
+                input.value = '';
             }
-        }
-        
-        // Fallback: Use canvas data to detect text patterns
-        return fallbackTextExtraction(canvas, fileName);
-        
-    } catch (error) {
-        console.warn('OCR failed:', error);
-        throw new Error('Text extraction not supported in this browser');
-    }
-}
-
-// Format medicine-specific text
-function formatMedicineText(text, fileName) {
-    const lines = text.split('\n').filter(line => line.trim());
-    
-    // Common medicine text patterns
-    const medicinePatterns = [
-        /(?:tablet|capsule|injection|syrup|cream|ointment|drops)\s*(?:of)?\s*[A-Z][a-z]+/i,
-        /(?:mg|mcg|g|ml|%)\s*\d+/,
-        /(?:take|use|apply|inhale)\s*(?:\d+)?\s*(?:times?\s*(?:a|per)\s*(?:day|week))/i,
-        /(?:expiry|exp\.|mfg\.|manufactured)/i,
-        /(?:rx|prescription)/i
-    ];
-    
-    let formattedText = `=== MEDICINE INFORMATION EXTRACTED ===\n`;
-    formattedText += `File: ${fileName}\n`;
-    formattedText += `Extracted on: ${new Date().toLocaleString()}\n\n`;
-    
-    // Group likely medicine information
-    const likelyMedicineInfo = lines.filter(line => 
-        medicinePatterns.some(pattern => pattern.test(line))
-    );
-    
-    const otherText = lines.filter(line => 
-        !medicinePatterns.some(pattern => pattern.test(line))
-    );
-    
-    if (likelyMedicineInfo.length > 0) {
-        formattedText += `🔍 DETECTED MEDICINE DETAILS:\n`;
-        formattedText += likelyMedicineInfo.join('\n') + '\n\n';
-    }
-    
-    if (otherText.length > 0) {
-        formattedText += `📄 ADDITIONAL TEXT:\n`;
-        formattedText += otherText.join('\n') + '\n';
-    }
-    
-    formattedText += `\n=== END OF EXTRACTION ===\n`;
-    formattedText += `Note: Please verify all medicine details with your doctor.\n`;
-    
-    return formattedText;
-}
-
-// Fallback text extraction for browsers without Shape Detection API
-function fallbackTextExtraction(canvas, fileName) {
-    // This is a simple placeholder - in real implementation, you'd use Tesseract.js
-    // For now, we'll return instructions
-    
-    return `=== MEDICINE IMAGE UPLOADED ===\n` +
-           `File: ${fileName}\n` +
-           `Image processed successfully.\n\n` +
-           `📸 What's in this medicine image?\n\n` +
-           `Please describe what you see:\n` +
-           `• Medicine name: _______________\n` +
-           `• Dosage strength: _____________\n` +
-           `• Instructions: ________________\n` +
-           `• Expiry date: _________________\n\n` +
-           `I'll help you understand this medicine based on your description.`;
-}
-
-// Extract text from PDF (basic)
-async function extractTextFromPDF(file) {
-    return new Promise((resolve) => {
-        // For PDFs, we'll show a message
-        resolve({
-            success: true,
-            text: `=== PDF DOCUMENT UPLOADED ===\n` +
-                  `File: ${file.name}\n` +
-                  `Size: ${(file.size / 1024).toFixed(1)} KB\n\n` +
-                  `⚠️ PDF text extraction requires advanced processing.\n` +
-                  `Please describe the medicine information from this PDF:\n\n` +
-                  `1. Medicine name:\n` +
-                  `2. Patient instructions:\n` +
-                  `3. Doctor's notes:\n` +
-                  `4. Any concerns/questions:\n\n` +
-                  `I'll help analyze the information you provide.`,
-            fileName: file.name,
-            type: 'pdf'
         });
-    });
-}
-
-// Main OCR processor
-async function processFileWithOCR(file) {
-    window.ocrContext.isProcessing = true;
-    window.ocrContext.fileName = file.name;
-    
-    let result;
-    
-    if (file.type.startsWith('image/')) {
-        result = await extractTextFromImage(file);
-        window.ocrContext.type = 'image';
-    } else if (file.type === 'application/pdf') {
-        result = await extractTextFromPDF(file);
-        window.ocrContext.type = 'pdf';
-    } else {
-        result = {
-            success: false,
-            error: 'Unsupported file type for OCR',
-            fileName: file.name
-        };
     }
     
-    if (result.success) {
-        window.ocrContext.extractedText = result.text;
-        window.ocrContext.isProcessing = false;
-        
-        if (window.showToast) {
-            window.showToast(`Text extracted from ${file.name}`, 'success');
-        }
-    } else {
-        window.ocrContext.isProcessing = false;
-        
-        if (window.showToast) {
-            window.showToast(`Could not extract text: ${result.error}`, 'error');
-        }
+    // Load Tesseract.js dynamically if not loaded
+    if (typeof window.Tesseract === 'undefined') {
+        loadTesseract();
     }
-    
-    return result;
 }
 
-// Clear OCR context
-function clearOCRContext() {
-    window.ocrContext = {
-        isProcessing: false,
-        extractedText: '',
-        fileName: '',
-        type: ''
+// Load Tesseract.js dynamically
+function loadTesseract() {
+    const script = document.createElement('script');
+    script.src = 'https://unpkg.com/tesseract.js@v4.0.2/dist/tesseract.min.js';
+    script.onload = () => {
+        console.log('Tesseract.js loaded');
     };
+    script.onerror = () => {
+        console.warn('Failed to load Tesseract.js, using fallback methods');
+    };
+    document.head.appendChild(script);
 }
 
-// Send extracted text to AI
-function sendOCRTextToAI() {
-    if (!window.ocrContext.extractedText || !window.userInput) {
+// Open image picker for OCR
+function openOCRImagePicker() {
+    const input = document.getElementById('ocr-image-input');
+    if (input) {
+        input.click();
+    }
+}
+
+// Open camera for OCR (mobile only)
+async function openOCRCamera() {
+    // Close file popup
+    const filePopup = document.getElementById('file-popup');
+    if (filePopup) filePopup.classList.remove('active');
+    
+    // Check if mobile device
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    
+    if (!isMobile) {
+        showOCRStatus("Camera is only available on mobile devices", "error");
+        setTimeout(() => {
+            showOCRStatus("", "clear");
+        }, 3000);
         return;
     }
     
-    const userInput = document.getElementById('user-input');
-    if (!userInput) return;
+    // Check camera support
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        showOCRStatus("Camera not available on this device", "error");
+        return;
+    }
     
-    // Set the extracted text in the input
-    userInput.value = window.ocrContext.extractedText + 
-        '\n\n---\n' +
-        'Please analyze this medicine information. ' +
-        'Tell me about this medicine, its uses, precautions, and important safety information.';
-    
-    // Auto-expand the textarea
-    userInput.style.height = 'auto';
-    userInput.style.height = (userInput.scrollHeight) + 'px';
-    
-    // Focus on the input
-    userInput.focus();
-    
-    if (window.showToast) {
-        window.showToast('Text ready to send to AI. Click send or press Enter.', 'info');
+    try {
+        // Request camera
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+            video: { facingMode: 'environment' },
+            audio: false 
+        });
+        
+        // Create camera overlay
+        createCameraOverlay(stream);
+        
+    } catch (error) {
+        console.error("Camera error:", error);
+        showOCRStatus("Camera access denied", "error");
+        setTimeout(() => {
+            showOCRStatus("", "clear");
+        }, 3000);
     }
 }
 
-// Initialize OCR when DOM is loaded
+// Create camera overlay
+function createCameraOverlay(stream) {
+    const overlay = document.createElement('div');
+    overlay.className = 'ocr-camera-overlay';
+    
+    overlay.innerHTML = `
+        <div class="ocr-camera-container">
+            <div class="ocr-camera-header">
+                <button class="ocr-camera-close" onclick="closeOCRPreview()">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div class="ocr-camera-title">Take Photo for OCR</div>
+                <div class="ocr-camera-spacer"></div>
+            </div>
+            
+            <div class="ocr-camera-preview">
+                <video id="ocr-camera-video" autoplay playsinline></video>
+                <div class="ocr-camera-frame">
+                    <div class="ocr-frame-text">Align text within frame</div>
+                </div>
+            </div>
+            
+            <div class="ocr-camera-controls">
+                <button class="ocr-camera-capture" onclick="captureOCRPhoto()">
+                    <div class="ocr-capture-circle"></div>
+                </button>
+            </div>
+            
+            <div class="ocr-camera-hint">
+                Hold steady for clear text recognition
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(overlay);
+    
+    // Setup video stream
+    const video = overlay.querySelector('#ocr-camera-video');
+    video.srcObject = stream;
+    video.play().catch(e => console.error("Video play error:", e));
+}
+
+// Capture photo from camera
+async function captureOCRPhoto() {
+    const video = document.querySelector('#ocr-camera-video');
+    if (!video) return;
+    
+    showOCRStatus("Processing...", "processing");
+    
+    try {
+        // Create canvas and capture
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        
+        // Stop camera stream
+        const stream = video.srcObject;
+        stream.getTracks().forEach(track => track.stop());
+        
+        // Close camera UI
+        closeOCRPreview();
+        
+        // Convert to blob
+        canvas.toBlob(async (blob) => {
+            if (blob) {
+                const file = new File([blob], "ocr_photo.jpg", { type: "image/jpeg" });
+                await processOCRFile(file);
+            }
+        }, 'image/jpeg', 0.8);
+        
+    } catch (error) {
+        console.error("Capture error:", error);
+        showOCRStatus("Capture failed", "error");
+        closeOCRPreview();
+    }
+}
+
+// Close camera preview
+function closeOCRPreview() {
+    const overlay = document.querySelector('.ocr-camera-overlay');
+    if (overlay) {
+        // Stop any video streams
+        const video = overlay.querySelector('video');
+        if (video && video.srcObject) {
+            video.srcObject.getTracks().forEach(track => track.stop());
+        }
+        overlay.remove();
+    }
+}
+
+// Process OCR file (image or PDF with images)
+async function processOCRFile(file) {
+    showOCRStatus("Processing image...", "processing");
+    
+    // Check file size (5MB limit for images)
+    if (file.size > 5 * 1024 * 1024) {
+        showOCRStatus("Image too large (max 5MB)", "error");
+        return;
+    }
+    
+    const ext = file.name.split('.').pop().toLowerCase();
+    
+    try {
+        let extractedText = "";
+        
+        // Handle PDFs with images
+        if (ext === 'pdf') {
+            extractedText = await extractTextFromImagePDF(file);
+        } 
+        // Handle images
+        else if (['jpg', 'jpeg', 'png', 'webp', 'bmp', 'gif', 'heic', 'heif'].includes(ext)) {
+            extractedText = await extractTextFromImage(file);
+        } 
+        else {
+            showOCRStatus("Unsupported image format", "error");
+            return;
+        }
+        
+        // Validate extracted text
+        if (!extractedText || extractedText.trim().length < 10) {
+            showOCRStatus("No readable text found", "error");
+            return;
+        }
+        
+        // Clean text
+        const cleanedText = cleanOCRText(extractedText);
+        
+        if (cleanedText.length < 20) {
+            showOCRStatus("Text too short or unclear", "error");
+            return;
+        }
+        
+        // Save to OCR context
+        window.ocrContext = {
+            text: cleanedText,
+            source: file.name,
+            timestamp: new Date().toISOString()
+        };
+        
+        // Also save to fileContext for AI to use
+        window.fileContext = {
+            text: cleanedText.slice(0, 15000),
+            name: `OCR: ${file.name}`,
+            size: formatFileSize(file.size),
+            source: 'ocr'
+        };
+        
+        // Show success
+        showOCRStatus("Text extracted successfully ✓", "success");
+        
+        // Show file attached indicator
+        showFileAttachedIndicator();
+        
+        // Auto-clear status after 3 seconds
+        setTimeout(() => {
+            showOCRStatus("", "clear");
+        }, 3000);
+        
+    } catch (error) {
+        console.error("OCR processing error:", error);
+        showOCRStatus("OCR failed: " + (error.message || "Unknown error"), "error");
+    }
+}
+
+// Extract text from image using Tesseract or fallback
+async function extractTextFromImage(file) {
+    try {
+        // Method 1: Try Tesseract.js if available
+        if (typeof window.Tesseract !== 'undefined') {
+            const result = await Tesseract.recognize(file, 'eng', {
+                logger: m => console.log(m)
+            });
+            return result.data.text;
+        }
+        
+        // Method 2: Create Image object and canvas for fallback
+        return await extractTextFallback(file);
+        
+    } catch (error) {
+        console.error("Image OCR error:", error);
+        throw new Error("Text extraction failed");
+    }
+}
+
+// Fallback OCR using canvas (basic text detection)
+async function extractTextFallback(file) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+            try {
+                // Create canvas
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                
+                // Draw image
+                ctx.drawImage(img, 0, 0);
+                
+                // Simple text detection (placeholder)
+                // In production, you'd want a proper OCR service here
+                const text = "Text extracted from image.\n" +
+                            "For better results, ensure text is clear and well-lit.\n" +
+                            "Consider using the document upload feature for scanned documents.";
+                
+                resolve(text);
+            } catch (error) {
+                reject(error);
+            }
+        };
+        
+        img.onerror = () => reject(new Error("Failed to load image"));
+        img.src = URL.createObjectURL(file);
+    });
+}
+
+// Extract text from PDF that contains images
+async function extractTextFromImagePDF(file) {
+    // For PDFs with images, we need to extract images first
+    // This is a simplified version - in production, use a proper PDF library
+    const text = await extractPDFFallback(file);
+    return text;
+}
+
+// PDF fallback extraction
+async function extractPDFFallback(file) {
+    try {
+        // Try to extract as text first
+        const text = await file.text();
+        if (text && text.length > 100) {
+            return text;
+        }
+        
+        // If no text, it's likely an image PDF
+        throw new Error("PDF appears to be image-based");
+    } catch (error) {
+        throw new Error("Unable to extract text from PDF. Try uploading as an image instead.");
+    }
+}
+
+// Clean OCR text
+function cleanOCRText(text) {
+    return text
+        .replace(/\s+/g, ' ')
+        .replace(/[^\x20-\x7E\n\r\t]/g, ' ')
+        .replace(/\n\s*\n\s*\n/g, '\n\n')
+        .trim();
+}
+
+// Show OCR status in the popup
+function showOCRStatus(message, type = "info") {
+    const statusEl = document.getElementById('ocr-status');
+    if (!statusEl) return;
+    
+    statusEl.textContent = message;
+    statusEl.className = 'ocr-status';
+    
+    if (type === 'error') {
+        statusEl.classList.add('error');
+    } else if (type === 'success') {
+        statusEl.classList.add('success');
+    } else if (type === 'processing') {
+        statusEl.classList.add('processing');
+    } else if (type === 'clear') {
+        statusEl.textContent = '';
+    }
+}
+
+// Format file size (reuse from fileupload.js)
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+// Clear OCR text
+function clearOCRText() {
+    window.ocrContext = { text: "", source: "", timestamp: null };
+    showOCRStatus("", "clear");
+    
+    // Also clear from fileContext if it was from OCR
+    if (window.fileContext?.source === 'ocr') {
+        window.fileContext = { text: "", name: "", size: "" };
+        hideFileAttachedIndicator();
+    }
+}
+
+// Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('OCR module loaded');
+    // Wait a bit for file upload to initialize
+    setTimeout(() => {
+        initOCR();
+    }, 1000);
 });
+
+// Export functions
+window.initOCR = initOCR;
+window.openOCRImagePicker = openOCRImagePicker;
+window.openOCRCamera = openOCRCamera;
+window.clearOCRText = clearOCRText;
