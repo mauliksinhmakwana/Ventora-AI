@@ -2273,7 +2273,9 @@ function copyUserMessage(btn) {
                             <div class="regenerate-btn" onclick="regenerate(this)">↻ Regenerate</div>
                         </div>`;
                 }
-            } else {
+            } 
+            
+            else {
                 
  msg.innerHTML = `
         <div style="margin-bottom: 4px;">${text}</div>
@@ -2286,6 +2288,8 @@ function copyUserMessage(btn) {
             transition: opacity 0.2s;
             margin-top: 2px;
         ">Copy</div>`;
+                
+  }
                 
                 msg.innerText = text;
                 msg.innerHTML += `<div class="timestamp">${getTime()}</div>`; */
