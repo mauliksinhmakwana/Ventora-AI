@@ -447,7 +447,15 @@
 
 
         
-        .user { align-self: flex-end; border-right: 2px solid white; padding-right: 15px; text-align: right; }
+        .user { align-self: 
+            flex-end; border-right: 
+            2px solid white; 
+               padding-right: 15px; 
+               text-align: right; 
+                margin-bottom: 8px;
+              }
+
+        
         .ai { align-self: flex-start; 
              border-left: 1px solid var(--border); 
              padding: 8px 0 8px 15px; 
@@ -2268,17 +2276,17 @@ function copyUserMessage(btn) {
             } else {
                 
  msg.innerHTML = `
-        ${text}
-        <div class="timestamp">${getTime()}</div>
+        <div style="margin-bottom: 4px;">${text}</div>
+        <div class="timestamp" style="font-size: 0.65rem;">${getTime()}</div>
         <div class="user-copy-btn" onclick="copyUserMessage(this)" style="
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             color: var(--accent-blue);
             cursor: pointer;
             opacity: 0.7;
             transition: opacity 0.2s;
-            margin-top: 8px;
+            margin-top: 2px;
         ">Copy</div>`;
-                /*
+                
                 msg.innerText = text;
                 msg.innerHTML += `<div class="timestamp">${getTime()}</div>`; */
             }
