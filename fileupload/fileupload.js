@@ -277,3 +277,43 @@ document.addEventListener("DOMContentLoaded", function() {
 window.initFileUpload = initFileUpload;
 window.pickFile = pickFile;
 window.clearAttachedFile = clearAttachedFile;
+
+// ... existing code ...
+
+// PASTE AT THE VERY BOTTOM:
+document.addEventListener("DOMContentLoaded", function() {
+    const ocrInput = document.getElementById("ocr-input");
+    const fileStatus = document.getElementById("file-status");
+
+    if (ocrInput) {
+        ocrInput.addEventListener("change", async () => {
+            const file = ocrInput.files[0];
+            if (!file) return;
+
+            fileStatus.textContent = "Scanning medicine... Please wait.";
+            fileStatus.className = "file-status info";
+
+            try {
+                const result = await processFileWithOCR(file); // This calls ocr.js
+                
+                if (result.success) {
+                    window.fileContext = {
+                        text: result.text,
+                        name: file.name,
+                        size: (file.size / 1024).toFixed(2) + " KB"
+                    };
+                    
+                    fileStatus.textContent = "Scan complete! ✓";
+                    fileStatus.className = "file-status success";
+                    
+                    if (typeof showFileAttachedIndicator === "function") showFileAttachedIndicator();
+                    if (typeof sendOCRTextToAI === "function") sendOCRTextToAI();
+                }
+            } catch (err) {
+                console.error(err);
+                fileStatus.textContent = "Error scanning image.";
+                fileStatus.className = "file-status error";
+            }
+        });
+    }
+});
