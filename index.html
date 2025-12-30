@@ -1151,6 +1151,33 @@
         
         <div class="file-popup-content">
             <div class="file-title">Upload file</div>
+
+            <!-- Add this inside your file-popup-content after the current content -->
+<div class="file-ocr-section">
+    <div class="file-section-title">OR Extract Text from:</div>
+    
+    <div class="ocr-option" onclick="openOCRImagePicker()">
+        <div class="ocr-icon">
+            <i class="fas fa-image"></i>
+        </div>
+        <div class="ocr-text">
+            <div class="ocr-option-title">Image/Photo</div>
+            <div class="ocr-option-subtitle">Extract text from images</div>
+        </div>
+    </div>
+    
+    <div class="ocr-option" onclick="openOCRCamera()">
+        <div class="ocr-icon">
+            <i class="fas fa-camera"></i>
+        </div>
+        <div class="ocr-text">
+            <div class="ocr-option-title">Take Photo</div>
+            <div class="ocr-option-subtitle">Use camera (mobile only)</div>
+        </div>
+    </div>
+    
+    <div id="ocr-status" class="ocr-status" style="margin-top: 10px;"></div>
+</div>
             <button class="file-action" onclick="pickFile()">
                 Choose file
             </button>
@@ -1168,6 +1195,9 @@
     ">
         Remove File
     </button>
+
+
+                
 </div>
         </div>
     </div>
@@ -1767,8 +1797,19 @@ ${window.fileContext.text}
 : ''
 }
 
+
+// When building AI context, include OCR text:
+${window.ocrContext?.text ? `
+### EXTRACTED TEXT FROM IMAGE ###
+${window.ocrContext.text.substring(0, 2000)}...
+${window.ocrContext.text.length > 2000 ? '(text truncated)' : ''}
+` : ''}
+
+
 ### CUSTOM USER INSTRUCTIONS ###
 User Name: ${window.personalization.customInstructions}
+
+-------------------------------------------------------------------------------------------------
 
 ${window.doseContext?.prescriptions && window.doseContext.prescriptions.length > 0
 ? `
