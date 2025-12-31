@@ -2466,19 +2466,17 @@ function copyUserMessage(btn) {
         }
 
                 // ==================== EVENT LISTENERS ====================
-        userInput.addEventListener('keydown', (e) => {
-            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+       userInput.addEventListener('keydown', (e) => {
+    // Check if device has touch capability
+    const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
     
     if (e.key === 'Enter' && !e.shiftKey) {
-        if (isMobile) {
-            // On mobile: Enter creates new line
-            // Don't prevent default, just let it happen
-            return;
-        } else {
-            // On desktop: Enter sends message
+        if (!isTouchDevice) {
+            // Desktop/laptop: Enter sends
             e.preventDefault();
             handleSend();
         }
+        // Touch device: Enter creates new line (default behavior)
     }
 });
         
@@ -2543,15 +2541,24 @@ function stopGeneration() {
         isSending = false;
         sendBtn.classList.remove('sending');
         showToast('Stopped generating', 'info');
+        
+        if (window.currentController) {
+            window.currentController.abort();
     }
 }
 
 // Add click event to send button for stop functionality
 sendBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    
+    // If currently sending, stop generation
     if (isSending) {
-        e.preventDefault();
         stopGeneration();
+        return;
     }
+    
+    // Otherwise send message
+    handleSend();
 });
 
 
