@@ -1590,16 +1590,45 @@ const AI_IDENTITY = {
         }
 
         function loadSettings() {
-            const saved = localStorage.getItem('nebula_settings');
-            if (saved) {
-                try {
-                    settings = JSON.parse(saved);
-                } catch (e) {
-                    console.error('Error loading settings:', e);
-                }
-            }
+               const ventoraSettings = localStorage.getItem('ventora_settings');
+    
+    if (ventoraSettings) {
+        try {
+            // Use the popup settings
+            settings = JSON.parse(ventoraSettings);
+            console.log('Loaded settings from popup:', settings);
+        } catch (e) {
+            console.error('Error loading ventora settings:', e);
+            settings = getDefaultSettings();
         }
+    } 
+    // 2. If no popup settings, try nebula_settings (old settings)
+    else if (!settings || !settings.model) {
+        const nebulaSettings = localStorage.getItem('nebula_settings');
+        if (nebulaSettings) {
+            try {
+                settings = JSON.parse(nebulaSettings);
+            } catch (e) {
+                console.error('Error loading nebula settings:', e);
+                settings = getDefaultSettings();
+            }
+        } else {
+            // 3. No settings at all, use defaults
+            settings = getDefaultSettings();
+        }
+    }
+}
 
+function getDefaultSettings() {
+    return {
+        model: 'mia:general',
+        temperature: 0.7,
+        maxTokens: 1024
+    };
+}
+
+
+        
         // ==================== CHAT FUNCTIONS ====================
         function loadConversations() {
             const saved = localStorage.getItem('nebula_conversations');
