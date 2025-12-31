@@ -2467,27 +2467,42 @@ function copyUserMessage(btn) {
 
                 // ==================== EVENT LISTENERS ====================
         // ==================== EVENT LISTENERS ====================
+
+// ==================== EVENT LISTENERS ====================
 userInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
-        // Detect if it's a mobile/touch device based on width or touch capability
+        // 1. Detect device type
         const isMobile = window.innerWidth <= 768 || ('ontouchstart' in window);
 
         if (isMobile) {
-            // On mobile, Enter always creates a new line (default behavior)
-            // We do NOT call e.preventDefault() here, so it behaves like a normal paragraph break.
+            // On mobile, Enter key always creates a new line/paragraph
+            // We do not call preventDefault, allowing the natural new line
             return; 
         } else {
-            // On Desktop/PC
+            // 2. PC Logic: Only send if NOT shifting AND not already sending
             if (!e.shiftKey) {
-                // Pressing Enter alone sends the message
-                e.preventDefault();
-                handleSend();
+                e.preventDefault(); // Stop the new line from being added
+                
+                // Only trigger handleSend if we aren't currently generating
+                if (!isSending) {
+                    handleSend();
+                }
             }
-            // Pressing Shift + Enter naturally creates a new line
         }
     }
 });
 
+// Update the Send Button Click listener to prevent double-triggering
+sendBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (isSending) {
+        // If already sending, the button acts as a STOP button
+        stopGeneration();
+    } else {
+        // If idle, the button acts as a SEND button
+        handleSend();
+    }
+});
         
       /*  userInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
@@ -2496,11 +2511,7 @@ userInput.addEventListener('keydown', (e) => {
             }
         }); */
         
-        sendBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            if (sendBtn.classList.contains('sending')) return;
-            handleSend();
-        });
+       
         
         // Update temperature value when slider changes
         tempRange.addEventListener('input', () => {
