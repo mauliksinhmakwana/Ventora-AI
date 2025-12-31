@@ -967,6 +967,8 @@
    <link rel="stylesheet" href="ocr/ocr.css">
 <script src="ocr/ocr.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@v4.0.0/dist/tesseract.min.js"></script>
+    <link rel="stylesheet" href="vdiv.css">
+<script src="vdiv.js" defer></script>
 </head>
 <body onload="initApp()">
     <!-- Menu Overlay (click to close) -->
@@ -1967,8 +1969,27 @@ Note: This is reference information only. DO NOT provide dosage advice or modify
 `
 : ''
 }
+-------------------------------------------------------------------------------------------------------
 
-====================================================================================================
+When user asks about drug or food interactions, respond ONLY in this exact JSON format inside ```vdiv code block:
+
+```vdiv
+{
+  "nodes": [
+    {"name": "Paracetamol", "type": "drug"},
+    {"name": "Ibuprofen", "type": "drug"},
+    {"name": "Warfarin", "type": "drug"},
+    {"name": "Grapefruit", "type": "food"}
+  ],
+  "edges": [
+    {"from": 0, "to": 1, "severity": "moderate"},
+    {"from": 1, "to": 2, "severity": "major"},
+    {"from": 2, "to": 3, "severity": "major"},
+    {"from": 0, "to": 2, "severity": "none"}
+  ]
+}
+
+--------------------------------------------------------------------------------------------------------
 
 ${window.dietContext?.getDietPlan && window.dietContext.getDietPlan().foods.length > 0
 ? `
@@ -2132,7 +2153,29 @@ if (stopGenerating) {
                 const data = await response.json();
               //  <!--------------------------------------------------------------------------------------------------------------------------------rawtext------------------------
                // const rawText = data.choices[0]?.message?.content || "No response.";
-
+let rawText = data.choices[0].message.content;
+        if (rawText.includes('```vdiv')) {
+          const jsonMatch = rawText.match(/```vdiv\n([\s\S]*?)\n```/);
+          if (jsonMatch && jsonMatch[1]) {
+            try {
+              const data = JSON.parse(jsonMatch[1]);
+              setTimeout(() => {  // small delay to ensure DOM is ready
+                const container = document.createElement('div');
+                container.className = 'vdiv-container';
+                const lastMsg = document.querySelector('.msg.ai:last-child') || 
+                                document.querySelector('.msg-wrapper.ai-wrapper:last-child');
+                if (lastMsg) lastMsg.appendChild(container);
+                const visualizer = new VentoraDrugVisualizer(container);
+                visualizer.render(data);
+                scrollToBottom();
+              }, 100);
+            } catch (e) {
+              console.error('vdiv parse error:', e);
+            }
+            // Remove vdiv block from visible text
+            rawText = rawText.replace(/```vdiv\n[\s\S]*?\n```/, '').trim();
+          }
+        }
 
 
 // Add validation
