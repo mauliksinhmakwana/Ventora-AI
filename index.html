@@ -2468,11 +2468,35 @@ function copyUserMessage(btn) {
 
                 // ==================== EVENT LISTENERS ====================
         userInput.addEventListener('keydown', (e) => {
+    // Check if it's a mobile device
+    const isMobile = /iPhone|iPad|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    if (e.key === 'Enter') {
+        if (isMobile && !e.shiftKey) {
+            // On mobile: Enter = new line, Shift+Enter = send
+            if (!e.shiftKey) {
+                // Allow default behavior (new line)
+                return;
+            } else {
+                e.preventDefault();
+                handleSend();
+            }
+        } else {
+            // On desktop: Enter = send, Shift+Enter = new line
+            if (!e.shiftKey) {
+                e.preventDefault();
+                handleSend();
+            }
+            // If shift is pressed, allow default (new line)
+        }
+    }
+});
+       /* userInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 handleSend();
             }
-        });
+        });*/
         
        
 
