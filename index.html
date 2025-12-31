@@ -967,8 +967,6 @@
    <link rel="stylesheet" href="ocr/ocr.css">
 <script src="ocr/ocr.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@v4.0.0/dist/tesseract.min.js"></script>
-    <link rel="stylesheet" href="vdiv.css">
-<script src="vdiv.js" defer></script>
 </head>
 <body onload="initApp()">
     <!-- Menu Overlay (click to close) -->
@@ -1842,90 +1840,108 @@ if (hero) {
 
         // ==================== MESSAGE HANDLING ====================
         async function handleSend(lastUserMessage = null) {
-    // Prevent rapid successive sends (especially on mobile)
-    const now = Date.now();
-    if (isSending || (now - lastSendTime < 1000)) {
-        showToast('Please wait...', 'info');
-        return;
-    }
-    
-    isSending = true;
-    lastSendTime = now;
-    sendBtn.classList.add('sending');
-    
-    const query = lastUserMessage || userInput.value.trim();
-    if (!query) {
-        isSending = false;
-        sendBtn.classList.remove('sending');
-        return;
-    }
-    const conversation = getCurrentConversation();
-    if (!conversation) {
-        isSending = false;
-        sendBtn.classList.remove('sending');
-        stopGenerating = false;
-        return;
-    }
-    // Clear input immediately to prevent double sending
-    if (!lastUserMessage) {
-        userInput.value = '';
-        userInput.style.height = 'auto';
-    }
-    // Add user message to conversation
-    const userMessageObj = {
-        role: 'user',
-        content: query,
-        timestamp: new Date().toISOString()
-    };
-    
-    conversation.messages.push(userMessageObj);
-    
-    // Display user message
-    appendMessage(query, 'user');
-    hideHeroWelcome();
-    // Update conversation title if needed
-    if (conversation.messages.length === 1 && conversation.title === "New Chat") {
-        updateConversationTitle(conversation.id, query);
-    }
-    // Add typing indicator
-    const loadingMsg = appendMessage(
-        '<div class="typing-dots"><span></span><span></span><span></span></div>', 'ai'
-    );
-    // Save conversation
-    conversation.updatedAt = new Date().toISOString();
-    saveConversations();
-    renderConversationsList();
-    try {
-        // Prepare messages for API (remove timestamp field)
-        const apiMessages = conversation.messages.map(msg => ({
-            role: msg.role,
-            content: msg.content
-        }));
-        // Validate that we have at least one message
-        if (apiMessages.length === 0) {
-            throw new Error('No messages to send. Please try again.');
-        }
-        
-        const response = await fetch('https://ventora-ai.vercel.app/api/chat', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                model: settings.model,
-                messages: [
-                    {
-                        role: "assistant",
-                        content: `
+            // Prevent rapid successive sends (especially on mobile)
+            const now = Date.now();
+            if (isSending || (now - lastSendTime < 1000)) {
+                showToast('Please wait...', 'info');
+                return;
+            }
+            
+            isSending = true;
+            lastSendTime = now;
+            sendBtn.classList.add('sending');
+            
+            const query = lastUserMessage || userInput.value.trim();
+            if (!query) {
+                isSending = false;
+                sendBtn.classList.remove('sending');
+                return;
+            }
+
+            const conversation = getCurrentConversation();
+            if (!conversation) {
+                isSending = false;
+                sendBtn.classList.remove('sending');
+                stopGenerating = false;
+                return;
+            }
+
+            // Clear input immediately to prevent double sending
+            if (!lastUserMessage) {
+                userInput.value = '';
+                userInput.style.height = 'auto';
+            }
+
+            // Add user message to conversation
+            const userMessageObj = {
+                role: 'user',
+                content: query,
+                timestamp: new Date().toISOString()
+            };
+            
+            conversation.messages.push(userMessageObj);
+            
+            // Display user message
+            appendMessage(query, 'user');
+            hideHeroWelcome();
+
+            // Update conversation title if needed
+            if (conversation.messages.length === 1 && conversation.title === "New Chat") {
+                updateConversationTitle(conversation.id, query);
+            }
+
+            // Add typing indicator
+            const loadingMsg = appendMessage(
+                '<div class="typing-dots"><span></span><span></span><span></span></div>', 'ai'
+            );
+
+            // Save conversation
+            conversation.updatedAt = new Date().toISOString();
+            saveConversations();
+            renderConversationsList();
+
+            try {
+                // Prepare messages for API (remove timestamp field)
+                const apiMessages = conversation.messages.map(msg => ({
+                    role: msg.role,
+                    content: msg.content
+                }));
+
+                // Validate that we have at least one message
+                if (apiMessages.length === 0) {
+                    throw new Error('No messages to send. Please try again.');
+                }
+
+
+
+
+              
+               // <!--------------------------------------------------------------------------------------------------------------------------------PROMPT--------------------------->
+//const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                const response = await fetch('https://ventora-ai.vercel.app/api/chat', {
+    method: 'POST',
+    headers: {
+       // 'Authorization': `Bearer ${GROQ_API_KEY}`,
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+        model: settings.model,
+        messages: [
+            {
+                role: "assistant",
+                content: `
 You are ${AI_IDENTITY.name}. Always use the name "${AI_IDENTITY.name}".
-You are ${AI_IDENTITY.name}.
+
+You are ${AI_IDENTITY.name}.  
 User Name: ${localStorage.getItem('profile_name') || window.personalization?.userName || ''}
 Focus: ${window.personalization.major || ''}
 Tone: ${window.personalization.responseStyle}
+
 ${window.fileContext?.text
 ? `
 ### ATTACHED FILE CONTEXT ###
 File: ${window.fileContext.name}
+
 content:
 """
 ${window.fileContext.text}
@@ -1934,8 +1950,10 @@ ${window.fileContext.text}
 : ''
 }
 --> Do not include the file Attached file Contex Details in the conversation, use content only.
+
 ### CUSTOM USER INSTRUCTIONS ###
 User Name: ${window.personalization.customInstructions}
+
 ${window.doseContext?.prescriptions && window.doseContext.prescriptions.length > 0
 ? `
 ### CURRENT MEDICATIONS (FOR REFERENCE ONLY) ###
@@ -1944,32 +1962,19 @@ ${window.doseContext.prescriptions.filter(p => p.status === 'active').map(p => `
 - ${p.medication}: ${p.dosage} (${p.frequency}) for ${p.duration}
   ${p.notes ? `Notes: ${p.notes}` : ''}
 `).join('')}
+
 Note: This is reference information only. DO NOT provide dosage advice or modify prescriptions.
 `
 : ''
 }
--------------------------------------------------------------------------------------------------------
-When user asks about drug or food interactions, respond ONLY in this exact JSON format inside ```vdiv code block:
-```vdiv
-{
-  "nodes": [
-    {"name": "Paracetamol", "type": "drug"},
-    {"name": "Ibuprofen", "type": "drug"},
-    {"name": "Warfarin", "type": "drug"},
-    {"name": "Grapefruit", "type": "food"}
-  ],
-  "edges": [
-    {"from": 0, "to": 1, "severity": "moderate"},
-    {"from": 1, "to": 2, "severity": "major"},
-    {"from": 2, "to": 3, "severity": "major"},
-    {"from": 0, "to": 2, "severity": "none"}
-  ]
-}
---------------------------------------------------------------------------------------------------------
+
+====================================================================================================
+
 ${window.dietContext?.getDietPlan && window.dietContext.getDietPlan().foods.length > 0
 ? `
 ### CURRENT DIET PLAN ###
 ${window.dietContext.formatForAI()}
+
 Note: Use this information to provide personalized nutrition advice.
 Consider:
 1. Balanced meal suggestions based on current diet
@@ -1980,6 +1985,7 @@ Consider:
 : ''
 }
 --------------------------------------------------
+
 CORE IDENTITY:
 - Name: Ventora
 - Version: VentoraAI V5.4 MIA
@@ -1987,34 +1993,49 @@ CORE IDENTITY:
 - Creator/Developer: Maulik Makwana
 - Background Strength: Pharmaceutical Science
 - Purpose: Helps in gym, nutrition and vitamins, diet plan making and more.Help people understand medicines, diseases, and health concepts clearly and safely.
+
 --------------------------------------------------
+
 CORE PHILOSOPHY:
 Ventora combines the **usefulness of a health companion** with the **depth of pharmaceutical science**.
+
 Ventora:
 - Helps users understand what a medicine or health concept is
 - Explains how it works inside the human body
 - Connects diseases, pathways, and drugs
 - Educates, but never prescribes
+
+
+
 Ventora is NOT a doctor.
 Ventora is NOT a treatment recommender.
 Ventora is a **pharma-understanding assistant**.
+
 --------------------------------------------------
+
 Ventora provides short, information about medicines, diseases, and health, Diet, Gym, Nutrition concepts
+
 Rules:
 - Always Give Answer in short (In about one to two peragraphes (small)) and ask user for details - (if user say than give full details).
 - Use labels, not paragraphs
 - No prescriptions, no dosage, no treatment advice (If give than mark - for refrence only)
 - Give stuctured answer.
+
 --------------------------------------------------
+
 🚫 Never include:
 - Treatment advice
 - “Take / should take / best medicine”
+
 --------------------------------------------------
+
 DIET, NUTRITION & GYM QUESTIONS (BUT SAFER):
 - Give info that user want...
 - If user want any drug or prescreption dont give...
 - If you give any advice also add desclamer.
+
 --------------------------------------------------
+
 CRITICAL SAFETY RULES:
 - NEVER prescribe
 - NEVER give dosage
@@ -2022,7 +2043,9 @@ CRITICAL SAFETY RULES:
 - Use neutral educational wording:
   “commonly used”, “helps regulate”, “is associated with”
 - Always add an educational disclaimer when relevant
+
 --------------------------------------------------
+
 ANSWER STYLE:
 - Clear, structured, calm
 - Explain WHY before WHAT
@@ -2030,25 +2053,32 @@ ANSWER STYLE:
 - Short by default, detailed only if asked
 - Minimal emojis 🎓🧠
 - professional
+
 --------------------------------------------------
+
 FORMATTING RULES:
 - Use **bold headings**
 - Use - instead of * for the bulleting, you can also use this •
 - Keep answers readable and clean
+
 --------------------------------------------------
 WHAT VENTORA DOES:
-- (strictly)Give Answer in short fist and ask user for details if they say than give this all:
+- (strictly)Give short answer fist and ask user for details if they say than give this all:
 • Explains medicines, diseases, health concepts
 • Shows how they work in the human body
 • Connects biology, pathways, mechanisms
 • Educates, NEVER prescribes
+
+
 --------------------------------------------------
 Always give short ans unless user want...
 --------------------------------------------------
+
 FINAL IDENTITY STATEMENT:
 Ventora helps people understand how medicines, diseases, diet, and health concepts work inside the human body — from a pharmaceutical science perspective — for education and awareness, not medical instruction.
 `
-               
+
+                
             },
             ...apiMessages
         ],
@@ -2056,43 +2086,91 @@ Ventora helps people understand how medicines, diseases, diet, and health concep
         max_tokens: settings.maxTokens
     })
 });
+
 if (stopGenerating) {
     throw new Error('Generation stopped by user');
 }
-               
+
+
+
+
+
+                
+
+      //          const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                //  method: 'POST',
+        //      headers: {
+          //              'Authorization': `Bearer ${GROQ_API_KEY}`,
+            //            'Content-Type': 'application/json'
+              //      },
+                //    body: JSON.stringify({
+                  //      model: settings.model,
+                    //    messages: apiMessages,
+                      //  temperature: settings.temperature,
+                        //max_tokens: settings.maxTokens
+                    //})
+                //});
+
+
+
+
+
+
+
+
+
+
+
+
+                
+
                 if (!response.ok) {
                     const error = await response.json();
                     throw new Error(error.error?.message || `API Error: ${response.status}`);
                 }
+
                 const data = await response.json();
-                // Add validation
+              //  <!--------------------------------------------------------------------------------------------------------------------------------rawtext------------------------
+               // const rawText = data.choices[0]?.message?.content || "No response.";
+
+
+
+// Add validation
 if (!data.choices || data.choices.length === 0) {
     throw new Error('AI returned empty response. Please try again.');
 }
+
 if (!data.choices[0].message || !data.choices[0].message.content) {
     console.error('Invalid response structure:', data);
     throw new Error('Invalid response from AI server.');
 }
-               
-        let rawText = data.choices[0].message.content;
+
+
+                
+        const rawText = data.choices[0].message.content;
+
 // === NEW: Only save and type if user hasn't stopped ===
 if (stopGenerating) {
     // User stopped — don't save full response, don't type anything
     loadingMsg.innerHTML = '<em>Generation stopped by user.</em>';
     return; // Exit early
 }
+
 // Save the full message (for history and regenerate)
 conversation.messages.push({
     role: 'assistant',
     content: rawText,
     timestamp: new Date().toISOString()
 });
+
 await pause(1200);
+
 // === CRITICAL FIX: Only start typing if user hasn't stopped ===
 if (stopGenerating) {
     loadingMsg.innerHTML = '<em style="color: var(--text-secondary); opacity: 0.8;">Generation stopped by user.</em>';
     return; // Completely exit — no typing at all
 }
+
 // Prepare the message UI
 loadingMsg.innerHTML = `
   <div class="ai-text" style="margin-bottom: 4px;"></div>
@@ -2102,34 +2180,44 @@ loadingMsg.innerHTML = `
       <div class="voice-btn" onclick="toggleSpeech(this)">Read</div>
       <div class="regenerate-btn" onclick="regenerate(this)">↻ Regenerate</div>
   </div>`;
+
 const aiTextEl = loadingMsg.querySelector(".ai-text");
 const formatted = formatAIResponse(rawText);
+
 // Now type — but sleep() will stop it mid-way if user clicks Stop again
 await typeText(aiTextEl, formatted, 25);
+
 // Optional: Save full message only after successful typing
 // (So if stopped mid-way, history has only partial — but regenerate will re-fetch full)
-// conversation.messages.push({
-//     role: 'assistant',
-//     content: rawText,
-//     timestamp: new Date().toISOString()
-// });
-               
-                               // Add assistant message
-                /*conversation.messages.push({
+conversation.messages.push({
+    role: 'assistant',
+    content: rawText,
+    timestamp: new Date().toISOString()
+});
+                /*const rawText = data.choices[0].message.content;        
+                    // Add assistant message
+                conversation.messages.push({
                     role: 'assistant',
                     content: rawText,
                     timestamp: new Date().toISOString()
                 });*/
-            
+
+             
+
                 // Update the loading message with actual response
                 // ... rest of your code continues ...
-               
-                // Update the loading message with actual response //------------------------------------------------------READ 2--------------------------------------------------//
+
+                
+
+                // Update the loading message with actual response         //------------------------------------------------------READ 2--------------------------------------------------//
                // Inside handleSend, when the AI finishes:
-      
-// Inside handleSend, when the AI finishes:
-/*await pause(1200);
+       
+
+/*// Inside handleSend, when the AI finishes:
+await pause(1200);
+
 const formatted = formatAIResponse(rawText);*/
+
 // Render UI with minimal gaps
 /*loadingMsg.innerHTML = `
   <div class="ai-text" style="margin-bottom: 4px;"></div>
@@ -2139,31 +2227,34 @@ const formatted = formatAIResponse(rawText);*/
       <div class="voice-btn" onclick="toggleSpeech(this)">Read</div>
       <div class="regenerate-btn" onclick="regenerate(this)">↻ Regenerate</div>
   </div>`;
+
 // Type ONLY the text into the container
 const aiTextEl = loadingMsg.querySelector(".ai-text");
 await typeText(aiTextEl, formatted, 25);
 */
-               
+
+                
+                
                 // Save updated conversation
                 conversation.updatedAt = new Date().toISOString();
                 saveConversations();
                 renderConversationsList();
                 scrollToBottom();
-               
+                
             } catch (err) {
                 console.error('API Error:', err);
-              
                
-               
+                
+                
                 // Remove the user message if the API call failed
-                const userIndex = conversation.messages.findIndex(msg =>
+                const userIndex = conversation.messages.findIndex(msg => 
                     msg.role === 'user' && msg.content === query && msg.timestamp === userMessageObj.timestamp
                 );
                 if (userIndex !== -1) {
                     conversation.messages.splice(userIndex, 1);
                     saveConversations();
                 }
-               
+                
                 // Show error message
                 loadingMsg.innerHTML = `Error: ${err.message}. Please try again.`;
                 showToast(`Error: ${err.message}`, 'error');
@@ -2171,33 +2262,40 @@ await typeText(aiTextEl, formatted, 25);
                 // Always reset sending flag
                 isSending = false;
                 sendBtn.classList.remove('sending');
-                stopGenerating = false; // Reset stop flag for next generation
             }
         }
-       
+
+
+
+
+
+        
         // ==================== UTILITY FUNCTIONS ====================
         function autoExpand(el) {
             el.style.height = 'auto';
             el.style.height = el.scrollHeight + 'px';
         }
+
         function getTime() {
             return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         }
+
         function formatTime(isoString) {
             const date = new Date(isoString);
             return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         }
-      
+
+       
         function formatAIResponse(text) {
     // Convert **bold** to <strong>bold</strong>
     let formattedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-   
+    
     // Convert *italic* to <em>italic</em>
     formattedText = formattedText.replace(/\*(.*?)\*/g, '<em>$1</em>');
-   
+    
     // Convert `code` to <code>code</code>
     formattedText = formattedText.replace(/`(.*?)`/g, '<code>$1</code>');
-   
+    
     // Then handle code blocks
     const codeRegex = /```(\w*)\n([\s\S]*?)```/g;
     formattedText = formattedText.replace(codeRegex, (match, lang, code) => {
@@ -2211,24 +2309,28 @@ await typeText(aiTextEl, formatted, 25);
             <pre id="${id}">${code.trim()}</pre>
         </div>`;
     });
-   
+    
     return formattedText;
 }
        // function formatAIResponse(text) {
-       // const codeRegex = /```(\w*)\n([\s\S]*?)```/g;
-         // return text.replace(codeRegex, (match, lang, code) => {
-          // const id = 'code-' + Math.random().toString(36).substr(2, 9);
-           // return `
-            // <div class="code-container">
-             // <div class="code-header">
-              // <span>${lang.toUpperCase() || 'CODE'}</span>
-               // <span class="copy-btn" onclick="copyCode('${id}')">COPY</span>
-                // </div>
-                 // <pre id="${id}">${code.trim()}</pre>
+       //     const codeRegex = /```(\w*)\n([\s\S]*?)```/g;
+         //   return text.replace(codeRegex, (match, lang, code) => {
+          //      const id = 'code-' + Math.random().toString(36).substr(2, 9);
+           //     return `
+            //    <div class="code-container">
+             //       <div class="code-header">
+              //          <span>${lang.toUpperCase() || 'CODE'}</span>
+               //         <span class="copy-btn" onclick="copyCode('${id}')">COPY</span>
+                //    </div>
+                 //   <pre id="${id}">${code.trim()}</pre>
                // </div>`;
-         // });
+         //   });
        // }
-       
+
+
+
+        
+
         function copyCode(id) {
             const code = document.getElementById(id).innerText;
             navigator.clipboard.writeText(code);
@@ -2236,10 +2338,16 @@ await typeText(aiTextEl, formatted, 25);
             btn.textContent = 'COPIED';
             setTimeout(() => { btn.textContent = 'COPY'; }, 2000);
         }
+
         function copyFullResponse(btn) {
             const msgElement = btn.closest('.msg');
             const fullText = msgElement.innerText;
-            const cleanText = fullText.replace(/Copy.*Regenerate.*|\d{1,2}:\d{2}\s*(AM|PM)?/g, '').trim();
+            const cleanText = fullText
+            .replace(/(Copy|Copied ✓|Read|↻ Regenerate).*?(\n|$)/g, '')  // Remove button text
+        .replace(/\d{1,2}:\d{2}\s*(AM|PM)?/g, '')                     // Remove timestamp
+        .replace(/^\s*[\n\r]+|[\n\r]+\s*$/g, '')                      // Remove extra newlines
+        .trim();//.replace(/Copy.*Regenerate.*|\d{1,2}:\d{2}\s*(AM|PM)?/g, '').trim();
+
             navigator.clipboard.writeText(cleanText).then(() => {
                 btn.textContent = 'Copied ✓';
                 btn.style.opacity = '1';
@@ -2249,18 +2357,47 @@ await typeText(aiTextEl, formatted, 25);
                 }, 2000);
             });
         }
+
+
+
+//  ADD: Copy function for user messages (SIMPLE & FIXED)
+function copyUserMessage(btn) {
+    const msgElement = btn.closest('.msg');
+    
+    // Get the first child (which should be the message text)
+    const messageText = msgElement.childNodes[0]?.textContent || '';
+    
+    // Clean up: remove any trailing whitespace/newlines
+    const cleanText = messageText.trim();
+    
+    navigator.clipboard.writeText(cleanText).then(() => {
+        btn.textContent = 'Copied ✓';
+        btn.style.opacity = '1';
+        setTimeout(() => {
+            btn.textContent = 'Copy';
+            btn.style.opacity = '0.7';
+        }, 2000);
+    });
+}
+
+        
+
+        
         function scrollToBottom() {
             chatContainer.scrollTo({ top: chatContainer.scrollHeight, behavior: 'smooth' });
         }
+
         chatContainer.onscroll = () => {
             const diff = chatContainer.scrollHeight - chatContainer.scrollTop - chatContainer.clientHeight;
             scrollBtn.style.display = diff > 100 ? 'flex' : 'none';
         };
+
         function appendMessage(text, type) {
             const wrapper = document.createElement('div');
             wrapper.className = `msg-wrapper ${type}-wrapper`;
             const msg = document.createElement('div');
             msg.className = `msg ${type}`;
+
             if (type === 'ai') {
                 if (text.includes('typing-dots')) {
                     msg.innerHTML = text;
@@ -2274,24 +2411,36 @@ await typeText(aiTextEl, formatted, 25);
                         </div>`;
                 }
             } else {
-                msg.innerText = text;
-                msg.innerHTML += `<div class="timestamp">${getTime()}</div>`;
+                msg.innerHTML = `
+        <div style="margin-bottom: 4px;">${text}</div>
+        <div class="timestamp" style="font-size: 0.65rem;">${getTime()}</div>
+        <div class="user-copy-btn" onclick="copyUserMessage(this)" style="
+            font-size: 0.7rem;
+            color: var(--accent-blue);
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+            margin-top: 2px;
+        ">Copy</div>`;
+                
             }
+
             wrapper.appendChild(msg);
             chatContainer.appendChild(wrapper);
             scrollToBottom();
             return msg;
         }
+
         function regenerate(btn) {
             const conversation = getCurrentConversation();
             if (!conversation) return;
-           
+            
             // Remove last assistant message
             const lastAssistantIndex = conversation.messages.map(m => m.role).lastIndexOf('assistant');
             if (lastAssistantIndex !== -1) {
                 conversation.messages.splice(lastAssistantIndex, 1);
             }
-           
+            
             // Get last user message
             const lastUserIndex = conversation.messages.map(m => m.role).lastIndexOf('user');
             if (lastUserIndex !== -1) {
@@ -2299,10 +2448,11 @@ await typeText(aiTextEl, formatted, 25);
                 renderMessages(conversation.messages);
                 saveConversations();
                 renderConversationsList();
-               
+                
                 handleSend(userMessage);
             }
         }
+
         function exportChat() {
             const conversation = getCurrentConversation();
             if (!conversation || conversation.messages.length === 0) {
@@ -2310,20 +2460,21 @@ await typeText(aiTextEl, formatted, 25);
                 closeMenu();
                 return;
             }
+
             let text = `=== Nebula AI Conversation ===\n\n`;
             text += `Title: ${conversation.title}\n`;
             text += `Date: ${new Date(conversation.updatedAt).toLocaleString()}\n\n`;
-           
+            
             conversation.messages.forEach(msg => {
                 const role = msg.role === 'user' ? 'You' : 'Nebula AI';
                 const time = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                 text += `[${time}] ${role}:\n`;
                 text += `${msg.content}\n\n`;
             });
-           
+            
             text += '\n=== End of Conversation ===\n';
             text += 'Exported from Nebula AI\n';
-           
+            
             const blob = new Blob([text], { type: 'text/plain' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -2333,10 +2484,11 @@ await typeText(aiTextEl, formatted, 25);
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
-           
+            
             showToast('Chat exported!');
             closeMenu();
         }
+
         function clearAllData() {
             if (confirm('Are you sure? This will delete ALL chat history and settings.')) {
                 localStorage.removeItem('nebula_conversations');
@@ -2348,29 +2500,36 @@ await typeText(aiTextEl, formatted, 25);
                     temperature: 0.7,
                     maxTokens: 1024
                 };
-               
+                
                 chatContainer.innerHTML = '';
                 createNewConversation();
                 showToast('All data cleared');
                 closeSettings();
             }
         }
+
+
+
      function showToast(message, type = "info") {
     const toast = document.getElementById('toast');
     if (!toast) return;
+
     toast.textContent = message;
     toast.className = 'toast'; // Reset
     toast.classList.add(type);
-   
+    
     // Use requestAnimationFrame for smooth activation
     requestAnimationFrame(() => {
         toast.classList.add('active');
     });
+
     setTimeout(() => {
         toast.classList.remove('active');
     }, 3000);
 }
-       
+
+
+        
         function shareApp() {
             if (navigator.share) {
                 navigator.share({ title: 'Nebula AI', url: window.location.href });
@@ -2379,25 +2538,59 @@ await typeText(aiTextEl, formatted, 25);
                 showToast('Link copied to clipboard!');
             }
         }
+
                 // ==================== EVENT LISTENERS ====================
         userInput.addEventListener('keydown', (e) => {
+    // Check if it's a mobile device
+    const isMobile = /iPhone|iPad|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    if (e.key === 'Enter') {
+        if (isMobile && !e.shiftKey) {
+            // On mobile: Enter = new line, Shift+Enter = send
+            if (!e.shiftKey) {
+                // Allow default behavior (new line)
+                return;
+            } else {
+                e.preventDefault();
+                handleSend();
+            }
+        } else {
+            // On desktop: Enter = send, Shift+Enter = new line
+            if (!e.shiftKey) {
+                e.preventDefault();
+                handleSend();
+            }
+            // If shift is pressed, allow default (new line)
+        }
+    }
+});
+       /* userInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 handleSend();
             }
-        });
+        });*/
+        
        
-        sendBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            if (sendBtn.classList.contains('sending')) return;
-            handleSend();
-        });
-       
+
+// ONE UNIFIED CLICK HANDLER
+sendBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    
+    if (isSending) {
+        // If already sending, the button acts as a STOP button
+        stopGeneration();
+    } else {
+        // If not sending, the button acts as a SEND button
+        handleSend();
+    }
+});
+        
         // Update temperature value when slider changes
         tempRange.addEventListener('input', () => {
             tempValue.textContent = tempRange.value;
         });
-       
+        
         // Close modals with Escape key
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
@@ -2409,16 +2602,71 @@ await typeText(aiTextEl, formatted, 25);
                 }
             }
         });
+
+
+// Listen for settings updates from popup
+window.addEventListener('settingsUpdated', function(event) {
+    console.log('Settings update event received!', event.detail);
+    
+    // Update settings immediately
+    settings.model = event.detail.model;
+    settings.temperature = event.detail.temperature;
+    settings.maxTokens = event.detail.maxTokens;
+    
+    console.log('Settings updated live to:', settings);
+    
+    // Show notification
+    showToast(`Switched to ${getModelDisplayName(settings.model)}`, 'info');
+});
+
+// Helper function
+function getModelDisplayName(modelKey) {
+    const names = {
+        'mia:general': 'General Mode',
+        'mia:reasoning': 'Clinical Reasoning', 
+        'mia:research': 'Research Mode'
+    };
+    return names[modelKey] || modelKey;
+}
+
+
+        
+
+// 🔥 ADD: Stop generating function
+
+
+function stopGeneration() {
+    if (isSending) {
+        stopGenerating = true;
+        isSending = false;
+        sendBtn.classList.remove('sending');
+        showToast('Stopped generating', 'info');
+        
+        // Reset the flag after a short delay so the next send works
+        setTimeout(() => { stopGenerating = false; }, 500);
+    }
+}
+
+
+
+
+
+
+
+
+
 // ==================== ABOUT FUNCTIONS ====================
 function showAbout() {
     closeMenu(); // Close menu first
     const aboutModal = document.getElementById('aboutModal');
     aboutModal.classList.add('active');
 }
+
 function closeAbout() {
     const aboutModal = document.getElementById('aboutModal');
     aboutModal.classList.remove('active');
 }
+
 // Add to existing Escape key handler
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
@@ -2433,13 +2681,29 @@ document.addEventListener('keydown', (e) => {
         }
     }
 });
+
 // Close about when clicking outside
 document.getElementById('aboutModal').addEventListener('click', function(e) {
     if (e.target === this) {
         closeAbout();
     }
 });
+ 
     </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <!-- About Modal - Fixed Layout -->
 <div id="about-modal" class="about-modal" role="dialog" aria-modal="true" aria-labelledby="about-title" aria-hidden="true">
     <div class="about-content">
@@ -2452,7 +2716,7 @@ document.getElementById('aboutModal').addEventListener('click', function(e) {
             <h2 id="about-title" class="about-title">About</h2>
             <div class="header-spacer"></div>
         </div>
-       
+        
         <div class="about-body">
             <!-- Version Info -->
             <div class="version-section">
@@ -2462,26 +2726,33 @@ document.getElementById('aboutModal').addEventListener('click', function(e) {
                     <span class="model-type">Virtual Educational Assistant</span>
                 </div>
             </div>
-           
+            
             <!-- Description -->
             <div class="description-section">
                 <p class="description">
                  <p>Ventora AI is an advanced artificial intelligence assistant designed specifically for academic excellence and research support. Built with cutting-edge language models, it serves as your intelligent companion for learning, studying, and academic work.</p>
                  <p>Specializing in comprehensive academic assistance, Ventora AI provides expert support for research methodology, study planning, essay writing, and assignment completion. Whether you need help with literature reviews, concept explanations, or homework solutions, it adapts to your specific academic requirements.</p>
                  <p>Powered by sophisticated AI technology, Ventora AI offers personalized guidance while maintaining the highest standards of academic integrity. It emphasizes critical thinking, proper citation practices, and ethical research methods to ensure quality learning outcomes.
+
 Developed with a focus on educational impact, this tool supports students, researchers, and educators in achieving their academic goals. Its intuitive interface and responsive design make advanced academic assistance accessible to everyone.</p>
                  <p><b>Privacy & Data:</b> Your conversations remain private and secure. All data is processed locally in your browser with no storage on external servers. We use industry-standard encryption to protect your information while maintaining full transparency about our data practices.</p>
                  <p>Ventora AI continues to evolve with regular updates and improvements, ensuring it remains at the forefront of educational technology. Your reliable partner for smarter learning and more efficient research.</p>
+
+
+
+
+
+
                 </p>
             </div>
-           
+            
             <!-- Features Grid -->
             <div class="features-section">
                 <h3 class="section-heading">Key Features</h3>
                 <div class="features-list">
-                  
                    
-                   
+                    
+                    
                     <div class="feature-item">
                         <div class="feature-icon">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -2493,7 +2764,7 @@ Developed with a focus on educational impact, this tool supports students, resea
                             <div class="feature-desc">Academic research support</div>
                         </div>
                     </div>
-                   
+                    
                     <div class="feature-item">
                         <div class="feature-icon">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -2507,7 +2778,7 @@ Developed with a focus on educational impact, this tool supports students, resea
                             <div class="feature-desc">Learning support</div>
                         </div>
                     </div>
-                   
+                    
                     <div class="feature-item">
                         <div class="feature-icon">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -2519,7 +2790,7 @@ Developed with a focus on educational impact, this tool supports students, resea
                             <div class="feature-desc">Writing assistance</div>
                         </div>
                     </div>
-                   
+                    
                     <div class="feature-item">
                         <div class="feature-icon">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -2534,7 +2805,12 @@ Developed with a focus on educational impact, this tool supports students, resea
                     </div>
                 </div>
             </div>
-           
+
+
+
+
+
+            
             <!-- Creator Info -->
             <div class="creator-section">
                 <h3 class="section-heading">Creator</h3>
@@ -2546,17 +2822,22 @@ Developed with a focus on educational impact, this tool supports students, resea
                         <div class="creator-name">Maulik Makwana</div>
                         <div class="creator-role">Developer</div>
                     </div>
-                   
+                    
                      <!-- External Link -->
             <div class="external-link">
                 <a href="https://mauliksinhmakwana.github.io/Mauliksinh-Makwana/" target="_blank" class="link-button" onclick="window.open('https://mauliksinhmakwana.github.io/Mauliksinh-Makwana/', '_blank')">
                     <span>Portfolio</span>
                 </a>
             </div>
+
                 </div>
             </div>
-           
-           
+
+
+
+
+            
+            
             <!-- Tech Stack -->
             <div class="tech-section">
                 <div class="tech-item">
@@ -2568,63 +2849,84 @@ Developed with a focus on educational impact, this tool supports students, resea
                     <div class="tech-value">Ventora AI</div>
                 </div>
             </div>
+            
            
-          
-           
+            
         </div>
     </div>
 </div>
+
+
+
+
+
+    
 <script>
+
+
+/*    
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 async function typeText(element, html, speed = 25) {
-    element.innerHTML = "";
-   
+    element.innerHTML = ""; 
+    
     const temp = document.createElement('div');
     temp.innerHTML = html;
     const nodes = Array.from(temp.childNodes);
-   
+    
     for (const node of nodes) {
         if (node.nodeType === Node.TEXT_NODE) {
             const text = node.textContent;
             for (let i = 0; i < text.length; i++) {
                 element.innerHTML += text[i];
                 // This is where the error was happening
-                await sleep(speed);
+                await sleep(speed); 
             }
         } else {
             element.appendChild(node.cloneNode(true));
-            await sleep(speed);
+            await sleep(speed); 
         }
         if (typeof scrollToBottom === "function") scrollToBottom();
     }
-}
+}*/
+
+
+
+
+
+
+
+
+
+    
 // Function to open the About modal
 function openAboutModal() {
     const modal = document.getElementById('about-modal');
     modal.classList.add('active');
     modal.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
-   
+    
     // Set focus to the close button
     setTimeout(() => {
         const closeBtn = document.getElementById('close-about-btn');
         if (closeBtn) closeBtn.focus();
     }, 100);
 }
+
 // Function to close the About modal
 function closeAboutModal() {
     const modal = document.getElementById('about-modal');
     modal.classList.remove('active');
     modal.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = 'auto';
-   
+    
     // Return focus to the button that opened the modal
     if (window.lastFocusedElement) {
         window.lastFocusedElement.focus();
     }
 }
+
 // Event listeners for About modal
 document.addEventListener('DOMContentLoaded', function() {
     // Store reference to last focused element
@@ -2633,7 +2935,7 @@ document.addEventListener('DOMContentLoaded', function() {
             window.lastFocusedElement = e.target;
         }
     });
-   
+    
     // Find About button in menu
     const menuItems = document.querySelectorAll('.menu-item');
     menuItems.forEach(item => {
@@ -2645,13 +2947,13 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     });
-   
+    
     // Close button
     const closeAboutBtn = document.getElementById('close-about-btn');
     if (closeAboutBtn) {
         closeAboutBtn.addEventListener('click', closeAboutModal);
     }
-   
+    
     // Close modal when clicking outside
     const aboutModal = document.getElementById('about-modal');
     if (aboutModal) {
@@ -2661,7 +2963,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-   
+    
     // Close with Escape key
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape' && aboutModal.classList.contains('active')) {
@@ -2669,10 +2971,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
 // Make function available globally
 window.openAboutModal = openAboutModal;
 window.closeAboutModal = closeAboutModal;
 </script>
+
 <style>
 /* About Modal - Fixed CSS */
 .about-modal {
@@ -2693,11 +2997,13 @@ window.closeAboutModal = closeAboutModal;
     padding: 16px;
     pointer-events: none;
 }
+
 .about-modal.active {
     display: flex;
     opacity: 1;
     pointer-events: auto;
 }
+
 .about-content {
     background: rgba(30, 30, 30, 0.98);
     backdrop-filter: blur(20px);
@@ -2715,6 +3021,7 @@ window.closeAboutModal = closeAboutModal;
     overflow: hidden;
     position: relative;
 }
+
 @keyframes modalSlideUp {
     from {
         opacity: 0;
@@ -2725,6 +3032,7 @@ window.closeAboutModal = closeAboutModal;
         transform: translateY(0);
     }
 }
+
 /* Header - Fixed for mobile */
 .about-header {
     display: flex;
@@ -2739,6 +3047,7 @@ window.closeAboutModal = closeAboutModal;
     z-index: 10;
     flex-shrink: 0;
 }
+
 .about-title {
     font-size: 1.2rem;
     font-weight: 600;
@@ -2748,6 +3057,7 @@ window.closeAboutModal = closeAboutModal;
     flex: 1;
     line-height: 1.2; /* Better line height */
 }
+
 .close-about {
     background: none;
     border: none;
@@ -2764,19 +3074,23 @@ window.closeAboutModal = closeAboutModal;
     min-height: 44px;
     margin-top: -4px; /* Adjust vertical alignment */
 }
+
 .close-about:hover,
 .close-about:focus {
     background: rgba(255, 255, 255, 0.1);
     color: var(--text-primary);
     outline: none;
 }
+
 .close-about svg {
     display: block;
 }
+
 .header-spacer {
     width: 44px;
     visibility: hidden;
 }
+
 /* Body */
 .about-body {
     flex: 1;
@@ -2788,16 +3102,20 @@ window.closeAboutModal = closeAboutModal;
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
 }
+
 .about-body::-webkit-scrollbar {
     width: 6px;
 }
+
 .about-body::-webkit-scrollbar-track {
     background: transparent;
 }
+
 .about-body::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, 0.15);
     border-radius: 3px;
 }
+
 /* Version Section */
 .version-section {
     text-align: center;
@@ -2805,6 +3123,7 @@ window.closeAboutModal = closeAboutModal;
     padding-bottom: 20px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
+
 .app-name {
     font-size: 1.8rem;
     font-weight: 700;
@@ -2812,25 +3131,30 @@ window.closeAboutModal = closeAboutModal;
     margin-bottom: 8px;
     letter-spacing: -0.3px;
 }
+
 .version-info {
     display: flex;
     flex-direction: column;
     gap: 6px;
 }
+
 .version {
     font-size: 0.9375rem;
     color: var(--accent-blue);
     font-weight: 500;
 }
+
 .model-type {
     font-size: 0.875rem;
     color: var(--text-secondary);
     opacity: 0.9;
 }
+
 /* Description */
 .description-section {
     margin-bottom: 24px;
 }
+
 .description {
     margin: 0;
     line-height: 1.6;
@@ -2838,10 +3162,12 @@ window.closeAboutModal = closeAboutModal;
     color: var(--text-secondary);
     text-align: center;
 }
+
 /* Features - Fixed bullet points */
 .features-section {
     margin-bottom: 24px;
 }
+
 .section-heading {
     font-size: 1.1rem;
     font-weight: 600;
@@ -2850,16 +3176,19 @@ window.closeAboutModal = closeAboutModal;
     padding-bottom: 12px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
+
 .features-list {
     display: flex;
     flex-direction: column;
     gap: 16px;
 }
+
 .feature-item {
     display: flex;
     align-items: flex-start;
     gap: 12px;
 }
+
 .feature-bullet {
     color: var(--accent-blue);
     font-size: 1.5rem;
@@ -2869,9 +3198,11 @@ window.closeAboutModal = closeAboutModal;
     width: 20px;
     text-align: center;
 }
+
 .feature-content {
     flex: 1;
 }
+
 .feature-title {
     font-size: 1rem;
     font-weight: 500;
@@ -2879,18 +3210,21 @@ window.closeAboutModal = closeAboutModal;
     margin-bottom: 4px;
     line-height: 1.3;
 }
+
 .feature-desc {
     font-size: 0.875rem;
     color: var(--text-secondary);
     opacity: 0.8;
     line-height: 1.4;
 }
+
 /* Creator Section */
 .creator-section {
     margin-bottom: 24px;
     padding-bottom: 24px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
+
 .creator-info {
     display: flex;
     align-items: center;
@@ -2900,6 +3234,7 @@ window.closeAboutModal = closeAboutModal;
     border: 1px solid rgba(255, 255, 255, 0.06);
     border-radius: 12px;
 }
+
 .creator-avatar {
     width: 56px;
     height: 56px;
@@ -2914,12 +3249,15 @@ window.closeAboutModal = closeAboutModal;
     flex-shrink: 0;
     box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 }
+
 .avatar-initial {
     display: block;
 }
+
 .creator-details {
     flex: 1;
 }
+
 .creator-name {
     font-size: 1.1rem;
     font-weight: 600;
@@ -2927,11 +3265,13 @@ window.closeAboutModal = closeAboutModal;
     margin-bottom: 4px;
     line-height: 1.3;
 }
+
 .creator-role {
     font-size: 0.875rem;
     color: var(--text-secondary);
     line-height: 1.4;
 }
+
 /* Tech Section */
 .tech-section {
     display: grid;
@@ -2939,6 +3279,7 @@ window.closeAboutModal = closeAboutModal;
     gap: 16px;
     margin-bottom: 24px;
 }
+
 .tech-item {
     padding: 16px;
     background: rgba(255, 255, 255, 0.04);
@@ -2946,21 +3287,25 @@ window.closeAboutModal = closeAboutModal;
     border-radius: 12px;
     text-align: center;
 }
+
 .tech-label {
     font-size: 0.8125rem;
     color: var(--text-secondary);
     margin-bottom: 6px;
     opacity: 0.8;
 }
+
 .tech-value {
     font-size: 1rem;
     font-weight: 600;
     color: var(--text-primary);
 }
+
 /* External Link */
 .external-link {
     text-align: center;
 }
+
 .link-button {
     display: inline-flex;
     align-items: center;
@@ -2977,6 +3322,7 @@ window.closeAboutModal = closeAboutModal;
     border: 1px solid rgba(0, 122, 255, 0.2);
     min-height: 44px;
 }
+
 .link-button:hover,
 .link-button:focus {
     background: rgba(0, 122, 255, 0.15);
@@ -2984,20 +3330,21 @@ window.closeAboutModal = closeAboutModal;
     outline: none;
     text-decoration: none;
 }
+
 /* ===== MOBILE FIXES ===== */
 @media (max-width: 768px) {
     .about-modal {
         padding: 0;
         align-items: flex-end;
     }
-   
+    
     .about-content {
         max-width: 100%;
         max-height: 90vh;
         border-radius: 20px 20px 0 0;
         animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
-   
+    
     @keyframes slideUp {
         from {
             opacity: 0;
@@ -3008,7 +3355,7 @@ window.closeAboutModal = closeAboutModal;
             transform: translateY(0);
         }
     }
-   
+    
     /* FIX FOR HEADER BEING CUT OFF */
     .about-header {
         padding-top: max(24px, env(safe-area-inset-top, 24px)) !important;
@@ -3016,78 +3363,81 @@ window.closeAboutModal = closeAboutModal;
         padding-right: max(20px, env(safe-area-inset-right, 20px)) !important;
         padding-bottom: 16px;
     }
-   
+    
     .about-body {
         padding: 20px;
         padding-left: max(20px, env(safe-area-inset-left, 20px)) !important;
         padding-right: max(20px, env(safe-area-inset-right, 20px)) !important;
         padding-bottom: max(20px, env(safe-area-inset-bottom, 20px)) !important;
     }
-   
+    
     .close-about {
         min-width: 44px;
         min-height: 44px;
         margin-top: 0; /* Reset margin */
     }
-   
+    
     .tech-section {
         grid-template-columns: 1fr;
         gap: 12px;
     }
-   
+    
     .app-name {
         font-size: 1.6rem;
     }
 }
+
 @media (max-width: 480px) {
     .about-content {
         max-height: 95vh;
     }
-   
+    
     .about-body {
         padding: 18px;
         font-size: 0.9375rem;
     }
-   
+    
     .app-name {
         font-size: 1.5rem;
     }
-   
+    
     .section-heading {
         font-size: 1rem;
         margin-bottom: 16px;
     }
-   
+    
     .feature-title {
         font-size: 0.9375rem;
     }
-   
+    
     .feature-desc {
         font-size: 0.8125rem;
     }
-   
+    
     .creator-name {
         font-size: 1rem;
     }
-   
+    
     .creator-avatar {
         width: 52px;
         height: 52px;
         font-size: 1.3rem;
     }
 }
+
 /* Touch device optimizations */
 @media (hover: none) and (pointer: coarse) {
     .close-about {
         min-height: 48px;
         min-width: 48px;
     }
-   
+    
     .link-button {
         min-height: 48px;
         padding: 14px 20px;
     }
 }
+
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
     .about-modal,
@@ -3095,27 +3445,41 @@ window.closeAboutModal = closeAboutModal;
         transition: none;
         animation: none;
     }
-   
+    
     .about-content {
         animation: fadeIn 0.15s ease;
     }
-   
+    
     @keyframes fadeIn {
         from { opacity: 0; }
         to { opacity: 1; }
     }
 }
 </style>
+
+
+
+
+
+
+
+
+
+
+
+
     <div class="personalization-modal" id="personalizationModal" style="display: none;">
     <div class="personalization-content">
         <div class="pers-header">
             <h2 class="pers-title">Instructions</h2>
             <p class="pers-subtitle">Personalize how Ventora responds to you.</p>
         </div>
+
         <div class="pers-group">
             <label class="pers-label">Preferred Name</label>
             <input type="text" id="persName" class="pers-input" placeholder="What should I call you?">
         </div>
+
         <div class="pers-group">
             <label class="pers-label">Proficiency Level</label>
             <select id="persLevel" class="pers-select">
@@ -3125,10 +3489,12 @@ window.closeAboutModal = closeAboutModal;
         <option value="researcher">Expert / Scholar</option>
             </select>
         </div>
+
         <div class="pers-group">
             <label class="pers-label">Interest</label>
             <input type="text" id="persMajor" class="pers-input" placeholder="e.g. Computer Science, Physics">
         </div>
+
         <div class="pers-group">
             <label class="pers-label">Ventora Style</label>
             <select id="persStyle" class="pers-select">
@@ -3138,24 +3504,34 @@ window.closeAboutModal = closeAboutModal;
         <option value="concise">Direct & Precise</option>
             </select>
         </div>
+
         <div class="pers-group">
             <label class="pers-label">Your Instructions</label>
-            <textarea id="persCustom" class="pers-input" rows="4"
-                placeholder="What would you like Ventora to know?"
+            <textarea id="persCustom" class="pers-input" rows="4" 
+                placeholder="What would you like Ventora to know?" 
                 style="resize: none; font-family: inherit;"></textarea>
         </div>
+
         <div class="pers-btns">
             <button class="pers-btn save" onclick="savePersonalization()">Save Changes</button>
             <button class="pers-btn cancel" onclick="closePersonalization()">Cancel</button>
         </div>
     </div>
 </div>
+
 <button class="icon-btn" onclick="shareApp()" title="Share" style="position: fixed; top: 10px; right: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); color: white; cursor: pointer; z-index: 1000;">
     <i class="fas fa-arrow-up-from-bracket" style="font-size: 0.9rem;"></i>
 </button>
+
 <script src="personalization/personalization.js"></script>
-   
-   
+
+
+    
+
+
+
+
+    
     <!-- Main Menu Popup Structure -->
 <!-- Main Menu Popup Structure - FINAL -->
 <div class="mainmenu-modal" id="mainmenu-modal">
@@ -3170,11 +3546,11 @@ window.closeAboutModal = closeAboutModal;
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-           
+            
             <div class="sidebar-menu">
                 <!-- Menu items will be inserted by JavaScript -->
             </div>
-           
+            
             <div class="sidebar-footer">
                 <div class="ventora-info">
                     <div class="ventora-logo">VENTORA<span>AI</span></div>
@@ -3182,7 +3558,7 @@ window.closeAboutModal = closeAboutModal;
                 </div>
             </div>
         </div>
-       
+        
         <!-- Right Content Area -->
         <div class="menu-content">
             <div class="content-header">
@@ -3194,7 +3570,7 @@ window.closeAboutModal = closeAboutModal;
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-           
+            
             <div class="content-body">
                 <div class="empty-state">
                     <i class="fas fa-cog"></i>
@@ -3206,6 +3582,7 @@ window.closeAboutModal = closeAboutModal;
     </div>
 </div>
 <script src="mainmenupopup/mainmenupopup.js"></script>
+
     <!-- Prescription & Dosage Tracker Modal -->
 <div class="dose-modal" id="doseModal">
     <div class="dose-content">
@@ -3216,21 +3593,21 @@ window.closeAboutModal = closeAboutModal;
                 <i class="fas fa-times"></i>
             </button>
         </div>
-       
+        
         <div class="dose-body">
             <button class="add-dose-btn" onclick="showAddForm()">
                 <i class="fas fa-plus"></i>
                 Add New Prescription
             </button>
-           
+            
             <!-- Add Prescription Form (hidden by default) -->
             <div class="dose-form" id="doseForm"></div>
-           
+            
             <!-- Prescriptions List -->
             <div class="prescription-list" id="prescriptionsContainer">
                 <!-- Prescriptions will be loaded here -->
             </div>
-           
+            
             <!-- Action Buttons -->
             <div style="display: flex; gap: 10px; margin-top: 20px;">
                 <button class="action-btn" onclick="exportPrescriptions()" style="flex: 1;">
@@ -3240,7 +3617,7 @@ window.closeAboutModal = closeAboutModal;
                     <i class="fas fa-trash"></i> Clear All
                 </button>
             </div>
-           
+            
             <!-- Safety Disclaimer -->
             <div style="margin-top: 25px; padding: 15px; background: rgba(255, 71, 87, 0.05); border: 1px solid rgba(255, 71, 87, 0.2); border-radius: 10px;">
                 <p style="font-size: 0.75rem; color: #ff4757; margin: 0; line-height: 1.4;">
@@ -3252,6 +3629,8 @@ window.closeAboutModal = closeAboutModal;
     </div>
 </div>
     <script src="dose/dose.js" defer></script>
+
+
 <!-- Diet Plan Modal -->
 <div class="diet-modal" id="dietModal">
     <div class="diet-content">
@@ -3264,25 +3643,25 @@ window.closeAboutModal = closeAboutModal;
                 <i class="fas fa-times"></i>
             </button>
         </div>
-       
+        
         <div class="diet-body">
             <!-- Nutrition Stats -->
             <div id="nutritionStats"></div>
-           
+            
             <!-- Add Food Button -->
             <button class="add-food-btn" id="addFoodBtn" onclick="showFoodForm()">
                 <i class="fas fa-plus"></i>
                 Add Food Item
             </button>
-           
+            
             <!-- Food Form (hidden by default) -->
             <div class="food-form-container" id="foodForm" style="display: none;"></div>
-           
+            
             <!-- Food Items List -->
             <div id="dietContainer">
                 <!-- Food items will be loaded here -->
             </div>
-           
+            
             <!-- Action Buttons -->
             <div class="action-buttons">
                 <button class="action-btn export" onclick="exportDietPlan()">
@@ -3294,7 +3673,7 @@ window.closeAboutModal = closeAboutModal;
                     Clear All
                 </button>
             </div>
-           
+            
             <!-- AI Integration Notice -->
             <div style="margin-top: 25px; padding: 15px; background: rgba(0, 122, 255, 0.05); border: 1px solid rgba(0, 122, 255, 0.2); border-radius: 10px;">
                 <p style="font-size: 0.75rem; color: var(--accent-blue); margin: 0; line-height: 1.4;">
@@ -3305,11 +3684,12 @@ window.closeAboutModal = closeAboutModal;
         </div>
     </div>
 </div>
+
 <!-- Add CSS link in head -->
 <link rel="stylesheet" href="diet/diet.css">
 <!-- Add JS script before closing body -->
 <script src="diet/diet.js" defer></script>
-   
+
+    
 </body>
 </html>
-       
