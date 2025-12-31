@@ -2466,12 +2466,35 @@ function copyUserMessage(btn) {
         }
 
                 // ==================== EVENT LISTENERS ====================
-        userInput.addEventListener('keydown', (e) => {
+        // ==================== EVENT LISTENERS ====================
+userInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+        // Detect if it's a mobile/touch device based on width or touch capability
+        const isMobile = window.innerWidth <= 768 || ('ontouchstart' in window);
+
+        if (isMobile) {
+            // On mobile, Enter always creates a new line (default behavior)
+            // We do NOT call e.preventDefault() here, so it behaves like a normal paragraph break.
+            return; 
+        } else {
+            // On Desktop/PC
+            if (!e.shiftKey) {
+                // Pressing Enter alone sends the message
+                e.preventDefault();
+                handleSend();
+            }
+            // Pressing Shift + Enter naturally creates a new line
+        }
+    }
+});
+
+        
+      /*  userInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 handleSend();
             }
-        });
+        }); */
         
         sendBtn.addEventListener('click', (e) => {
             e.preventDefault();
