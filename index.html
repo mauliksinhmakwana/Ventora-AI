@@ -1322,6 +1322,7 @@
 
     
     <script>
+        
 
         function pause(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -1341,6 +1342,36 @@ function hideHeroWelcome() {
         let conversations = [];
         let currentConversationId = null;
         let stopGenerating = false;
+
+
+
+// Improved sleep - stops immediately when user clicks Stop button
+function sleep(ms) {
+    return new Promise(resolve => {
+        // If already stopped, finish instantly
+        if (stopGenerating) {
+            resolve();
+            return;
+        }
+
+        const timeout = setTimeout(() => {
+            resolve();
+        }, ms);
+
+        // Check every 50ms if user clicked Stop
+        const checker = setInterval(() => {
+            if (stopGenerating) {
+                clearTimeout(timeout);
+                clearInterval(checker);
+                resolve();
+            }
+        }, 50);
+    });
+}
+
+
+
+        
         let settings = {
             model: 'groq:llama-3.1-8b-instant',
             temperature: 0.7,
@@ -2784,11 +2815,18 @@ Developed with a focus on educational impact, this tool supports students, resea
     </div>
 </div>
 
+
+
+
+
+    
 <script>
+
+
+/*    
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
-
 async function typeText(element, html, speed = 25) {
     element.innerHTML = ""; 
     
@@ -2810,7 +2848,17 @@ async function typeText(element, html, speed = 25) {
         }
         if (typeof scrollToBottom === "function") scrollToBottom();
     }
-}
+}*/
+
+
+
+
+
+
+
+
+
+    
 // Function to open the About modal
 function openAboutModal() {
     const modal = document.getElementById('about-modal');
