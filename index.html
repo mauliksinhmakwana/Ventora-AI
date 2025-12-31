@@ -2467,11 +2467,20 @@ function copyUserMessage(btn) {
 
                 // ==================== EVENT LISTENERS ====================
         userInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                handleSend();
-            }
-        });
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    
+    if (e.key === 'Enter' && !e.shiftKey) {
+        if (isMobile) {
+            // On mobile: Enter creates new line
+            // Don't prevent default, just let it happen
+            return;
+        } else {
+            // On desktop: Enter sends message
+            e.preventDefault();
+            handleSend();
+        }
+    }
+});
         
         sendBtn.addEventListener('click', (e) => {
             e.preventDefault();
