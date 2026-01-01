@@ -1003,11 +1003,24 @@
         </div>
         
         <div class="menu-items" id="conversationsList">
+
+            <div class="sidebar-search-container" style="padding: 10px 15px; margin-bottom: 5px;">
+    <div style="position: relative; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border); border-radius: 10px; display: flex; align-items: center; padding: 0 12px;">
+        <i class="fas fa-search" style="font-size: 0.8rem; color: var(--text-secondary); opacity: 0.6;"></i>
+        <input type="text" id="conversationSearch" placeholder="Search chats..." oninput="filterConversations()" style="background: transparent; border: none; color: white; padding: 10px 8px; font-size: 0.85rem; outline: none; width: 100%; font-family: inherit;">
+    </div>
+</div>
+<div class="menu-item" onclick="createNewConversation()">
+    <i class="fas fa-plus"></i>
+    <span>New Chat</span>
+</div>
+            
             <!-- New Chat button -->
             <div class="menu-item" onclick="createNewConversation()">
                 <i class="fas fa-plus"></i>
                 <span>New Chat</span>
             </div>
+            
             
             <div class="menu-divider"></div>
             
