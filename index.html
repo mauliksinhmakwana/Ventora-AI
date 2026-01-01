@@ -943,6 +943,21 @@
                 position: relative;
             }
         }
+        @keyframes micPulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+#mic-btn.active {
+    animation: micPulse 1.5s infinite;
+}
+
+/* Optional: Adding a hover effect to match your other buttons */
+#mic-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+}
     </style>
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -1292,6 +1307,13 @@
 
                 
                 <textarea id="user-input" rows="1" placeholder="Ask anything..." oninput="autoExpand(this)"></textarea>
+<button id="mic-btn" type="button" title="Speech to Text" style="
+    background: transparent; border: none; color: var(--text-secondary); 
+    width: 36px; height: 36px; cursor: pointer; display: flex; 
+    align-items: center; justify-content: center; transition: all 0.2s;">
+    <i class="fas fa-microphone" id="mic-icon" style="font-size: 1.1rem;"></i>
+</button>
+                
               <button id="send-btn">
     <!-- Send icon (default) -->
     <svg class="send-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
@@ -2929,6 +2951,61 @@ document.addEventListener('DOMContentLoaded', function() {
             window.lastFocusedElement = e.target;
         }
     });
+
+
+/* Inside the bottom <script> tag of index.html */
+
+// Place this right before your event listeners
+const micBtn = document.getElementById('mic-btn');
+const micIcon = document.getElementById('mic-icon');
+const inputField = document.getElementById('user-input');
+
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+if (SpeechRecognition) {
+    const recognition = new SpeechRecognition();
+    recognition.continuous = false; 
+    recognition.interimResults = false; 
+    recognition.lang = 'en-US';
+
+    let isListening = false;
+
+    micBtn.addEventListener('click', () => {
+        if (isListening) {
+            recognition.stop();
+        } else {
+            recognition.start();
+        }
+    });
+
+    recognition.onstart = () => {
+        isListening = true;
+        micIcon.style.color = '#ff4757'; 
+        micBtn.classList.add('active'); // Triggers the pulse animation
+        showToast("Listening...", "info");
+    };
+
+    recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        inputField.value += (inputField.value ? ' ' : '') + transcript;
+        autoExpand(inputField); 
+    };
+
+    recognition.onend = () => {
+        isListening = false;
+        micIcon.style.color = 'var(--text-secondary)';
+        micBtn.classList.remove('active');
+    };
+
+    recognition.onerror = (event) => {
+        console.error("Speech Recognition Error: ", event.error);
+        showToast("Speech error: " + event.error, "error");
+        micBtn.classList.remove('active');
+    };
+} else {
+    micBtn.style.display = 'none';
+}
+
     
     // Find About button in menu
     const menuItems = document.querySelectorAll('.menu-item');
