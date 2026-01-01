@@ -933,40 +933,44 @@
             }
         }
         
-      /* --- High-End Red Pulse Animation --- */
+/* --- Clean Breathing Mic Animation --- */
 
+/* Normal state with gray hover to match other buttons */
 #mic-btn {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.3s ease;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-/* The 'active' state for the physical pop-up effect */
+#mic-btn:hover {
+    background: rgba(255, 255, 255, 0.1); /* Light gray hover */
+}
+
+/* Active "Breathing" state */
 #mic-btn.active {
     background: rgba(255, 71, 87, 0.2) !important;
-    transform: scale(1.2); /* Physical 'Pop-up' */
-    animation: masterpieceRedPulse 1.5s infinite ease-in-out;
-    border-radius: 50%;
+    animation: simpleBreathing 1.5s infinite ease-in-out;
 }
 
 #mic-btn.active i {
-    color: #ff4757 !important; /* Vibrant Red Icon */
-    text-shadow: 0 0 10px rgba(255, 71, 87, 0.6);
+    color: #ff4757 !important; /* Simple red icon, no glow */
 }
 
-/* The Pulse & Glow Animation */
-@keyframes masterpieceRedPulse {
+/* Simple Breathing: Only scale changes, no box-shadow/glow */
+@keyframes simpleBreathing {
     0% {
-        box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.7), 0 0 0 0 rgba(255, 71, 87, 0.4);
-        transform: scale(1.15); /* Pop-up state */
+        transform: scale(1);
     }
     50% {
-        box-shadow: 0 0 0 15px rgba(255, 71, 87, 0), 0 0 0 30px rgba(255, 71, 87, 0);
-        transform: scale(1.25); /* Peak Pop-up */
+        transform: scale(1.2);
     }
     100% {
-        box-shadow: 0 0 0 0 rgba(255, 71, 87, 0), 0 0 0 0 rgba(255, 71, 87, 0);
-        transform: scale(1.15); /* Pop-down state */
+        transform: scale(1);
     }
 }
+        
         
     </style>
     <!-- Font Awesome for icons -->
