@@ -1,4 +1,4 @@
-// Ventora Interaction Visualizer
+// Ventora Interaction Visualizer - FIXED VERSION
 class VentoraVisualizer {
     constructor() {
         this.currentVisualization = null;
@@ -8,21 +8,17 @@ class VentoraVisualizer {
     init() {
         if (this.isInitialized) return;
         
-        // Initialize mermaid
         if (typeof mermaid !== 'undefined') {
             mermaid.initialize({
                 startOnLoad: false,
                 theme: 'dark',
-                securityLevel: 'loose',
-                fontFamily: 'inherit'
+                securityLevel: 'loose'
             });
         }
         
         this.isInitialized = true;
-        console.log('Ventora Visualizer initialized');
     }
 
-    // Main function to detect and create visualizations
     async visualizeContent(content) {
         this.init();
         
@@ -34,11 +30,6 @@ class VentoraVisualizer {
         // Check for diet/nutrition patterns
         if (this.detectDietPlan(content)) {
             return this.createDietVisualization(content);
-        }
-        
-        // Check for chemical structures
-        if (this.detectChemicalStructure(content)) {
-            return this.createChemicalVisualization(content);
         }
         
         // Check for data patterns (charts)
@@ -54,75 +45,34 @@ class VentoraVisualizer {
         return null;
     }
 
-    // Table Detection and Creation
+    // Table Detection and Creation - IMPROVED
     detectTable(content) {
-        const tablePatterns = [
-            /\|\s*[^\|]+\s*\|/g, // Markdown tables
-            /\n-{3,}\n/, // Separator lines
-            /Row\s*\d+:/i,
-            /Column\s*[A-Z]/i,
-            /(?:^|\n)[A-Za-z]+\s*\|\s*[^\n]+\n[-|\s]+\n/
-        ];
-        return tablePatterns.some(pattern => pattern.test(content));
+        const lines = content.split('\n');
+        let hasPipeTable = false;
+        let hasDashLine = false;
+        
+        for (let line of lines) {
+            if (line.includes('|') && line.trim().startsWith('|')) {
+                hasPipeTable = true;
+            }
+            if (/^[\s|:-]+$/.test(line) && line.includes('-')) {
+                hasDashLine = true;
+            }
+        }
+        
+        return (hasPipeTable && hasDashLine) || 
+               content.match(/^\s*[A-Za-z].*\|.*[A-Za-z]/m) ||
+               content.includes('Table:') ||
+               content.match(/\d+\.\s+.*\s*-\s*/);
     }
 
     createTableVisualization(content) {
-        const rows = content.split('\n').filter(line => line.trim());
+        const tableData = this.extractTableData(content);
+        if (!tableData.headers || tableData.headers.length === 0) return '';
         
-        // Try to parse markdown table
-        if (content.includes('|')) {
-            const lines = rows.filter(line => line.includes('|'));
-            if (lines.length >= 2) {
-                const headers = lines[0].split('|').map(h => h.trim()).filter(h => h);
-                const dataRows = lines.slice(2).map(line => 
-                    line.split('|').map(cell => cell.trim()).filter((_, i) => i > 0 && i < headers.length + 1)
-                );
-                
-                return this.generateTableHTML(headers, dataRows);
-            }
-        }
+        const tableId = 'table-' + Date.now();
         
-        // Try to parse structured data
-        const structuredData = this.parseStructuredData(content);
-        if (structuredData.headers && structuredData.rows) {
-            return this.generateTableHTML(structuredData.headers, structuredData.rows);
-        }
-        
-        return null;
-    }
-
-    parseStructuredData(content) {
-        const lines = content.split('\n').filter(line => line.trim());
-        const headers = [];
-        const rows = [];
-        
-        lines.forEach(line => {
-            // Pattern: "Key: Value"
-            const keyValueMatch = line.match(/^([^:]+):\s*(.+)$/);
-            if (keyValueMatch) {
-                if (headers.length === 0) {
-                    headers.push('Property', 'Value');
-                }
-                rows.push([keyValueMatch[1].trim(), keyValueMatch[2].trim()]);
-            }
-            
-            // Pattern: "Item - Description"
-            const itemMatch = line.match(/^([^-]+)\s*-\s*(.+)$/);
-            if (itemMatch) {
-                if (headers.length === 0) {
-                    headers.push('Item', 'Description');
-                }
-                rows.push([itemMatch[1].trim(), itemMatch[2].trim()]);
-            }
-        });
-        
-        return { headers, rows };
-    }
-
-    generateTableHTML(headers, rows) {
-        const tableId = 'viz-table-' + Date.now();
-        
-        let html = `
+        return `
         <div class="visualizer-container">
             <div class="visualizer-header">
                 <div class="visualizer-title">
@@ -133,7 +83,7 @@ class VentoraVisualizer {
                     <button class="viz-btn" onclick="window.ventoraVisualizer.copyTable('${tableId}')">
                         <i class="fas fa-copy"></i> Copy
                     </button>
-                    <button class="viz-btn primary" onclick="window.ventoraVisualizer.exportTableToPDF('${tableId}')">
+                    <button class="viz-btn primary" onclick="window.ventoraVisualizer.exportToPDF('${tableId}', 'table')">
                         <i class="fas fa-file-pdf"></i> Export PDF
                     </button>
                 </div>
@@ -142,11 +92,11 @@ class VentoraVisualizer {
                 <table class="data-table" id="${tableId}">
                     <thead>
                         <tr>
-                            ${headers.map(header => `<th>${this.escapeHTML(header)}</th>`).join('')}
+                            ${tableData.headers.map(header => `<th>${this.escapeHTML(header)}</th>`).join('')}
                         </tr>
                     </thead>
                     <tbody>
-                        ${rows.map(row => `
+                        ${tableData.rows.map(row => `
                             <tr>
                                 ${row.map(cell => `<td>${this.escapeHTML(cell)}</td>`).join('')}
                             </tr>
@@ -155,112 +105,166 @@ class VentoraVisualizer {
                 </table>
             </div>
         </div>`;
-        
-        return html;
     }
 
-    // Diet Plan Visualization
-    detectDietPlan(content) {
-        const dietKeywords = [
-            'breakfast', 'lunch', 'dinner', 'snack', 'meal',
-            'calories', 'protein', 'carbs', 'fat', 'nutrition',
-            'diet plan', 'meal plan', 'macros', 'calorie'
-        ];
+    extractTableData(content) {
+        const lines = content.split('\n').filter(l => l.trim());
+        const headers = [];
+        const rows = [];
         
-        const lowerContent = content.toLowerCase();
-        return dietKeywords.some(keyword => lowerContent.includes(keyword));
+        // Try to parse markdown table
+        const tableLines = lines.filter(l => l.includes('|') && !/^[-:|]+$/.test(l));
+        
+        if (tableLines.length >= 2) {
+            // Parse headers (first non-dash line with pipes)
+            const headerLine = tableLines[0];
+            const headerParts = headerLine.split('|').map(p => p.trim()).filter(p => p);
+            
+            if (headerParts.length > 0) {
+                headers.push(...headerParts);
+                
+                // Parse data rows (skip separator line)
+                for (let i = 1; i < tableLines.length; i++) {
+                    const rowLine = tableLines[i];
+                    const rowParts = rowLine.split('|').map(p => p.trim()).filter(p => p);
+                    
+                    if (rowParts.length === headers.length) {
+                        rows.push(rowParts);
+                    } else if (rowParts.length > headers.length) {
+                        // Sometimes there are extra pipes at ends
+                        const trimmedParts = rowParts.slice(0, headers.length);
+                        if (trimmedParts.length === headers.length) {
+                            rows.push(trimmedParts);
+                        }
+                    }
+                }
+            }
+        }
+        
+        // If no markdown table found, try to extract structured data
+        if (headers.length === 0) {
+            this.extractStructuredData(content, headers, rows);
+        }
+        
+        return { headers, rows };
+    }
+
+    extractStructuredData(content, headers, rows) {
+        const lines = content.split('\n');
+        
+        lines.forEach(line => {
+            const trimmed = line.trim();
+            
+            // Pattern: "Key: Value"
+            const kvMatch = trimmed.match(/^([^:]+):\s*(.+)$/);
+            if (kvMatch) {
+                if (headers.length === 0) {
+                    headers.push('Item', 'Value');
+                }
+                rows.push([kvMatch[1].trim(), kvMatch[2].trim()]);
+            }
+            
+            // Pattern: "• Item - Description"
+            const bulletMatch = trimmed.match(/[•\-]\s*([^-:]+)[-:]\s*(.+)$/);
+            if (bulletMatch) {
+                if (headers.length === 0) {
+                    headers.push('Item', 'Description');
+                }
+                rows.push([bulletMatch[1].trim(), bulletMatch[2].trim()]);
+            }
+            
+            // Pattern: "1. Item - Description"
+            const numberedMatch = trimmed.match(/^\d+\.\s*([^-:]+)[-:]\s*(.+)$/);
+            if (numberedMatch) {
+                if (headers.length === 0) {
+                    headers.push('#', 'Description');
+                }
+                rows.push([numberedMatch[1].trim(), numberedMatch[2].trim()]);
+            }
+        });
+    }
+
+    // Diet Plan Visualization - IMPROVED
+    detectDietPlan(content) {
+        const dietWords = ['breakfast', 'lunch', 'dinner', 'snack', 'meal', 'calories', 'protein', 'carbs', 'fat', 'nutrition', 'diet'];
+        const lower = content.toLowerCase();
+        
+        // Must contain at least 2 diet-related words
+        const matches = dietWords.filter(word => lower.includes(word));
+        return matches.length >= 2;
     }
 
     createDietVisualization(content) {
-        // Parse meal information
-        const meals = this.parseMealData(content);
-        const totals = this.calculateNutritionTotals(meals);
+        const meals = this.parseDietData(content);
+        if (meals.length === 0) return '';
         
-        const vizId = 'diet-viz-' + Date.now();
+        const totals = this.calculateTotals(meals);
+        const vizId = 'diet-' + Date.now();
         
-        let html = `
+        return `
         <div class="visualizer-container">
             <div class="visualizer-header">
                 <div class="visualizer-title">
                     <i class="fas fa-apple-alt"></i>
-                    Diet Plan Visualization
+                    Diet Plan
                 </div>
                 <div class="visualizer-actions">
-                    <button class="viz-btn" onclick="window.ventoraVisualizer.copyDietPlan('${vizId}')">
+                    <button class="viz-btn" onclick="window.ventoraVisualizer.copyText('${vizId}')">
                         <i class="fas fa-copy"></i> Copy
                     </button>
-                    <button class="viz-btn primary" onclick="window.ventoraVisualizer.exportDietToPDF('${vizId}')">
+                    <button class="viz-btn primary" onclick="window.ventoraVisualizer.exportToPDF('${vizId}', 'diet')">
                         <i class="fas fa-file-pdf"></i> Export PDF
                     </button>
                 </div>
             </div>
             
-            <!-- Nutrition Summary -->
-            <div class="nutrition-summary" id="${vizId}">
-                <div class="nutrition-item">
-                    <div class="nutrition-value">${totals.calories}</div>
-                    <div class="nutrition-label">Calories</div>
+            <div id="${vizId}">
+                <div class="nutrition-summary">
+                    <div class="nutrition-item">
+                        <div class="nutrition-value">${totals.calories}</div>
+                        <div class="nutrition-label">Calories</div>
+                    </div>
+                    <div class="nutrition-item">
+                        <div class="nutrition-value">${totals.protein}g</div>
+                        <div class="nutrition-label">Protein</div>
+                    </div>
+                    <div class="nutrition-item">
+                        <div class="nutrition-value">${totals.carbs}g</div>
+                        <div class="nutrition-label">Carbs</div>
+                    </div>
+                    <div class="nutrition-item">
+                        <div class="nutrition-value">${totals.fat}g</div>
+                        <div class="nutrition-label">Fat</div>
+                    </div>
                 </div>
-                <div class="nutrition-item">
-                    <div class="nutrition-value">${totals.protein}g</div>
-                    <div class="nutrition-label">Protein</div>
-                </div>
-                <div class="nutrition-item">
-                    <div class="nutrition-value">${totals.carbs}g</div>
-                    <div class="nutrition-label">Carbs</div>
-                </div>
-                <div class="nutrition-item">
-                    <div class="nutrition-value">${totals.fat}g</div>
-                    <div class="nutrition-label">Fat</div>
+                
+                <div class="diet-visualization">
+                    ${meals.map(meal => `
+                        <div class="diet-card">
+                            <div class="diet-card-header">
+                                <div class="meal-time">${meal.time}</div>
+                                <div class="meal-calories">${meal.calories} cal</div>
+                            </div>
+                            <div class="diet-items">
+                                ${meal.items.map(item => `
+                                    <div class="diet-item">
+                                        <div class="item-name">${item.name}</div>
+                                        <div class="item-macros">P${item.protein} C${item.carbs} F${item.fat}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `).join('')}
                 </div>
             </div>
             
-            <!-- Meal Cards -->
-            <div class="diet-visualization">
-        `;
-        
-        meals.forEach(meal => {
-            html += `
-                <div class="diet-card">
-                    <div class="diet-card-header">
-                        <div class="meal-time">${meal.time}</div>
-                        <div class="meal-calories">${meal.calories} cal</div>
-                    </div>
-                    <div class="diet-items">
-            `;
-            
-            meal.items.forEach(item => {
-                html += `
-                    <div class="diet-item">
-                        <div class="item-name">${item.name}</div>
-                        <div class="item-macros">${item.protein}P ${item.carbs}C ${item.fat}F</div>
-                    </div>
-                `;
-            });
-            
-            html += `
-                    </div>
-                </div>
-            `;
-        });
-        
-        html += `
-            </div>
-            
-            <!-- Chart -->
             <div class="chart-container">
                 <canvas id="diet-chart-${vizId}"></canvas>
             </div>
-        </div>
-        `;
-        
-        // Render chart after HTML is inserted
-        setTimeout(() => this.renderDietChart(meals, totals, `diet-chart-${vizId}`), 100);
-        
-        return html;
+        </div>`;
     }
 
-    parseMealData(content) {
+    parseDietData(content) {
         const meals = [];
         const lines = content.split('\n');
         let currentMeal = null;
@@ -269,84 +273,121 @@ class VentoraVisualizer {
             const trimmed = line.trim();
             if (!trimmed) return;
             
-            // Detect meal times
-            const mealTimeMatch = trimmed.match(/^(Breakfast|Lunch|Dinner|Snack|Meal \d+)/i);
-            if (mealTimeMatch) {
-                if (currentMeal) meals.push(currentMeal);
+            const lower = trimmed.toLowerCase();
+            
+            // Check for meal headers
+            if (lower.includes('breakfast') || lower.includes('lunch') || 
+                lower.includes('dinner') || lower.includes('snack') ||
+                lower.match(/meal\s+\d+/)) {
+                
+                if (currentMeal && currentMeal.items.length > 0) {
+                    meals.push(currentMeal);
+                }
+                
+                // Extract meal name
+                let mealName = 'Meal';
+                if (lower.includes('breakfast')) mealName = 'Breakfast';
+                else if (lower.includes('lunch')) mealName = 'Lunch';
+                else if (lower.includes('dinner')) mealName = 'Dinner';
+                else if (lower.includes('snack')) mealName = 'Snack';
+                else if (lower.match(/meal\s+\d+/)) {
+                    const match = lower.match(/meal\s+(\d+)/);
+                    mealName = match ? `Meal ${match[1]}` : 'Meal';
+                }
+                
                 currentMeal = {
-                    time: mealTimeMatch[0],
+                    time: mealName,
                     items: [],
                     calories: 0
                 };
             }
             
-            // Parse food items
-            if (currentMeal && trimmed.includes('-')) {
-                const parts = trimmed.split('-');
-                if (parts.length >= 2) {
-                    const name = parts[0].trim();
-                    const details = parts[1].trim();
-                    
-                    // Extract nutrition info
-                    const caloriesMatch = details.match(/(\d+)\s*cal/);
-                    const proteinMatch = details.match(/(\d+)\s*g?\s*prot?/i);
-                    const carbsMatch = details.match(/(\d+)\s*g?\s*carbs?/i);
-                    const fatMatch = details.match(/(\d+)\s*g?\s*fat/i);
-                    
-                    const item = {
-                        name: name,
-                        calories: caloriesMatch ? parseInt(caloriesMatch[1]) : 0,
-                        protein: proteinMatch ? parseInt(proteinMatch[1]) : 0,
-                        carbs: carbsMatch ? parseInt(carbsMatch[1]) : 0,
-                        fat: fatMatch ? parseInt(fatMatch[1]) : 0
-                    };
-                    
+            // Parse food items (look for patterns like "Food - 200 cal, 20g protein")
+            if (currentMeal && (trimmed.includes('-') || trimmed.includes(':'))) {
+                const item = this.parseFoodItem(trimmed);
+                if (item.name && item.calories > 0) {
                     currentMeal.items.push(item);
                     currentMeal.calories += item.calories;
                 }
             }
         });
         
-        if (currentMeal) meals.push(currentMeal);
+        // Add the last meal
+        if (currentMeal && currentMeal.items.length > 0) {
+            meals.push(currentMeal);
+        }
         
-        // If no structured meals found, create generic ones
+        // If no meals found, try to extract any food items
         if (meals.length === 0) {
-            return this.createSampleMeals();
+            const extracted = this.extractFoodItems(content);
+            if (extracted.length > 0) {
+                meals.push({
+                    time: 'Meal',
+                    items: extracted,
+                    calories: extracted.reduce((sum, item) => sum + item.calories, 0)
+                });
+            }
         }
         
         return meals;
     }
 
-    createSampleMeals() {
-        return [
-            {
-                time: "Breakfast",
-                calories: 450,
-                items: [
-                    { name: "Oatmeal", calories: 150, protein: 5, carbs: 27, fat: 3 },
-                    { name: "Banana", calories: 105, protein: 1, carbs: 27, fat: 0 },
-                    { name: "Protein Shake", calories: 195, protein: 25, carbs: 10, fat: 2 }
-                ]
-            },
-            {
-                time: "Lunch",
-                calories: 650,
-                items: [
-                    { name: "Grilled Chicken", calories: 165, protein: 31, carbs: 0, fat: 4 },
-                    { name: "Brown Rice", calories: 215, protein: 5, carbs: 45, fat: 2 },
-                    { name: "Mixed Vegetables", calories: 70, protein: 3, carbs: 12, fat: 0 }
-                ]
-            }
-        ];
-    }
-
-    calculateNutritionTotals(meals) {
-        const totals = {
+    parseFoodItem(text) {
+        // Patterns: "Chicken breast - 200 calories, 30g protein"
+        //           "Rice (100g): 130 cal, 2g protein, 28g carbs"
+        
+        const item = {
+            name: '',
             calories: 0,
             protein: 0,
             carbs: 0,
             fat: 0
         };
+        
+        // Extract name (everything before first dash or colon)
+        const nameMatch = text.match(/^([^:-]+)/);
+        if (nameMatch) {
+            item.name = nameMatch[1].trim();
+        }
+        
+        // Extract calories
+        const calMatch = text.match(/(\d+)\s*cal/);
+        if (calMatch) item.calories = parseInt(calMatch[1]);
+        
+        // Extract protein
+        const protMatch = text.match(/(\d+)\s*g?\s*prot/);
+        if (protMatch) item.protein = parseInt(protMatch[1]);
+        
+        // Extract carbs
+        const carbMatch = text.match(/(\d+)\s*g?\s*carb/);
+        if (carbMatch) item.carbs = parseInt(carbMatch[1]);
+        
+        // Extract fat
+        const fatMatch = text.match(/(\d+)\s*g?\s*fat/);
+        if (fatMatch) item.fat = parseInt(fatMatch[1]);
+        
+        return item;
+    }
+
+    extractFoodItems(content) {
+        const items = [];
+        const lines = content.split('\n');
+        
+        lines.forEach(line => {
+            const trimmed = line.trim();
+            if (trimmed && (trimmed.includes('cal') || trimmed.includes('protein'))) {
+                const item = this.parseFoodItem(trimmed);
+                if (item.name && item.calories > 0) {
+                    items.push(item);
+                }
+            }
+        });
+        
+        return items;
+    }
+
+    calculateTotals(meals) {
+        const totals = { calories: 0, protein: 0, carbs: 0, fat: 0 };
         
         meals.forEach(meal => {
             meal.items.forEach(item => {
@@ -360,203 +401,20 @@ class VentoraVisualizer {
         return totals;
     }
 
-    renderDietChart(meals, totals, canvasId) {
-        if (typeof Chart === 'undefined') return;
-        
-        const ctx = document.getElementById(canvasId);
-        if (!ctx) return;
-        
-        const mealNames = meals.map(meal => meal.time);
-        const mealCalories = meals.map(meal => meal.calories);
-        
-        new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: mealNames,
-                datasets: [{
-                    data: mealCalories,
-                    backgroundColor: [
-                        'rgba(0, 122, 255, 0.8)',
-                        'rgba(52, 199, 89, 0.8)',
-                        'rgba(255, 149, 0, 0.8)',
-                        'rgba(255, 59, 48, 0.8)',
-                        'rgba(88, 86, 214, 0.8)'
-                    ],
-                    borderWidth: 1,
-                    borderColor: 'rgba(255, 255, 255, 0.1)'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            color: 'white',
-                            padding: 20
-                        }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                const value = context.raw;
-                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                const percentage = Math.round((value / total) * 100);
-                                return `${context.label}: ${value} cal (${percentage}%)`;
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    // Chemical Structure Visualization
-    detectChemicalStructure(content) {
-        const chemPatterns = [
-            /C\d*H\d*[NO]?\d*/i, // Chemical formulas
-            /SMILES/i,
-            /molecular/i,
-            /compound/i,
-            /chemical structure/i
-        ];
-        return chemPatterns.some(pattern => pattern.test(content));
-    }
-
-    createChemicalVisualization(content) {
-        // Extract chemical formula
-        const formulaMatch = content.match(/(C\d*H\d*[NO]?\d*)/i);
-        const formula = formulaMatch ? formulaMatch[1] : 'C?H?';
-        
-        const vizId = 'chem-viz-' + Date.now();
-        
-        let html = `
-        <div class="visualizer-container">
-            <div class="visualizer-header">
-                <div class="visualizer-title">
-                    <i class="fas fa-atom"></i>
-                    Chemical Structure
-                </div>
-                <div class="visualizer-actions">
-                    <button class="viz-btn" onclick="window.ventoraVisualizer.copyChemicalStructure('${vizId}')">
-                        <i class="fas fa-copy"></i> Copy
-                    </button>
-                    <button class="viz-btn primary" onclick="window.ventoraVisualizer.exportChemicalToPDF('${vizId}')">
-                        <i class="fas fa-file-pdf"></i> Export PDF
-                    </button>
-                </div>
-            </div>
-            
-            <div class="chemical-structure" id="${vizId}">
-                <div style="font-size: 1.5rem; margin-bottom: 15px; color: #4dabf7;">
-                    ${formula}
-                </div>
-                <div style="font-family: monospace; white-space: pre; font-size: 0.9rem;">
-        `;
-        
-        // Generate ASCII structure
-        html += this.generateChemicalASCII(formula);
-        
-        html += `
-                </div>
-                <div style="margin-top: 15px; font-size: 0.9rem; color: var(--text-secondary);">
-                    Molecular Visualization
-                </div>
-            </div>
-            
-            <!-- Molecular Info -->
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 20px;">
-                <div class="nutrition-item">
-                    <div class="nutrition-value">${formula}</div>
-                    <div class="nutrition-label">Formula</div>
-                </div>
-                <div class="nutrition-item">
-                    <div class="nutrition-value">${this.calculateMolecularWeight(formula)}</div>
-                    <div class="nutrition-label">MW (g/mol)</div>
-                </div>
-                <div class="nutrition-item">
-                    <div class="nutrition-value">${this.countAtoms(formula, 'C')}</div>
-                    <div class="nutrition-label">Carbon Atoms</div>
-                </div>
-                <div class="nutrition-item">
-                    <div class="nutrition-value">${this.countAtoms(formula, 'H')}</div>
-                    <div class="nutrition-label">Hydrogen Atoms</div>
-                </div>
-            </div>
-        </div>
-        `;
-        
-        return html;
-    }
-
-    generateChemicalASCII(formula) {
-        // Simple ASCII representation of chemical structures
-        const structures = {
-            'CH4': `   H
-   |
-H--C--H
-   |
-   H`,
-            'C2H6': `H   H
- \\ /
-  C
- / \\
-H   H`,
-            'C6H6': `    H
-    |
-H--C--C--H
-|     |
-C     C
-|     |
-H--C--C--H
-    |
-    H`
-        };
-        
-        return structures[formula] || `H   H
- \\ /
-  C
- / \\
-H   H`;
-    }
-
-    calculateMolecularWeight(formula) {
-        // Simplified molecular weight calculation
-        const weights = { C: 12, H: 1, O: 16, N: 14 };
-        let total = 0;
-        
-        formula.replace(/([CHON])(\d*)/g, (match, element, count) => {
-            const num = count ? parseInt(count) : 1;
-            total += (weights[element] || 0) * num;
-        });
-        
-        return total;
-    }
-
-    countAtoms(formula, element) {
-        const match = formula.match(new RegExp(`${element}(\\d*)`, 'i'));
-        if (!match) return 0;
-        return match[1] ? parseInt(match[1]) : 1;
-    }
-
-    // Chart Data Detection
+    // Chart Data - IMPROVED
     detectChartData(content) {
-        const chartPatterns = [
-            /data points/i,
-            /values?:/i,
-            /x-axis|y-axis/i,
-            /graph|chart/i,
-            /percentage|%/
-        ];
-        return chartPatterns.some(pattern => pattern.test(content));
+        return content.includes('chart') || 
+               content.match(/\d+%\s/g) ||
+               content.includes('graph') ||
+               content.match(/data\s*:/i) ||
+               content.match(/\d+\s*[/\\]\s*\d+/);
     }
 
     createChartVisualization(content) {
         const data = this.extractChartData(content);
-        const vizId = 'chart-viz-' + Date.now();
+        const vizId = 'chart-' + Date.now();
         
-        let html = `
+        const html = `
         <div class="visualizer-container">
             <div class="visualizer-header">
                 <div class="visualizer-title">
@@ -564,45 +422,55 @@ H   H`;
                     Data Visualization
                 </div>
                 <div class="visualizer-actions">
-                    <button class="viz-btn" onclick="window.ventoraVisualizer.copyChartData('${vizId}')">
+                    <button class="viz-btn" onclick="window.ventoraVisualizer.copyText('${vizId}')">
                         <i class="fas fa-copy"></i> Copy Data
                     </button>
-                    <button class="viz-btn primary" onclick="window.ventoraVisualizer.exportChartToPDF('${vizId}')">
+                    <button class="viz-btn primary" onclick="window.ventoraVisualizer.exportToPDF('${vizId}', 'chart')">
                         <i class="fas fa-file-pdf"></i> Export PDF
                     </button>
                 </div>
             </div>
-            
-            <div class="chart-container">
-                <canvas id="${vizId}"></canvas>
+            <div id="${vizId}">
+                <div class="chart-container">
+                    <canvas id="chart-canvas-${vizId}"></canvas>
+                </div>
             </div>
-        </div>
-        `;
+        </div>`;
         
-        // Render chart after HTML is inserted
-        setTimeout(() => this.renderDataChart(data, vizId), 100);
+        // Render chart
+        setTimeout(() => {
+            if (typeof Chart !== 'undefined') {
+                this.renderChart(data, `chart-canvas-${vizId}`);
+            }
+        }, 100);
         
         return html;
     }
 
     extractChartData(content) {
-        // Try to extract numerical data
+        // Extract numbers and create simple data
         const numbers = content.match(/\d+(\.\d+)?/g) || [];
-        const labels = ['Data 1', 'Data 2', 'Data 3', 'Data 4', 'Data 5'];
+        const limitedNumbers = numbers.slice(0, 8).map(n => parseFloat(n));
+        
+        // Create labels
+        const labels = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'].slice(0, limitedNumbers.length);
         
         return {
-            labels: labels.slice(0, Math.min(5, numbers.length)),
-            values: numbers.slice(0, 5).map(Number)
+            labels: labels,
+            values: limitedNumbers
         };
     }
 
-    renderDataChart(data, canvasId) {
-        if (typeof Chart === 'undefined') return;
-        
+    renderChart(data, canvasId) {
         const ctx = document.getElementById(canvasId);
         if (!ctx) return;
         
-        new Chart(ctx, {
+        // Destroy existing chart if any
+        if (ctx.chartInstance) {
+            ctx.chartInstance.destroy();
+        }
+        
+        ctx.chartInstance = new Chart(ctx, {
             type: 'bar',
             data: {
                 labels: data.labels,
@@ -611,35 +479,50 @@ H   H`;
                     data: data.values,
                     backgroundColor: 'rgba(0, 122, 255, 0.8)',
                     borderColor: 'rgba(0, 122, 255, 1)',
-                    borderWidth: 1
+                    borderWidth: 1,
+                    borderRadius: 6,
+                    borderSkipped: false
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(20, 20, 20, 0.9)',
+                        titleColor: 'white',
+                        bodyColor: 'white',
+                        borderColor: 'rgba(0, 122, 255, 0.5)',
+                        borderWidth: 1
+                    }
+                },
                 scales: {
                     y: {
                         beginAtZero: true,
                         grid: {
-                            color: 'rgba(255, 255, 255, 0.1)'
+                            color: 'rgba(255, 255, 255, 0.1)',
+                            drawBorder: false
                         },
                         ticks: {
-                            color: 'white'
+                            color: 'white',
+                            font: {
+                                size: 11
+                            }
                         }
                     },
                     x: {
                         grid: {
-                            color: 'rgba(255, 255, 255, 0.1)'
+                            color: 'rgba(255, 255, 255, 0.1)',
+                            drawBorder: false
                         },
                         ticks: {
-                            color: 'white'
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        labels: {
-                            color: 'white'
+                            color: 'white',
+                            font: {
+                                size: 11
+                            }
                         }
                     }
                 }
@@ -647,18 +530,17 @@ H   H`;
         });
     }
 
-    // Flow Chart Detection
+    // Flow Chart
     detectProcessFlow(content) {
-        return content.includes('process') || 
-               content.includes('flow') || 
-               content.includes('steps') ||
-               content.match(/\d+\.\s+[A-Z]/i);
+        return (content.includes('step') && content.includes('process')) ||
+               content.includes('flowchart') ||
+               content.match(/step\s+\d+/i);
     }
 
     createFlowChart(content) {
-        const vizId = 'flow-viz-' + Date.now();
+        const vizId = 'flow-' + Date.now();
         
-        let html = `
+        return `
         <div class="visualizer-container">
             <div class="visualizer-header">
                 <div class="visualizer-title">
@@ -666,193 +548,204 @@ H   H`;
                     Process Flow
                 </div>
                 <div class="visualizer-actions">
-                    <button class="viz-btn" onclick="window.ventoraVisualizer.copyFlowChart('${vizId}')">
+                    <button class="viz-btn" onclick="window.ventoraVisualizer.copyText('${vizId}')">
                         <i class="fas fa-copy"></i> Copy
                     </button>
-                    <button class="viz-btn primary" onclick="window.ventoraVisualizer.exportFlowToPDF('${vizId}')">
+                    <button class="viz-btn primary" onclick="window.ventoraVisualizer.exportToPDF('${vizId}', 'flow')">
                         <i class="fas fa-file-pdf"></i> Export PDF
                     </button>
                 </div>
             </div>
-            
-            <div class="flow-chart" id="${vizId}">
-                <div class="mermaid">
-                    graph TD
-                    A[Start] --> B[Process 1]
-                    B --> C{Decision}
-                    C -->|Yes| D[Process 2]
-                    C -->|No| E[Process 3]
-                    D --> F[End]
-                    E --> F
+            <div id="${vizId}">
+                <div class="flow-chart">
+                    <div class="mermaid">
+                        graph TD
+                        A[Start] --> B[Step 1]
+                        B --> C[Decision]
+                        C -->|Yes| D[Step 2]
+                        C -->|No| E[Alternative]
+                        D --> F[Complete]
+                        E --> F
+                    </div>
                 </div>
             </div>
-        </div>
-        `;
-        
-        // Initialize mermaid
-        setTimeout(() => {
-            if (typeof mermaid !== 'undefined') {
-                mermaid.init(undefined, document.querySelector(`#${vizId} .mermaid`));
-            }
-        }, 200);
-        
-        return html;
+        </div>`;
     }
 
-    // Export Functions
+    // ========== FIXED COPY FUNCTIONS ==========
+    
     async copyTable(tableId) {
-        const table = document.getElementById(tableId);
-        if (!table) return;
-        
-        const range = document.createRange();
-        range.selectNode(table);
-        window.getSelection().removeAllRanges();
-        window.getSelection().addRange(range);
-        
         try {
-            await navigator.clipboard.writeText(table.innerText);
+            const table = document.getElementById(tableId);
+            if (!table) {
+                this.showToast('Table not found');
+                return;
+            }
+            
+            // Extract table data
+            const rows = table.querySelectorAll('tr');
+            let text = '';
+            
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('th, td');
+                const rowText = Array.from(cells).map(cell => cell.textContent.trim()).join('\t');
+                text += rowText + '\n';
+            });
+            
+            await navigator.clipboard.writeText(text);
             this.showToast('Table copied to clipboard!');
         } catch (err) {
-            console.error('Failed to copy:', err);
+            console.error('Copy failed:', err);
+            this.showToast('Failed to copy table');
         }
-        
-        window.getSelection().removeAllRanges();
     }
 
-    async exportTableToPDF(tableId) {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        const table = document.getElementById(tableId);
-        
-        // Create a simple PDF table
-        const headers = [];
-        const rows = [];
-        
-        // Extract table data
-        const ths = table.querySelectorAll('th');
-        ths.forEach(th => headers.push(th.textContent));
-        
-        const trs = table.querySelectorAll('tbody tr');
-        trs.forEach(tr => {
-            const row = [];
-            tr.querySelectorAll('td').forEach(td => row.push(td.textContent));
-            rows.push(row);
-        });
-        
-        // Generate PDF (simplified version)
-        doc.text('Ventora AI - Table Export', 10, 10);
-        doc.text(new Date().toLocaleDateString(), 10, 20);
-        
-        let y = 40;
-        doc.text(headers.join(' | '), 10, y);
-        y += 10;
-        
-        rows.forEach(row => {
-            doc.text(row.join(' | '), 10, y);
-            y += 10;
-        });
-        
-        doc.save(`ventora-table-${Date.now()}.pdf`);
-        this.showToast('Table exported as PDF!');
+    async copyText(elementId) {
+        try {
+            const element = document.getElementById(elementId);
+            if (!element) {
+                this.showToast('Element not found');
+                return;
+            }
+            
+            // Get all text content
+            let text = '';
+            
+            // Handle different types of content
+            if (element.querySelector('table')) {
+                // For tables
+                const table = element.querySelector('table');
+                const rows = table.querySelectorAll('tr');
+                rows.forEach(row => {
+                    const cells = row.querySelectorAll('th, td');
+                    text += Array.from(cells).map(cell => cell.textContent.trim()).join('\t') + '\n';
+                });
+            } else if (element.querySelector('.diet-card')) {
+                // For diet plans
+                const cards = element.querySelectorAll('.diet-card');
+                cards.forEach(card => {
+                    const time = card.querySelector('.meal-time').textContent;
+                    const calories = card.querySelector('.meal-calories').textContent;
+                    text += `${time} (${calories}):\n`;
+                    
+                    const items = card.querySelectorAll('.diet-item');
+                    items.forEach(item => {
+                        const name = item.querySelector('.item-name').textContent;
+                        const macros = item.querySelector('.item-macros').textContent;
+                        text += `  • ${name} ${macros}\n`;
+                    });
+                    text += '\n';
+                });
+            } else {
+                // For other content
+                text = element.innerText || element.textContent;
+            }
+            
+            await navigator.clipboard.writeText(text.trim());
+            this.showToast('Copied to clipboard!');
+        } catch (err) {
+            console.error('Copy failed:', err);
+            this.showToast('Failed to copy');
+        }
     }
 
-    copyDietPlan(vizId) {
-        const container = document.getElementById(vizId);
-        if (!container) return;
-        
-        // Extract text from diet plan
-        let text = "Ventora AI - Diet Plan\n\n";
-        
-        const mealCards = container.parentElement.querySelectorAll('.diet-card');
-        mealCards.forEach(card => {
-            const time = card.querySelector('.meal-time').textContent;
-            const calories = card.querySelector('.meal-calories').textContent;
-            text += `${time} (${calories}):\n`;
+    // ========== FIXED PDF EXPORT ==========
+    
+    async exportToPDF(elementId, type) {
+        try {
+            const { jsPDF } = window.jspdf;
             
-            const items = card.querySelectorAll('.diet-item');
-            items.forEach(item => {
-                const name = item.querySelector('.item-name').textContent;
-                const macros = item.querySelector('.item-macros').textContent;
-                text += `  • ${name} [${macros}]\n`;
-            });
-            text += '\n';
-        });
-        
-        navigator.clipboard.writeText(text)
-            .then(() => this.showToast('Diet plan copied!'))
-            .catch(err => console.error('Copy failed:', err));
-    }
-
-    exportDietToPDF(vizId) {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        
-        doc.text('Ventora AI - Diet Plan', 10, 10);
-        doc.text('Generated: ' + new Date().toLocaleDateString(), 10, 20);
-        
-        // Add nutrition summary
-        const nutritionItems = document.querySelectorAll('.nutrition-item');
-        let y = 40;
-        
-        nutritionItems.forEach(item => {
-            const value = item.querySelector('.nutrition-value').textContent;
-            const label = item.querySelector('.nutrition-label').textContent;
-            doc.text(`${label}: ${value}`, 10, y);
-            y += 10;
-        });
-        
-        y += 10;
-        
-        // Add meal details
-        const mealCards = document.querySelectorAll('.diet-card');
-        mealCards.forEach(card => {
-            const time = card.querySelector('.meal-time').textContent;
-            const calories = card.querySelector('.meal-calories').textContent;
+            if (!jsPDF || typeof html2canvas === 'undefined') {
+                this.showToast('PDF libraries not loaded');
+                return;
+            }
             
-            doc.setFont('helvetica', 'bold');
-            doc.text(`${time} - ${calories}`, 10, y);
-            doc.setFont('helvetica', 'normal');
-            y += 10;
+            const element = document.getElementById(elementId);
+            if (!element) {
+                this.showToast('Element not found');
+                return;
+            }
             
-            const items = card.querySelectorAll('.diet-item');
-            items.forEach(item => {
-                const name = item.querySelector('.item-name').textContent;
-                const macros = item.querySelector('.item-macros').textContent;
-                doc.text(`  • ${name} (${macros})`, 15, y);
-                y += 10;
+            // Create canvas from element
+            const canvas = await html2canvas(element, {
+                scale: 2,
+                backgroundColor: '#0a0a0a',
+                useCORS: true,
+                logging: false,
+                allowTaint: true
             });
             
-            y += 5;
-        });
-        
-        doc.save(`ventora-diet-${Date.now()}.pdf`);
-        this.showToast('Diet plan exported as PDF!');
+            // Create PDF
+            const pdf = new jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: 'a4'
+            });
+            
+            // Calculate dimensions
+            const imgWidth = 180;
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            
+            // Add image to PDF
+            const imgData = canvas.toDataURL('image/png');
+            pdf.addImage(imgData, 'PNG', 15, 15, imgWidth, imgHeight);
+            
+            // Add header
+            pdf.setFontSize(16);
+            pdf.setTextColor(0, 122, 255);
+            pdf.text(`Ventora AI - ${this.capitalize(type)} Export`, 105, 10, { align: 'center' });
+            
+            // Add footer
+            pdf.setFontSize(10);
+            pdf.setTextColor(100, 100, 100);
+            pdf.text(`Generated on ${new Date().toLocaleDateString()}`, 105, 290, { align: 'center' });
+            
+            // Save PDF
+            pdf.save(`ventora-${type}-${Date.now()}.pdf`);
+            this.showToast('PDF exported successfully!');
+            
+        } catch (err) {
+            console.error('PDF export failed:', err);
+            this.showToast('Failed to export PDF');
+        }
     }
 
-    // Utility Functions
+    // ========== UTILITY FUNCTIONS ==========
+    
     escapeHTML(text) {
+        if (!text) return '';
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
     }
 
+    capitalize(str) {
+        return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
     showToast(message) {
-        // Create toast if it doesn't exist
-        let toast = document.querySelector('.viz-toast');
-        if (!toast) {
-            toast = document.createElement('div');
-            toast.className = 'viz-toast';
-            document.body.appendChild(toast);
-        }
+        // Remove existing toast
+        const existing = document.querySelector('.viz-toast');
+        if (existing) existing.remove();
         
+        // Create new toast
+        const toast = document.createElement('div');
+        toast.className = 'viz-toast';
         toast.textContent = message;
-        toast.classList.add('show');
+        document.body.appendChild(toast);
         
+        // Show toast
+        setTimeout(() => toast.classList.add('show'), 10);
+        
+        // Remove toast after 3 seconds
         setTimeout(() => {
             toast.classList.remove('show');
+            setTimeout(() => {
+                if (toast.parentNode) toast.parentNode.removeChild(toast);
+            }, 300);
         }, 3000);
     }
 }
 
-// Initialize global instance
+// Initialize
 window.ventoraVisualizer = new VentoraVisualizer();
