@@ -1,4 +1,4 @@
-async function typeText(element, html, speed = 80) {
+async function typeText(element, html, speed = 120) {
     element.innerHTML = ""; // Clear existing
     
     // Create a temporary div to parse the HTML string into nodes
