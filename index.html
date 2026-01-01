@@ -2259,27 +2259,7 @@ await typeText(aiTextEl, formatted, 25);
                 conversation.updatedAt = new Date().toISOString();
                 saveConversations();
                 renderConversationsList();
-                scrollToBottom();
-
-// === NEW: Add visualization detection (AFTER message is displayed) ===
-// Create visualization if applicable
-const visualization = await window.ventoraVisualizer.visualizeContent(rawText);
-
-if (visualization) {
-    // Insert visualization after the AI message
-    const vizDiv = document.createElement('div');
-    vizDiv.innerHTML = visualization;
-    
-    // Find the last message wrapper
-    const lastMsgWrapper = chatContainer.lastElementChild;
-    if (lastMsgWrapper && lastMsgWrapper.classList.contains('ai-wrapper')) {
-        chatContainer.insertBefore(vizDiv, lastMsgWrapper.nextSibling);
-    } else {
-        chatContainer.appendChild(vizDiv);
-    }
-    scrollToBottom();
-}
-                
+                scrollToBottom();                
                 
             } catch (err) {
                 console.error('API Error:', err);
@@ -2368,7 +2348,30 @@ if (visualization) {
        // }
 
 
+// In handleSend function, after the AI response is processed:
 
+// Generate unique message ID
+const messageId = 'msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+
+// Add message ID to the loading message for reference
+loadingMsg.dataset.messageId = messageId;
+
+// Check if content can be visualized and add trigger buttons
+const vizTriggers = window.ventoraVisualizer.createVisualizationTriggers(rawText, messageId);
+if (vizTriggers) {
+    // Store the raw text with the message for later visualization
+    loadingMsg.dataset.vizContent = rawText;
+    
+    // Add triggers to the message (we'll insert them when the message is complete)
+    setTimeout(() => {
+        const messageDiv = document.querySelector(`[data-message-id="${messageId}"]`);
+        if (messageDiv) {
+            const toolbar = document.createElement('div');
+            toolbar.innerHTML = vizTriggers;
+            messageDiv.appendChild(toolbar);
+        }
+    }, 100);
+}
         
 
         function copyCode(id) {
@@ -2432,15 +2435,24 @@ function copyUserMessage(btn) {
             scrollBtn.style.display = diff > 100 ? 'flex' : 'none';
         };
 
+
+
+
+        
         function appendMessage(text, type) {
             const wrapper = document.createElement('div');
             wrapper.className = `msg-wrapper ${type}-wrapper`;
+
+             const messageId = 'msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+    wrapper.dataset.messageId = messageId;
+            
             const msg = document.createElement('div');
             msg.className = `msg ${type}`;
 
             if (type === 'ai') {
                 if (text.includes('typing-dots')) {
                     msg.innerHTML = text;
+                     msg.dataset.messageId = messageId;
                 } else {
                     const formatted = formatAIResponse(text);
                     msg.innerHTML = formatted +
@@ -2449,6 +2461,8 @@ function copyUserMessage(btn) {
                             <div class="regenerate-btn" onclick="copyFullResponse(this)">Copy</div>
                             <div class="regenerate-btn" onclick="regenerate(this)">↻ Regenerate</div>
                         </div>`;
+                     msg.dataset.content = text;
+            msg.dataset.messageId = messageId;
                 }
             } else {
                 msg.innerHTML = `
@@ -2468,7 +2482,7 @@ function copyUserMessage(btn) {
             wrapper.appendChild(msg);
             chatContainer.appendChild(wrapper);
             scrollToBottom();
-            return msg;
+            return wrapper;
         }
 
         function regenerate(btn) {
