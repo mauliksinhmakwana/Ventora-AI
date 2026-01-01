@@ -2345,10 +2345,10 @@ await typeText(aiTextEl, formatted, 25);
         .trim();//.replace(/Copy.*Regenerate.*|\d{1,2}:\d{2}\s*(AM|PM)?/g, '').trim();
 
             navigator.clipboard.writeText(cleanText).then(() => {
-                btn.textContent = 'Copied ✓';
+                btn.textContent = '<i class="far fa-copy" style="font-size: 1rem;"></i>';
                 btn.style.opacity = '1';
                 setTimeout(() => {
-                    btn.textContent = 'Copy';
+                    btn.textContent = '<i class="far fa-copy" style="font-size: 1rem;"></i>';
                     btn.style.opacity = '0.7';
                 }, 2000);
             });
@@ -2366,10 +2366,10 @@ function copyUserMessage(btn) {
     
     if (cleanText) {
         navigator.clipboard.writeText(cleanText).then(() => {
-            btn.textContent = 'Copied ✓';
+            btn.textContent = '<i class="far fa-copy" style="font-size: 1rem;"></i>';
             btn.style.opacity = '1';
             setTimeout(() => {
-                btn.textContent = 'Copy';
+                btn.textContent = '<i class="far fa-copy" style="font-size: 1rem;"></i>';
                 btn.style.opacity = '0.7';
             }, 2000);
         });
@@ -2400,8 +2400,8 @@ function copyUserMessage(btn) {
                     const formatted = formatAIResponse(text);
                     msg.innerHTML = formatted +
                         `<div style="display: flex; gap: 16px; margin-top: 8px;">
-                            <div class="regenerate-btn" onclick="copyFullResponse(this)">Copy</div>
-                            <div class="regenerate-btn" onclick="regenerate(this)">↻ Regenerate</div>
+                            <div class="regenerate-btn" onclick="copyFullResponse(this)"><i class="far fa-copy" style="font-size: 1rem;"></i></div>
+                            <div class="regenerate-btn" onclick="regenerate(this)"><i class="fas fa-redo-alt" style="font-size: 1rem;"></i></div>
                         </div>`;
                 }
            /* FIND THIS BLOCK IN appendMessage AND UPDATE IT */
@@ -2415,7 +2415,7 @@ function copyUserMessage(btn) {
         opacity: 0.7;
         transition: opacity 0.2s;
         margin-top: 2px;
-    ">Copy</div>`;
+    "><i class="far fa-copy" style="font-size: 1rem;"></i></div>`;
 }
 
             wrapper.appendChild(msg);
