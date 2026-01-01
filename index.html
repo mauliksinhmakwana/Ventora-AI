@@ -1807,6 +1807,7 @@ if (hero) {
           //      appendMessage('Hello! I am Ventora AI. How can I assist you today?', 'ai');
             //    return;
            // }
+            //   ----------------------------------------------------------------------------------------------READ 1------------------------------------------------------
             
             messages.forEach(msg => {
                 if (msg.role === 'user') {
@@ -1818,23 +1819,12 @@ if (hero) {
                     const msgDiv = document.createElement('div');
                     msgDiv.className = 'msg ai';
                     msgDiv.innerHTML = formatted +
-                        //   ----------------------------------------------------------------------------------------------READ 1------------------------------------------------------
-/* REPLACE THE BUTTON SECTION IN index.html -> renderMessages WITH THIS: */
-
-`<div style="display: flex; gap: 16px; align-items: center; margin-top: 12px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px;">
-    <div class="regenerate-btn" onclick="copyFullResponse(this)" title="Copy Response">
-        <i class="far fa-copy"></i> <span style="font-size: 0.75rem; margin-left: 4px;">Copy</span>
-    </div>
-    <div class="voice-btn" onclick="toggleSpeech(this)" title="Read Aloud" style="cursor: pointer; font-size: 0.8rem; color: var(--accent-blue); opacity: 0.7; transition: opacity 0.2s;">
-        <i class="fas fa-volume-up"></i> <span style="font-size: 0.75rem; margin-left: 4px;">Read</span>
-    </div>
-    <div class="regenerate-btn" onclick="regenerate(this)" title="Regenerate Response">
-        <i class="fas fa-sync-alt"></i> <span style="font-size: 0.75rem; margin-left: 4px;">Regenerate</span>
-    </div>
-</div>`
-                        ;
-
-                    
+                        
+`<div style="display: flex; gap: 16px; align-items: center; margin-top: 8px;">
+    <div class="regenerate-btn" onclick="copyFullResponse(this)"><i class="far fa-copy" style="font-size: 1rem;"></i></div>
+    <div class="voice-btn" onclick="toggleSpeech(this)"><i class="fas fa-volume-up" style="font-size: 1rem;"></i></div>
+    <div class="regenerate-btn" onclick="regenerate(this)"><i class="fas fa-redo-alt" style="font-size: 1rem;"></i></div>
+</div>`;                    
                     wrapper.appendChild(msgDiv);
                     chatContainer.appendChild(wrapper);
                 }
