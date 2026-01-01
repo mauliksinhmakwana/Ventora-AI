@@ -1792,6 +1792,10 @@ const AI_IDENTITY = {
                     conversationsList.insertBefore(item, dividers[1]);
                 }
             });
+
+            /* Add this as the last line inside your existing renderConversationsList() function */
+filterConversations(); 
+            
         }
 
         // NEW FUNCTION: Rename conversation
@@ -2603,7 +2607,22 @@ function copyUserMessage(btn) {
             }
         });*/
         
-       
+       function filterConversations() {
+    const searchTerm = document.getElementById('conversationSearch').value.toLowerCase();
+    const items = document.querySelectorAll('.conversation-item');
+
+    items.forEach(item => {
+        const title = item.querySelector('.conversation-title').textContent.toLowerCase();
+        
+        // If the title contains the search term, show it; otherwise, hide it
+        if (title.includes(searchTerm)) {
+            item.style.display = 'block';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+                                   }
+        
 
 // ONE UNIFIED CLICK HANDLER
 sendBtn.addEventListener('click', (e) => {
