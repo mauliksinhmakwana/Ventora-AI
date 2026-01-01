@@ -3052,7 +3052,7 @@ if (SpeechRecognition) {
     recognition.onerror = (event) => {
         console.error("Speech Recognition Error: ", event.error);
         micBtn.classList.remove('active');
-        showToast("Speech error: " + event.error, "error");
+        showToast(""+ event.error, "error");
     };
 } else {
     micBtn.style.display = 'none';
