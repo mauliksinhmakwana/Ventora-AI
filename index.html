@@ -1915,6 +1915,10 @@ if (hero) {
                 '<div class="typing-dots"><span></span><span></span><span></span></div>', 'ai'
             );
 
+// Store the loading message ID for later
+const loadingMsgId = 'loading-' + Date.now();
+loadingMsg.dataset.messageId = loadingMsgId;
+            
             // Save conversation
             conversation.updatedAt = new Date().toISOString();
             saveConversations();
@@ -2482,7 +2486,7 @@ function copyUserMessage(btn) {
             wrapper.appendChild(msg);
             chatContainer.appendChild(wrapper);
             scrollToBottom();
-            return wrapper;
+            return msg;
         }
 
         function regenerate(btn) {
