@@ -2260,6 +2260,26 @@ await typeText(aiTextEl, formatted, 25);
                 saveConversations();
                 renderConversationsList();
                 scrollToBottom();
+
+// === NEW: Add visualization detection (AFTER message is displayed) ===
+// Create visualization if applicable
+const visualization = await window.ventoraVisualizer.visualizeContent(rawText);
+
+if (visualization) {
+    // Insert visualization after the AI message
+    const vizDiv = document.createElement('div');
+    vizDiv.innerHTML = visualization;
+    
+    // Find the last message wrapper
+    const lastMsgWrapper = chatContainer.lastElementChild;
+    if (lastMsgWrapper && lastMsgWrapper.classList.contains('ai-wrapper')) {
+        chatContainer.insertBefore(vizDiv, lastMsgWrapper.nextSibling);
+    } else {
+        chatContainer.appendChild(vizDiv);
+    }
+    scrollToBottom();
+}
+                
                 
             } catch (err) {
                 console.error('API Error:', err);
