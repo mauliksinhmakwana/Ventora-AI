@@ -783,4 +783,76 @@ H   H`;
             .catch(err => console.error('Copy failed:', err));
     }
 
-    exportDietTo
+    exportDietToPDF(vizId) {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        doc.text('Ventora AI - Diet Plan', 10, 10);
+        doc.text('Generated: ' + new Date().toLocaleDateString(), 10, 20);
+        
+        // Add nutrition summary
+        const nutritionItems = document.querySelectorAll('.nutrition-item');
+        let y = 40;
+        
+        nutritionItems.forEach(item => {
+            const value = item.querySelector('.nutrition-value').textContent;
+            const label = item.querySelector('.nutrition-label').textContent;
+            doc.text(`${label}: ${value}`, 10, y);
+            y += 10;
+        });
+        
+        y += 10;
+        
+        // Add meal details
+        const mealCards = document.querySelectorAll('.diet-card');
+        mealCards.forEach(card => {
+            const time = card.querySelector('.meal-time').textContent;
+            const calories = card.querySelector('.meal-calories').textContent;
+            
+            doc.setFont('helvetica', 'bold');
+            doc.text(`${time} - ${calories}`, 10, y);
+            doc.setFont('helvetica', 'normal');
+            y += 10;
+            
+            const items = card.querySelectorAll('.diet-item');
+            items.forEach(item => {
+                const name = item.querySelector('.item-name').textContent;
+                const macros = item.querySelector('.item-macros').textContent;
+                doc.text(`  • ${name} (${macros})`, 15, y);
+                y += 10;
+            });
+            
+            y += 5;
+        });
+        
+        doc.save(`ventora-diet-${Date.now()}.pdf`);
+        this.showToast('Diet plan exported as PDF!');
+    }
+
+    // Utility Functions
+    escapeHTML(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    showToast(message) {
+        // Create toast if it doesn't exist
+        let toast = document.querySelector('.viz-toast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.className = 'viz-toast';
+            document.body.appendChild(toast);
+        }
+        
+        toast.textContent = message;
+        toast.classList.add('show');
+        
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3000);
+    }
+}
+
+// Initialize global instance
+window.ventoraVisualizer = new VentoraVisualizer();
