@@ -933,44 +933,36 @@
             }
         }
         
-/* --- Clean Breathing Mic Animation --- */
+/* --- Final Clean Mic Button CSS --- */
 
-/* Normal state with gray hover to match other buttons */
+/* 1. Normal State (White Icon) */
 #mic-btn {
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
+    background: transparent;
     border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
+/* 2. Standard Hover (Light Gray - NO RED, NO BREATHING) */
 #mic-btn:hover {
-    background: rgba(255, 255, 255, 0.1); /* Light gray hover */
+    background: rgba(255, 255, 255, 0.1) !important;
+    transform: scale(1.05); /* Very slight grow, no animation */
 }
 
-/* Active "Breathing" state */
+/* 3. Active State (Only when recording) */
 #mic-btn.active {
-    background: rgba(255, 71, 87, 0.2) !important;
+    background: rgba(255, 71, 87, 0.15) !important; /* Soft red bg */
     animation: simpleBreathing 1.5s infinite ease-in-out;
 }
 
 #mic-btn.active i {
-    color: #ff4757 !important; /* Simple red icon, no glow */
+    color: #ff4757 !important; /* Red icon only when active */
 }
 
-/* Simple Breathing: Only scale changes, no box-shadow/glow */
+/* Simple Breathing Animation */
 @keyframes simpleBreathing {
-    0% {
-        transform: scale(1);
-    }
-    50% {
-        transform: scale(1.2);
-    }
-    100% {
-        transform: scale(1);
-    }
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
 }
-        
         
     </style>
     <!-- Font Awesome for icons -->
