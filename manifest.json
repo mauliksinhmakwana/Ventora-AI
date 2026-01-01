@@ -1,7 +1,7 @@
 {
   "name": "Ventora AI",
   "short_name": "Ventora",
-  "description": "Your Intelligent Personal Assistant",
+  "description": "Medical Information Assistant",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#000000",
