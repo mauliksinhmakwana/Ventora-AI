@@ -1831,28 +1831,36 @@ if (hero) {
             messages.forEach(msg => {
                 if (msg.role === 'user') {
                     appendMessage(msg.content, 'user');
-                } else if (msg.role === 'assistant') {
-                    const formatted = formatAIResponse(msg.content);
-                    const wrapper = document.createElement('div');
-                    wrapper.className = 'msg-wrapper ai-wrapper';
-                    const msgDiv = document.createElement('div');
-                    msgDiv.className = 'msg ai';
-                    msgDiv.innerHTML = formatted +
-                        `<div class="timestamp">${formatTime(msg.timestamp)}</div>` +
+               /* UPDATE THE ASSISTANT BLOCK IN YOUR renderMessages FUNCTION: */
 
-                        
-                        //   ----------------------------------------------------------------------------------------------READ 1------------------------------------------------------
-`<div style="display: flex; gap: 16px; align-items: center; margin-top: 8px;">
-    <div class="regenerate-btn" onclick="copyFullResponse(this)">Copy</div>
-    <div class="voice-btn" onclick="toggleSpeech(this)">Read</div>
-    <div class="regenerate-btn" onclick="regenerate(this)">↻ Regenerate</div>
-</div>`
-                        ;
+} else if (msg.role === 'assistant') {
+    // 1. Get the standard markdown-formatted text
+    let displayContent = formatAIResponse(msg.content);
 
-                    
-                    wrapper.appendChild(msgDiv);
-                    chatContainer.appendChild(wrapper);
-                }
+    // 2. Call the visualizer using the current index 'i' to ensure persistent IDs
+    const finalHTML = await window.ventoraVisualizer.visualizeContent(
+        displayContent, 
+        currentConversationId, 
+        i // 'i' is the loop index representing the message number
+    );
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'msg-wrapper ai-wrapper';
+    const msgDiv = document.createElement('div');
+    msgDiv.className = 'msg ai';
+    
+    // Use the combined content (Text + Visualization)
+    msgDiv.innerHTML = (finalHTML || displayContent) + 
+        `<div class="timestamp">${formatTime(msg.timestamp)}</div>` +
+        `<div style="display: flex; gap: 16px; align-items: center; margin-top: 8px;">
+            <div class="regenerate-btn" onclick="copyFullResponse(this)">Copy</div>
+            <div class="voice-btn" onclick="toggleSpeech(this)">Read</div>
+            <div class="regenerate-btn" onclick="regenerate(this)">↻ Regenerate</div>
+        </div>`;
+
+    wrapper.appendChild(msgDiv);
+    chatContainer.appendChild(wrapper);
+}
             });
             
             scrollToBottom();
