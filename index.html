@@ -1818,9 +1818,6 @@ if (hero) {
                     const msgDiv = document.createElement('div');
                     msgDiv.className = 'msg ai';
                     msgDiv.innerHTML = formatted +
-                        `<div class="timestamp">${formatTime(msg.timestamp)}</div>` +
-
-                        
                         //   ----------------------------------------------------------------------------------------------READ 1------------------------------------------------------
 `<div style="display: flex; gap: 16px; align-items: center; margin-top: 8px;">
     <div class="regenerate-btn" onclick="copyFullResponse(this)">Copy</div>
@@ -2403,7 +2400,6 @@ function copyUserMessage(btn) {
                 } else {
                     const formatted = formatAIResponse(text);
                     msg.innerHTML = formatted +
-                        `<div class="timestamp">${getTime()}</div>` +
                         `<div style="display: flex; gap: 16px; margin-top: 8px;">
                             <div class="regenerate-btn" onclick="copyFullResponse(this)">Copy</div>
                             <div class="regenerate-btn" onclick="regenerate(this)">↻ Regenerate</div>
@@ -2413,7 +2409,6 @@ function copyUserMessage(btn) {
 } else {
     msg.innerHTML = `
     <div class="user-text" style="margin-bottom: 4px;">${text}</div>
-    <div class="timestamp" style="font-size: 0.65rem;">${getTime()}</div>
     <div class="user-copy-btn" onclick="copyUserMessage(this)" style="
         font-size: 0.7rem;
         color: var(--accent-blue);
