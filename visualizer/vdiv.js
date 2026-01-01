@@ -1,8 +1,8 @@
-// Ventora Visualizer - Fixed Version (No Local Storage, ChatGPT Style)
+// Ventora Visualizer - With Local Storage Persistence
 class VentoraVisualizer {
     constructor() {
         this.isInitialized = false;
-        this.visualizations = new Map(); // Temporary in-memory storage (clears on refresh)
+        this.storageKey = 'ventora_visualizations';
     }
 
     init() {
@@ -11,7 +11,7 @@ class VentoraVisualizer {
         if (typeof mermaid !== 'undefined') {
             mermaid.initialize({
                 startOnLoad: false,
-                theme: 'neutral',
+                theme: 'dark',
                 securityLevel: 'loose'
             });
         }
@@ -19,41 +19,112 @@ class VentoraVisualizer {
         this.isInitialized = true;
     }
 
-    // Main function - called from index.html (NO CHANGES NEEDED IN INDEX)
-    async visualizeContent(content) {
+    // Generate unique ID for each conversation message
+    generateVizId(conversationId, messageIndex) {
+        return `viz-${conversationId}-${messageIndex}`;
+    }
+
+    // Save visualization to localStorage
+    saveVisualization(vizId, content, html) {
+        try {
+            const visualizations = this.getStoredVisualizations();
+            visualizations[vizId] = {
+                content: content,
+                html: html,
+                timestamp: Date.now()
+            };
+            localStorage.setItem(this.storageKey, JSON.stringify(visualizations));
+        } catch (e) {
+            console.error('Failed to save visualization:', e);
+        }
+    }
+
+    // Get stored visualizations
+    getStoredVisualizations() {
+        try {
+            const stored = localStorage.getItem(this.storageKey);
+            return stored ? JSON.parse(stored) : {};
+        } catch (e) {
+            console.error('Failed to load visualizations:', e);
+            return {};
+        }
+    }
+
+    // Get visualization for a specific message
+    getVisualization(vizId) {
+        const visualizations = this.getStoredVisualizations();
+        return visualizations[vizId];
+    }
+
+    // Remove old visualizations (keep only last 50)
+    cleanupOldVisualizations() {
+        try {
+            const visualizations = this.getStoredVisualizations();
+            const entries = Object.entries(visualizations);
+            
+            if (entries.length > 50) {
+                // Sort by timestamp and keep only 50 most recent
+                const sorted = entries.sort((a, b) => b[1].timestamp - a[1].timestamp);
+                const toKeep = sorted.slice(0, 50);
+                
+                const newVisualizations = {};
+                toKeep.forEach(([key, value]) => {
+                    newVisualizations[key] = value;
+                });
+                
+                localStorage.setItem(this.storageKey, JSON.stringify(newVisualizations));
+            }
+        } catch (e) {
+            console.error('Failed to cleanup visualizations:', e);
+        }
+    }
+
+    // Main function - called from index.html
+    async visualizeContent(content, conversationId, messageIndex) {
         this.init();
         
-        // Generate unique ID for this visualization
-        const vizId = 'viz-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+        const vizId = this.generateVizId(conversationId, messageIndex);
         
-        // Store temporarily (will be lost on refresh)
-        this.visualizations.set(vizId, {
-            content: content,
-            timestamp: Date.now()
-        });
+        // Check if we already have a visualization for this message
+        const existing = this.getVisualization(vizId);
+        if (existing && existing.html) {
+            return existing.html;
+        }
 
         // Check for table patterns
         if (this.detectTable(content)) {
             const tableHTML = this.createTableVisualization(content, vizId);
-            if (tableHTML) return tableHTML;
+            if (tableHTML) {
+                this.saveVisualization(vizId, content, tableHTML);
+                return tableHTML;
+            }
         }
         
         // Check for diet/nutrition patterns
         if (this.detectDietPlan(content)) {
             const dietHTML = this.createDietVisualization(content, vizId);
-            if (dietHTML) return dietHTML;
+            if (dietHTML) {
+                this.saveVisualization(vizId, content, dietHTML);
+                return dietHTML;
+            }
         }
         
         // Check for data patterns (charts)
         if (this.detectChartData(content)) {
             const chartHTML = this.createChartVisualization(content, vizId);
-            if (chartHTML) return chartHTML;
+            if (chartHTML) {
+                this.saveVisualization(vizId, content, chartHTML);
+                return chartHTML;
+            }
         }
         
         // Check for process flows
         if (this.detectProcessFlow(content)) {
             const flowHTML = this.createFlowChart(content, vizId);
-            if (flowHTML) return flowHTML;
+            if (flowHTML) {
+                this.saveVisualization(vizId, content, flowHTML);
+                return flowHTML;
+            }
         }
         
         return null;
@@ -76,7 +147,6 @@ class VentoraVisualizer {
             }
         }
         
-        // Need at least 2 pipe lines and 1 separator line for a real table
         return pipeCount >= 2 && dashLineCount >= 1;
     }
 
@@ -84,7 +154,6 @@ class VentoraVisualizer {
         const tableData = this.extractTableData(content);
         if (!tableData.headers || tableData.headers.length === 0) return '';
         
-        // Remove empty headers and clean data
         const cleanedHeaders = tableData.headers.filter(h => h.trim() && !/^[-:]+$/.test(h));
         const cleanedRows = tableData.rows.map(row => 
             row.filter(cell => cell.trim())
@@ -133,7 +202,6 @@ class VentoraVisualizer {
         const headers = [];
         const rows = [];
         
-        // Find markdown table structure
         let tableStart = -1;
         let tableEnd = -1;
         
@@ -147,12 +215,10 @@ class VentoraVisualizer {
         if (tableStart !== -1) {
             const tableLines = lines.slice(tableStart, tableEnd + 1);
             
-            // Parse headers (first non-separator line)
             const headerLine = tableLines[0];
             const headerParts = headerLine.split('|').map(p => p.trim()).filter(p => p);
             headers.push(...headerParts);
             
-            // Parse data rows (skip separator lines)
             for (let i = 1; i < tableLines.length; i++) {
                 if (!/^[\|\-\s:]+$/.test(tableLines[i])) {
                     const rowParts = tableLines[i].split('|').map(p => p.trim()).filter(p => p);
@@ -173,7 +239,7 @@ class VentoraVisualizer {
         const lower = content.toLowerCase();
         
         const matches = dietKeywords.filter(keyword => lower.includes(keyword));
-        return matches.length >= 3; // Need multiple keywords to avoid false positives
+        return matches.length >= 3;
     }
 
     createDietVisualization(content, vizId) {
@@ -254,7 +320,6 @@ class VentoraVisualizer {
             const trimmed = line.trim().toLowerCase();
             if (!trimmed) continue;
             
-            // Check for meal headers
             if (trimmed.includes('breakfast') || trimmed.includes('lunch') || 
                 trimmed.includes('dinner') || trimmed.includes('snack')) {
                 
@@ -269,7 +334,6 @@ class VentoraVisualizer {
                 };
             }
             
-            // Parse food items
             if (currentMeal && (trimmed.includes('-') || trimmed.includes(':'))) {
                 const item = this.parseFoodItem(trimmed);
                 if (item.name && item.calories > 0) {
@@ -295,11 +359,9 @@ class VentoraVisualizer {
             fat: 0
         };
         
-        // Extract name
         const nameMatch = text.match(/^([^:-]+)/);
         if (nameMatch) item.name = nameMatch[1].trim();
         
-        // Extract nutrition info
         const calMatch = text.match(/(\d+)\s*cal/);
         if (calMatch) item.calories = parseInt(calMatch[1]);
         
@@ -454,7 +516,6 @@ class VentoraVisualizer {
             
             let text = '';
             
-            // Extract text based on visualization type
             if (container.querySelector('table')) {
                 const table = container.querySelector('table');
                 const rows = table.querySelectorAll('tr');
@@ -504,48 +565,39 @@ class VentoraVisualizer {
                 return;
             }
             
-            // Temporarily hide buttons during capture
             const buttons = container.querySelectorAll('.viz-btn');
             buttons.forEach(btn => btn.style.visibility = 'hidden');
             
-            // Create canvas
             const canvas = await html2canvas(container, {
                 scale: 2,
-                backgroundColor: '#ffffff',
+                backgroundColor: '#000000',
                 useCORS: true,
                 logging: false
             });
             
-            // Restore buttons
             buttons.forEach(btn => btn.style.visibility = 'visible');
             
-            // Create PDF
             const pdf = new jsPDF({
                 orientation: 'portrait',
                 unit: 'mm',
                 format: 'a4'
             });
             
-            // Calculate dimensions
             const imgWidth = 180;
             const imgHeight = (canvas.height * imgWidth) / canvas.width;
             
-            // Add image to PDF
             const imgData = canvas.toDataURL('image/png');
             pdf.addImage(imgData, 'PNG', 15, 20, imgWidth, imgHeight);
             
-            // Add title
             const title = container.querySelector('.visualizer-title').textContent;
             pdf.setFontSize(14);
-            pdf.setTextColor(0, 0, 0);
+            pdf.setTextColor(255, 255, 255);
             pdf.text(title, 105, 15, { align: 'center' });
             
-            // Add date
             pdf.setFontSize(10);
-            pdf.setTextColor(100, 100, 100);
+            pdf.setTextColor(150, 150, 150);
             pdf.text(`Generated: ${new Date().toLocaleDateString()}`, 105, 285, { align: 'center' });
             
-            // Save
             pdf.save(`ventora-visualization-${Date.now()}.pdf`);
             this.showToast('PDF exported successfully');
             
@@ -569,20 +621,16 @@ class VentoraVisualizer {
     }
 
     showToast(message) {
-        // Remove existing toast
         const existing = document.querySelector('.viz-toast');
         if (existing) existing.remove();
         
-        // Create new toast
         const toast = document.createElement('div');
         toast.className = 'viz-toast';
         toast.textContent = message;
         document.body.appendChild(toast);
         
-        // Show with animation
         setTimeout(() => toast.classList.add('show'), 10);
         
-        // Auto-remove after 3 seconds
         setTimeout(() => {
             toast.classList.remove('show');
             setTimeout(() => {
@@ -593,21 +641,14 @@ class VentoraVisualizer {
         }, 3000);
     }
 
-    // Clean up old visualizations (called periodically)
-    cleanup() {
-        const now = Date.now();
-        const hour = 60 * 60 * 1000;
-        
-        for (let [id, data] of this.visualizations) {
-            if (now - data.timestamp > hour) {
-                this.visualizations.delete(id);
-            }
-        }
+    // Clear all visualizations (optional)
+    clearAllVisualizations() {
+        localStorage.removeItem(this.storageKey);
     }
 }
 
 // Initialize global instance
 window.ventoraVisualizer = new VentoraVisualizer();
 
-// Auto-cleanup every 5 minutes
-setInterval(() => window.ventoraVisualizer.cleanup(), 5 * 60 * 1000);
+// Auto-cleanup old visualizations
+setInterval(() => window.ventoraVisualizer.cleanupOldVisualizations(), 5 * 60 * 1000);
