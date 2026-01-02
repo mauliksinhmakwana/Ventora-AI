@@ -356,23 +356,28 @@
         /* --- HEADER --- */
       
            header {
-    position: fixed; top: 0; width: 100%; z-index: 1000; height: 60px;
-    display: flex; align-items: center; justify-content: space-between;
+    position: fixed; 
+    top: 0; 
+    width: 100%; 
+    z-index: 1000; 
+    height: 60px;
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between;
     padding: 0 20px; 
     
+    /* semi-transparent background */
+    background: rgba(0, 0, 0, 0.4);
     
-    background: rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(40px) saturate(180%);
-    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    /* The blur effect */
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
     
-   
+    /* subtle border to define the glass edge */
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     
-   
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    
-   
-    transition: all 0.3s ease;
+    /* Optional: shadow for depth */
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
 }
 
         
