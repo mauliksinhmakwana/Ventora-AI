@@ -1619,35 +1619,6 @@ function setupEventListeners() {
 
 
 
-function toggleCustomDropdown() {
-    document.getElementById('customDropdownOptions').classList.toggle('active');
-}
-
-function selectModel(modelId, displayName) {
-    // 1. Update UI Text
-    document.getElementById('selectedModelText').textContent = displayName;
-    document.getElementById('customDropdownOptions').classList.remove('active');
-
-    // 2. Sync with your existing settings logic
-    if (!window.ventoraSettings) loadAllData();
-    window.ventoraSettings.model = modelId;
-    
-    localStorage.setItem('ventora_settings', JSON.stringify(window.ventoraSettings));
-    
-    if (window.settings) {
-        window.settings.model = modelId;
-    }
-    
-    showMenuToast(`Switched to ${displayName}`, 'success');
-}
-
-// Close dropdown if clicking outside
-window.addEventListener('click', function(e) {
-    if (!document.getElementById('customModelDropdown')?.contains(e.target)) {
-        document.getElementById('customDropdownOptions')?.classList.remove('active');
-    }
-});
-
 
 
 
@@ -1661,3 +1632,59 @@ window.closeMainMenuPopup = closeMainMenuPopup;
 window.openSection = openSection;
 window.selectExportOption = selectExportOption;
 window.clearAllMenuData = clearAllMenuData;
+
+
+// Toggle the custom dropdown list
+function toggleCustomDropdown() {
+    const options = document.getElementById('customDropdownOptions');
+    if (options) {
+        options.classList.toggle('active');
+    }
+}
+
+// Handle model selection and sync
+function selectModel(modelId, displayName) {
+    const textEl = document.getElementById('selectedModelText');
+    if (textEl) textEl.textContent = displayName;
+    
+    document.getElementById('customDropdownOptions').classList.remove('active');
+
+    // Sync with existing settings logic
+    if (!window.ventoraSettings) loadAllData();
+    window.ventoraSettings.model = modelId;
+    
+    localStorage.setItem('ventora_settings', JSON.stringify(window.ventoraSettings));
+    
+    // Sync with the main app object
+    if (window.settings) {
+        window.settings.model = modelId;
+    }
+    
+    showMenuToast(`Switched to ${displayName}`, 'success');
+}
+
+// Update the UI text whenever the sidebar opens
+const originalOpenMenu = window.openMenu;
+window.openMenu = function() {
+    if (originalOpenMenu) originalOpenMenu();
+    
+    // Sync text with saved setting
+    const saved = localStorage.getItem('ventora_settings');
+    if (saved) {
+        const modelId = JSON.parse(saved).model;
+        const textEl = document.getElementById('selectedModelText');
+        if (textEl) {
+            if (modelId === 'mia:general') textEl.textContent = 'MIA – General';
+            else if (modelId === 'mia:reasoning') textEl.textContent = 'MIA – Reasoning';
+            else if (modelId === 'mia:research') textEl.textContent = 'MIA – Research';
+        }
+    }
+};
+
+// Close if clicking outside the dropdown
+window.addEventListener('click', function(e) {
+    const dropdown = document.getElementById('customModelDropdown');
+    if (dropdown && !dropdown.contains(e.target)) {
+        document.getElementById('customDropdownOptions').classList.remove('active');
+    }
+});
