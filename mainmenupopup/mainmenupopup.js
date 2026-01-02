@@ -1633,58 +1633,37 @@ window.openSection = openSection;
 window.selectExportOption = selectExportOption;
 window.clearAllMenuData = clearAllMenuData;
 
-
-// Toggle the custom dropdown list
-function toggleCustomDropdown() {
-    const options = document.getElementById('customDropdownOptions');
-    if (options) {
-        options.classList.toggle('active');
+// Function to update sidebar dropdown when menu opens or settings change
+function syncSidebarModelUI() {
+    const sidebarSelect = document.getElementById('sidebarModelSelect');
+    const currentModel = window.ventoraSettings?.model || localStorage.getItem('ventora_settings') ? 
+                         JSON.parse(localStorage.getItem('ventora_settings')).model : 'mia:general';
+    
+    if (sidebarSelect) {
+        sidebarSelect.value = currentModel;
     }
 }
 
-// Handle model selection and sync
-function selectModel(modelId, displayName) {
-    const textEl = document.getElementById('selectedModelText');
-    if (textEl) textEl.textContent = displayName;
-    
-    document.getElementById('customDropdownOptions').classList.remove('active');
-
-    // Sync with existing settings logic
+// Function called when user changes model via the sidebar dropdown
+function syncModelFromSidebar(newModel) {
+    // 1. Update the global settings object
     if (!window.ventoraSettings) loadAllData();
-    window.ventoraSettings.model = modelId;
+    window.ventoraSettings.model = newModel;
     
+    // 2. Update LocalStorage for persistence
     localStorage.setItem('ventora_settings', JSON.stringify(window.ventoraSettings));
     
-    // Sync with the main app object
+    // 3. Sync with the main app settings object
     if (window.settings) {
-        window.settings.model = modelId;
+        window.settings.model = newModel;
     }
     
-    showMenuToast(`Switched to ${displayName}`, 'success');
+    showMenuToast(`Model switched to ${newModel.split(':')[1].toUpperCase()}`, 'success');
 }
 
-// Update the UI text whenever the sidebar opens
+// Initialize sync when the sidebar opens
 const originalOpenMenu = window.openMenu;
 window.openMenu = function() {
+    syncSidebarModelUI();
     if (originalOpenMenu) originalOpenMenu();
-    
-    // Sync text with saved setting
-    const saved = localStorage.getItem('ventora_settings');
-    if (saved) {
-        const modelId = JSON.parse(saved).model;
-        const textEl = document.getElementById('selectedModelText');
-        if (textEl) {
-            if (modelId === 'mia:general') textEl.textContent = 'MIA – General';
-            else if (modelId === 'mia:reasoning') textEl.textContent = 'MIA – Reasoning';
-            else if (modelId === 'mia:research') textEl.textContent = 'MIA – Research';
-        }
-    }
 };
-
-// Close if clicking outside the dropdown
-window.addEventListener('click', function(e) {
-    const dropdown = document.getElementById('customModelDropdown');
-    if (dropdown && !dropdown.contains(e.target)) {
-        document.getElementById('customDropdownOptions').classList.remove('active');
-    }
-});
