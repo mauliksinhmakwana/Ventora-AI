@@ -1624,3 +1624,38 @@ window.closeMainMenuPopup = closeMainMenuPopup;
 window.openSection = openSection;
 window.selectExportOption = selectExportOption;
 window.clearAllMenuData = clearAllMenuData;
+
+// Function to update sidebar dropdown when menu opens or settings change
+function syncSidebarModelUI() {
+    const sidebarSelect = document.getElementById('sidebarModelSelect');
+    const currentModel = window.ventoraSettings?.model || localStorage.getItem('ventora_settings') ? 
+                         JSON.parse(localStorage.getItem('ventora_settings')).model : 'mia:general';
+    
+    if (sidebarSelect) {
+        sidebarSelect.value = currentModel;
+    }
+}
+
+// Function called when user changes model via the sidebar dropdown
+function syncModelFromSidebar(newModel) {
+    // 1. Update the global settings object
+    if (!window.ventoraSettings) loadAllData();
+    window.ventoraSettings.model = newModel;
+    
+    // 2. Update LocalStorage for persistence
+    localStorage.setItem('ventora_settings', JSON.stringify(window.ventoraSettings));
+    
+    // 3. Sync with the main app settings object
+    if (window.settings) {
+        window.settings.model = newModel;
+    }
+    
+    showMenuToast(`Model switched to ${newModel.split(':')[1].toUpperCase()}`, 'success');
+}
+
+// Initialize sync when the sidebar opens
+const originalOpenMenu = window.openMenu;
+window.openMenu = function() {
+    syncSidebarModelUI();
+    if (originalOpenMenu) originalOpenMenu();
+};
