@@ -2118,11 +2118,30 @@ ${window.fileContext.text}
 }
 --> Do not include the file Attached file Contex Details in the conversation, use content only.
 
-### CUSTOM USER INSTRUCTIONS ###
-User Name: ${window.personalization.customInstructions}
+
+/* --- UPGRADED MEDICAL CONTEXT --- */
+
+### USER MEDICAL PROFILE ###
+- Name: ${window.personalization.userName || 'User'}
+- Data Depth: ${window.personalization.studyLevel || 'patient'}
+- Chronic Conditions: ${window.personalization.medicalConditions || 'None reported'}
+- Known Allergies: ${window.personalization.allergies || 'None reported'}
+- Blood Type: ${window.personalization.bloodType || 'Unknown'}
+
+### CUSTOM INSTRUCTIONS ###
+${window.personalization.customInstructions || 'No specific instructions provided.'}
 
 ${window.doseContext?.prescriptions && window.doseContext.prescriptions.length > 0
 ? `
+### CURRENT MEDICATIONS (FOR REFERENCE ONLY) ###
+Active Prescriptions:
+${window.doseContext.prescriptions.filter(p => p.status === 'active').map(p => `
+- ${p.medication}: ${p.dosage} (${p.frequency})
+`).join('')}
+`
+: ''
+}
+
 ### CURRENT MEDICATIONS (FOR REFERENCE ONLY) ###
 Corrent Active Prescriptions:
 ${window.doseContext.prescriptions.filter(p => p.status === 'active').map(p => `
