@@ -1058,7 +1058,29 @@ pointer-events: auto !important;
     pointer-events: none;
 }
 
+
         
+/* Minimalist Icon Buttons */
+.regenerate-btn, .voice-btn {
+    background: transparent !important; /* Removes the box */
+    border: none !important;
+    color: var(--text-secondary);
+    padding: 5px;
+    cursor: pointer;
+    transition: color 0.2s ease, transform 0.1s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.regenerate-btn:hover, .voice-btn:hover {
+    color: var(--text-primary);
+    transform: scale(1.1); /* Subtle pop instead of background change */
+}
+
+.regenerate-btn i, .voice-btn i {
+    font-size: 1rem; /* Adjust icon size */
+}
         
     </style>
     <!-- Font Awesome for icons -->
@@ -2473,24 +2495,28 @@ await typeText(aiTextEl, formatted, 25);
             setTimeout(() => { btn.textContent = 'COPY'; }, 2000);
         }*/
 
-        function copyFullResponse(btn) {
-            const msgElement = btn.closest('.msg');
-            const fullText = msgElement.innerText;
-            const cleanText = fullText
-            .replace(/(Copy|Copied ✓|Read|↻ Regenerate).*?(\n|$)/g, '')  // Remove button text
-        .replace(/\d{1,2}:\d{2}\s*(AM|PM)?/g, '')                     // Remove timestamp
-        .replace(/^\s*[\n\r]+|[\n\r]+\s*$/g, '')                      // Remove extra newlines
-        .trim();//.replace(/Copy.*Regenerate.*|\d{1,2}:\d{2}\s*(AM|PM)?/g, '').trim();
+       function copyFullResponse(btn) {
+    const msgElement = btn.closest('.msg');
+    
+    // Select only the AI response text to avoid copying button icons
+    const aiText = msgElement.querySelector('.ai-text').innerText;
 
-            navigator.clipboard.writeText(cleanText).then(() => {
-                btn.textContent = 'Copied ✓';
-                btn.style.opacity = '1';
-                setTimeout(() => {
-                    btn.textContent = 'Copy';
-                    btn.style.opacity = '0.7';
-                }, 2000);
-            });
-        }
+    navigator.clipboard.writeText(aiText).then(() => {
+        const icon = btn.querySelector('i');
+        
+        // Visual feedback: Change icon to checkmark and turn green
+        icon.className = 'fas fa-check'; 
+        btn.style.color = '#2ed573'; 
+        btn.style.opacity = '1';
+
+        setTimeout(() => {
+            // Revert back to the original copy icon and style
+            icon.className = 'fas fa-copy';
+            btn.style.color = '';
+            btn.style.opacity = '0.8';
+        }, 2000);
+    });
+}
 
 
 
