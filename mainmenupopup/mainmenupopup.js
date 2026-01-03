@@ -620,29 +620,39 @@ function selectExportOption(optionId) {
 
 // Save personalization
 function saveMenuPersonalization() {
+    // 1. Capture all values from the UI, including your new medical fields
     window.personalization = {
         userName: document.getElementById('menu-pers-name')?.value.trim() || '',
-        studyLevel: document.getElementById('menu-pers-level')?.value || '',
+        medicalConditions: document.getElementById('menu-pers-conditions')?.value.trim() || '',
+        allergies: document.getElementById('menu-pers-allergies')?.value.trim() || '',
+        bloodType: document.getElementById('menu-pers-blood')?.value || '',
+        studyLevel: document.getElementById('menu-pers-level')?.value || 'patient',
         major: document.getElementById('menu-pers-major')?.value.trim() || '',
         responseStyle: document.getElementById('menu-pers-style')?.value || 'balanced',
         customInstructions: document.getElementById('menu-pers-custom')?.value.trim() || ''
     };
     
+    // 2. Save the updated object to localStorage
     localStorage.setItem('ventora_personalization', JSON.stringify(window.personalization));
     
-    // Also update profile name if set
-    const name = document.getElementById('menu-pers-name')?.value.trim();
+    // 3. Sync the Profile Name to the main app's display
+    const name = window.personalization.userName;
     if (name) {
         localStorage.setItem('profile_name', name);
     }
     
-    // Sync with main app if exists
+    // 4. Trigger sync with the main app if the function exists
     if (window.syncSettingsWithMainApp) {
         window.syncSettingsWithMainApp();
     }
     
-    showMenuToast('Personalization saved!', 'success');
+    // 5. Show the success notification
+    showMenuToast('Saved!', 'success');
 }
+
+
+
+
 
 // Reset personalization
 function resetMenuPersonalization() {
