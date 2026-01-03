@@ -410,23 +410,23 @@
 
 
        /* Smooth transition for all main layout elements */
-main, header, .bottom-section {
+main, .bottom-section {
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* When the menu is active, shift everything to the right */
 body.menu-open main, 
-body.menu-open header, 
 body.menu-open .bottom-section {
-    transform: translateX(280px); /* Matches your menu width */
+    transform: translateX(150px);/* Matches your menu width */
+    width: calc(100% - 150px);
 }
 
 /* Fix for mobile: reduce shift or disable if it feels too cramped */
 @media (max-width: 768px) {
-    body.menu-open main, 
-    body.menu-open header, 
+    body.menu-open main,  
     body.menu-open .bottom-section {
-        transform: translateX(250px); /* Slightly less for mobile */
+        transform: translateX(130px); /* Slightly less for mobile */
+        width: calc(100% - 130px);
     }
 } 
 
