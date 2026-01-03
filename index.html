@@ -936,7 +936,29 @@ pointer-events: auto !important;
 
 
 
+.regenerate-btn, .voice-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-secondary);
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
 
+.regenerate-btn:hover, .voice-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    border-color: var(--accent-blue);
+}
+
+.regenerate-btn i, .voice-btn i {
+    font-size: 0.85rem;
+}
 
 
 
@@ -1988,13 +2010,13 @@ filterConversations();
                 new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 
                 getTime();
             
-            msgDiv.innerHTML = 
-                `<div class="ai-text">${formatted}</div>
-                 <div style="display: flex; gap: 16px; align-items: center; margin-top: 8px;">
-                     <div class="regenerate-btn" onclick="copyFullResponse(this)">Copy</div>
-                     <div class="voice-btn" onclick="toggleSpeech(this)">Read</div>
-                     <div class="regenerate-btn" onclick="regenerate(this)">↻ Regenerate</div>
-                 </div>`;
+           msgDiv.innerHTML = 
+    `<div class="ai-text">${formatted}</div>
+     <div style="display: flex; gap: 12px; align-items: center; margin-top: 10px;">
+         <button class="regenerate-btn" onclick="copyFullResponse(this)" title="Copy"><i class="fas fa-copy"></i></button>
+         <button class="voice-btn" onclick="toggleSpeech(this)" title="Read"><i class="fas fa-volume-up"></i></button>
+         <button class="regenerate-btn" onclick="regenerate(this)" title="Regenerate"><i class="fas fa-sync-alt"></i></button>
+     </div>`;
             
             wrapper.appendChild(msgDiv);
             chatContainer.appendChild(wrapper);
@@ -2296,10 +2318,10 @@ if (stopGenerating) {
 // Prepare the message UI
 loadingMsg.innerHTML = `
   <div class="ai-text" style="margin-bottom: 4px;"></div>
-  <div style="display: flex; gap: 16px; align-items: center;">
-      <div class="regenerate-btn" onclick="copyFullResponse(this)">Copy</div>
-      <div class="voice-btn" onclick="toggleSpeech(this)">Read</div>
-      <div class="regenerate-btn" onclick="regenerate(this)">↻ Regenerate</div>
+  <div style="display: flex; gap: 12px; align-items: center;">
+      <button class="regenerate-btn" onclick="copyFullResponse(this)" title="Copy"><i class="fas fa-copy"></i></button>
+      <button class="voice-btn" onclick="toggleSpeech(this)" title="Read"><i class="fas fa-volume-up"></i></button>
+      <button class="regenerate-btn" onclick="regenerate(this)" title="Regenerate"><i class="fas fa-sync-alt"></i></button>
   </div>`;
 
 const aiTextEl = loadingMsg.querySelector(".ai-text");
@@ -2514,7 +2536,8 @@ function copyUserMessage(btn) {
         });
     }
 }
-        
+
+
 
         
         function scrollToBottom() {
