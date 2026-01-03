@@ -362,22 +362,13 @@
     z-index: 1000; 
     height: 60px;
     display: flex; 
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 20px; 
-    
-    /* semi-transparent background */
+    align-items: center; 
+    justify-content: space-between; /* Keeps Share button on far right */
+    padding: 0 15px; 
     background: rgba(0, 0, 0, 0.4);
-    
-    /* The blur effect */
     backdrop-filter: blur(12px) saturate(180%);
     -webkit-backdrop-filter: blur(12px) saturate(180%);
-    
-    /* subtle border to define the glass edge */
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    
-    /* Optional: shadow for depth */
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
 }
 
         
@@ -407,6 +398,7 @@
 .logo-area {
     display: flex;
     align-items: center;
+    border-left: 1px solid rgba(255, 255, 255, 0.1); /* Subtle divider between button and logo */
     /* Ensure the logo doesn't touch the edges */
     padding-left: 5px;
 }
@@ -1266,23 +1258,18 @@
         </svg>
     </div>
 </button>
- <img src="headerlogo.png" alt="Ventora Logo" class="header-logo">
+ 
 
         
-        <div class="logo-area" style="display: flex; align-items: baseline; gap: 12px;">
-           
-            
-            <!--<div class="logo" style="font-size: 1.1rem; letter-spacing: 4px; color: var(--text-primary);">
-                VENTORA <!--<b style="color: var(--accent-blue);">AI</b>-->
-          <!--  </div>-->
-                    <img src="headerlogo.png" alt="Ventora Logo" class="header-logo">
-
-            
+       
+<div class="logo-area" style="display: flex; align-items: center; gap: 10px;">
+            <img src="headerlogo.png" alt="Ventora Logo" class="header-logo">
+    
             <div class="version-badge" style="opacity: 0.7; font-weight: 600;">
                 V5.4 MIA
             </div>
         </div>
-
+   
 
 
         
