@@ -182,8 +182,9 @@ function loadAllData() {
     if (!window.personalization) {
         window.personalization = JSON.parse(localStorage.getItem('ventora_personalization')) || {
             userName: '',
+            datadepth:'',
+            medicalConditions:'',
             allergies: '',
-            major:'',
             bloodType:'',
             responseStyle: 'balanced',
             customInstructions: ''
