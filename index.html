@@ -1059,29 +1059,32 @@ pointer-events: auto !important;
 }
 
 
-        
-/* Minimalist Icon Buttons */
+
+        /* Unified Minimalist Icon Buttons */
 .regenerate-btn, .voice-btn {
-    background: transparent !important; /* Removes the box */
+    background: transparent !important;
     border: none !important;
-    color: var(--text-secondary);
     padding: 5px;
     cursor: pointer;
-    transition: color 0.2s ease, transform 0.1s;
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    transition: all 0.2s ease;
+    
+    /* This forces all icons to start with the same gray color */
+    color: var(--text-secondary) !important; 
+    opacity: 0.8;
 }
 
 .regenerate-btn:hover, .voice-btn:hover {
-    color: var(--text-primary);
-    transform: scale(1.1); /* Subtle pop instead of background change */
+    color: var(--text-primary) !important;
+    opacity: 1;
+    transform: scale(1.1);
 }
 
 .regenerate-btn i, .voice-btn i {
-    font-size: 1rem; /* Adjust icon size */
+    font-size: 0.90rem;
 }
-        
     </style>
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
