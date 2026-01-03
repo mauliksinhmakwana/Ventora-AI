@@ -68,7 +68,7 @@
             border-right: 1px solid var(--border);
             z-index: 1002;
             transform: translateX(-100%);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             display: flex;
             flex-direction: column;
             box-shadow: none;
@@ -412,7 +412,7 @@
 
        /* Smooth transition for all main layout elements */
 main, .bottom-section {
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* When the menu is active, shift everything to the right */
@@ -3219,6 +3219,36 @@ if (SpeechRecognition) {
             }
         });
     }
+
+
+
+// Touch handling for mobile sliding
+let touchStartX = 0;
+let touchEndX = 0;
+
+const menuEl = document.getElementById('menuContainer');
+
+// Listen for finger touch start
+menuEl.addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+}, {passive: true});
+
+// Listen for finger move/end
+menuEl.addEventListener('touchend', (e) => {
+    touchEndX = e.changedTouches[0].screenX;
+    handleSwipe();
+}, {passive: true});
+
+function handleSwipe() {
+    // If user swipes left by more than 50 pixels, close the menu
+    if (touchStartX - touchEndX > 50) {
+        closeMenu();
+    }
+}
+
+
+
+
     
     // Close with Escape key
     document.addEventListener('keydown', function(e) {
