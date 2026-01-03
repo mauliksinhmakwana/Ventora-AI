@@ -409,7 +409,26 @@
 }
 
 
-        
+       /* Smooth transition for all main layout elements */
+main, header, .bottom-section {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* When the menu is active, shift everything to the right */
+body.menu-open main, 
+body.menu-open header, 
+body.menu-open .bottom-section {
+    transform: translateX(280px); /* Matches your menu width */
+}
+
+/* Fix for mobile: reduce shift or disable if it feels too cramped */
+@media (max-width: 768px) {
+    body.menu-open main, 
+    body.menu-open header, 
+    body.menu-open .bottom-section {
+        transform: translateX(250px); /* Slightly less for mobile */
+    }
+} 
 
      /* Sidebar Icon Container */
 .sidebar-icon-wrapper {
@@ -1726,11 +1745,13 @@ const AI_IDENTITY = {
         function openMenu() {
             menuOverlay.classList.add('active');
             menuContainer.classList.add('active');
+            document.body.classList.add('menu-open');
         }
 
         function closeMenu() {
             menuOverlay.classList.remove('active');
             menuContainer.classList.remove('active');
+            document.body.classList.remove('menu-open');
         }
 
         function openSettings() {
