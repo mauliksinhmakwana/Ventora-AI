@@ -474,7 +474,7 @@ function renderAboutSection(container) {
         
         <div class="form-group">
             <label class="form-label">Crafted with care by</label>
-            <div class="form-input" style="font-weight: 500;"><strong>Ventora Labs</strong> • © 2025
+            <div class="form-input" style="font-weight: 500;"><strong>Opsora Labs</strong> • © 2025
             </div>
         </div>
         
